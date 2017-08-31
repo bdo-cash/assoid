@@ -1,3 +1,11 @@
+target/
+project/project
+
+.DS_Store
+
+## 由ide自动生成，应该删掉。自定义的应该重新取个名字。 ##
+proguard-sbt.txt
+
 # Built application files
 *.apk
 *.ap_
