@@ -1,0 +1,2 @@
+# assoid
+Android assist library.
