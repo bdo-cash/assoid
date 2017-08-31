@@ -1,2 +1,2 @@
 # assoid
-Android assist library.
+Android assist library using Scala.
