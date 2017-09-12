@@ -1,10 +1,12 @@
 enablePlugins(AndroidLib)
 
-name := "assoid" // 意为android assists
+name := baseDirectory.value.getName // 意为android assists
 
 organization := "hobby.chenai.nakam"
 
-version := "0.0.1-SNAPSHOT" // 版本号
+version := "0.0.1-SNAPSHOT"
+
+scalaVersion := "2.11.7"
 
 // 等同于两句：targetSdkVersion, compileSdkVersion
 platformTarget in Android := "android-26"
@@ -12,8 +14,6 @@ platformTarget in Android := "android-26"
 buildToolsVersion in Android := Some("26.0.1")
 
 minSdkVersion in Android := "23"
-
-scalaVersion := "2.11.7"
 
 //lazy val root = (project in file(".")).dependsOn(project in file("../lang"))
 
