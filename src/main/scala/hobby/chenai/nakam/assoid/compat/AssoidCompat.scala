@@ -18,7 +18,6 @@ package hobby.chenai.nakam.assoid.compat
 
 import android.app.Activity
 import android.content.Context
-import hobby.chenai.nakam.lang.TypeBring
 
 /**
   * TypeBring for compat activity.
@@ -26,8 +25,9 @@ import hobby.chenai.nakam.lang.TypeBring
   * @author Chenai Nakam(chenai.nakam@gmail.com)
   * @version 1.0, 11/09/2017
   */
-trait AssoidCompat extends TypeBring[Nothing, AnyRef, AnyRef] {
-  require(isInstanceOf[Activity])
+// TypeBring 会引起其它问题，所以不要了，至少能编过。
+trait AssoidCompat /* extends TypeBring[Null, AnyRef, AnyRef] */ {
+  require(this.isInstanceOf[Activity], "本特质仅限用于 Activity。")
 
-  implicit lazy val context: Context = this
+  implicit lazy val context: Context = this.asInstanceOf[Activity]
 }
