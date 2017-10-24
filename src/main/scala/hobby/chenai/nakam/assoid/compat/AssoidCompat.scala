@@ -18,7 +18,7 @@ package hobby.chenai.nakam.assoid.compat
 
 import android.app.Activity
 import android.content.Context
-import hobby.chenai.nakam.basis.TAG._
+import hobby.chenai.nakam.basis.TAG.ThrowMsg
 
 /**
   * TypeBring for compat activity.
