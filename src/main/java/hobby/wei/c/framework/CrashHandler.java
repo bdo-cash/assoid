@@ -80,7 +80,7 @@ public class CrashHandler {
         @Override
         public void uncaughtException(Thread thread, Throwable e) {
             Class<?> clazz = e.getClass();
-            L.e(TAG, "拦截异常：%s，线程：%s", L.s(clazz.getName()), L.s(thread.getName()), e);
+            L.e(TAG, e, "拦截异常：%s，线程：%s", L.s(clazz.getName()), L.s(thread.getName()));
             if (sHandleOutOfMemoryError && clazz.equals(OutOfMemoryError.class)) {
                 makeDumpHprofData();
             } else if (sHandleNullPointerException && clazz.equals(NullPointerException.class)) {
