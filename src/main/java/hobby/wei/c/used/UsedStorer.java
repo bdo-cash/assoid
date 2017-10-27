@@ -17,71 +17,71 @@
 package hobby.wei.c.used;
 
 import hobby.wei.c.framework.AbsApp;
-import hobby.wei.c.persist.Keeper;
+import hobby.wei.c.persist.Storer;
 
 /**
  * @author 周伟 Wei Chou(weichou2010@gmail.com)
  */
-public class UsedKeeper {
-    public static class AppS extends Keeper.Wrapper {
-        public static Keeper ins() {
-            return get(AbsApp.get(), "AbsApp").multiProcess().ok();
+public class UsedStorer {
+    public static class absApp extends Storer.Wrapper {
+        public static Storer ins() {
+            return get(AbsApp.get(), "absapp").multiProcess().ok();
         }
 
-        public static Keeper getModule(int moduleId) {
-            return get(AbsApp.get(), "AbsApp_module_" + moduleId).multiProcess().ok();
+        public static Storer getModule(int moduleId) {
+            return get(AbsApp.get(), "absapp_module_" + moduleId).multiProcess().ok();
         }
 
         public static boolean getFirstLaunch(int moduleId) {
-            return getModule(moduleId).readBoolean("first_launch", true);
+            return getModule(moduleId).loadBoolean("first_launch", true);
         }
 
         public static void clearFirstLaunch(int moduleId) {
-            getModule(moduleId).keepBoolean("first_launch", false);
+            getModule(moduleId).storeBoolean("first_launch", false);
         }
     }
 
-    public static class DeviceS extends Keeper.Wrapper {
-        public static Keeper ins() {
-            return get(AbsApp.get(), "Device").multiProcess().ok();
+    public static class device extends Storer.Wrapper {
+        public static Storer ins() {
+            return get(AbsApp.get(), "device").multiProcess().ok();
         }
 
         public static String getUniqueId() {
-            return ins().readString("unique_id");
+            return ins().loadString("unique_id");
         }
 
         public static void saveUniqueId(String value) {
-            ins().keepString("unique_id", value);
+            ins().storeString("unique_id", value);
         }
     }
 
-    public static class UserHelperS extends Keeper.Wrapper {
-        public static Keeper ins() {
-            return get(AbsApp.get(), "UserHelper").multiProcess().ok();
+    public static class userHelper extends Storer.Wrapper {
+        public static Storer ins() {
+            return get(AbsApp.get(), "userhelper").multiProcess().ok();
         }
 
         public static void saveToken(String value) {
-            ins().keepString("token", value);
+            ins().storeString("token", value);
         }
 
         public static String getToken() {
-            return ins().readString("token");
+            return ins().loadString("token");
         }
 
         public static void saveAccountJson(String value) {
-            ins().keepString("account", value);
+            ins().storeString("account", value);
         }
 
         public static String getAccountJson() {
-            return ins().readString("account");
+            return ins().loadString("account");
         }
 
         public static void saveAuthorityFlag(boolean value) {
-            ins().keepBoolean("authority_flag", value);
+            ins().storeBoolean("authority_flag", value);
         }
 
         public static boolean getIsAuthorizeSuccess() {
-            return ins().readBoolean("authority_flag");
+            return ins().loadBoolean("authority_flag");
         }
     }
 }

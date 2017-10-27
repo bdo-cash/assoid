@@ -30,7 +30,7 @@ import java.util.WeakHashMap;
 
 import hobby.chenai.nakam.basis.TAG;
 import hobby.wei.c.L;
-import hobby.wei.c.used.UsedKeeper;
+import hobby.wei.c.used.UsedStorer;
 
 /**
  * @author 周伟 Wei Chou(weichou2010@gmail.com)
@@ -141,8 +141,8 @@ public abstract class AbsApp extends Application {
     }
 
     public boolean isFirstLaunch(int moduleId) {
-        final boolean firstLaunch = UsedKeeper.AppS.getFirstLaunch(moduleId);
-        if (firstLaunch) UsedKeeper.AppS.clearFirstLaunch(moduleId);
+        final boolean firstLaunch = UsedStorer.absApp.getFirstLaunch(moduleId);
+        if (firstLaunch) UsedStorer.absApp.clearFirstLaunch(moduleId);
         return firstLaunch;
     }
 
