@@ -61,9 +61,18 @@ object ModularStorer {
     }
   }
 
-  private case class Key[+K <: ModularStorer](userId: String, module: String, clear: Boolean, creator: Creator[K]) {
+  private case class Key[+K <: ModularStorer](userId: String, module: String, clear: Boolean, creator: Creator[K]) extends Equals {
     require(userId.nonEmpty)
     require(module.nonEmpty)
+
+    override def equals(any: scala.Any) = any match {
+      case that: Key[_] if that.canEqual(this) => that.userId == this.userId && that.module == this.module && that.clear == this.clear
+      case _ => false
+    }
+
+    override def canEqual(that: Any) = that.isInstanceOf[Key[_]]
+
+    override def hashCode = 41 * (userId.hashCode + (41 * (module.hashCode + (if (clear) 1 else 0))))
   }
 
   /**
