@@ -18,7 +18,7 @@ package hobby.wei.c.persist
 
 import java.util
 import java.util.Collections
-import hobby.chenai.nakam.tool.cache.{Delegate, LazyGet, Memoize}
+import hobby.chenai.nakam.tool.cache.{Delegate, LazyGet, Lru, Memoize}
 import hobby.wei.c.framework.AbsApp
 
 /**
@@ -36,7 +36,8 @@ object ModularStorer {
   private val STORER_META = STORER_NAME + "_meta"
   private val KEY_META = "meta"
 
-  private val sCache = new Memoize[Key[ModularStorer], ModularStorer] with LazyGet {
+  private val sCache = new Memoize[Key[ModularStorer], ModularStorer] with LazyGet with Lru {
+    override protected val maxCacheSize = 5 // 保留5个实例
     override protected val delegate = new Delegate[Key[ModularStorer], ModularStorer] {
       /**
         * 从数据库加载内容。
