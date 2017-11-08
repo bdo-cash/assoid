@@ -83,11 +83,11 @@ public abstract class AbsApp extends Application {
     /**
      * 获取一个全局的与UI线程相关联的Handler. 注意：不可在{@link AbsApp#onCreate()}前调用。
      */
-    public static Handler getMainHandler() {
-        return getHandler(get().getMainLooper());
+    public Handler getMainHandler() {
+        return getHandler(getMainLooper());
     }
 
-    public static Handler getHandler(Looper looper) {
+    public Handler getHandler(Looper looper) {
         if (looper == null) throw new RuntimeException("参数不能为空");
         Handler handler = sHandlerRefMap.get(looper);
         if (handler == null) {
