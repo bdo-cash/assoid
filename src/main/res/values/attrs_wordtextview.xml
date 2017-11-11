@@ -1,0 +1,5 @@
+<resources>
+    <declare-styleable name="WordsTextView">
+        <attr name="wordBgDrawableId" format="reference" />
+    </declare-styleable>
+</resources>
