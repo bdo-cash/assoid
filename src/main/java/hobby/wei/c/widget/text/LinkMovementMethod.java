@@ -223,7 +223,7 @@ public class LinkMovementMethod extends ScrollingMovementMethod {
             int line = layout.getLineForVertical(y);
             int off = layout.getOffsetForHorizontal(line, x);
             //获取触摸位置的超链接，如果有只会存在一个，因此后面使用了link[0]
-            LinkSpan[] link = buffer.getSpans(off, off, LinkSpan.class);
+            LinkSpan[] link = buffer.getSpans(off, off, LinkSpan.class);得修改为一个接口，后面可以用子类实现。Html.java内的CharacterStyle.class 已经确认可行性。
 
             if (link.length != 0) {    //在触摸位置存在一个超链接，但不一定是ACTION_DOWN事件时的超链接
 				/*

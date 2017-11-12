@@ -23,23 +23,38 @@ import android.graphics.Paint.FontMetrics;
 import android.graphics.Paint.FontMetricsInt;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.text.TextPaint;
 import android.text.style.DynamicDrawableSpan;
 import android.text.style.ImageSpan;
 
 import java.lang.ref.WeakReference;
 
+import hobby.wei.c.util.UIUtils;
+
 public class BackgroundImageSpan extends ImageSpan {
     private final Rect mPadding = new Rect();
+    private Context mContext;
     private int mWidth;
     private int mColor;
     private Paint mPaint;
 
     public BackgroundImageSpan(Context context, int drawableId) {
         super(context, drawableId);
+        mContext = context;
     }
 
     public void setColor(int color) {
         mColor = color;
+    }
+
+    @Override
+    public void updateDrawState(TextPaint ds) {
+        super.updateDrawState(ds);
+    }
+
+    @Override
+    public void updateMeasureState(TextPaint p) {
+        super.updateMeasureState(p);
     }
 
     /**
@@ -48,7 +63,12 @@ public class BackgroundImageSpan extends ImageSpan {
      */
     @Override
     public int getSize(Paint paint, CharSequence text, int start, int end, FontMetricsInt fm) {
-        mWidth = Math.round(paint.measureText(text, start, end));
+        int dp = Math.round(UIUtils.dip2pix(mContext, 1));
+        if (fm != null) {
+            fm.top = fm.ascent = fm.top - fm.bottom - dp * 20;
+            fm.bottom = fm.descent = 0;
+        }
+        mWidth = Math.round(paint.measureText(text, start, end) + dp *20);
         return mWidth;
     }
 
@@ -69,6 +89,15 @@ public class BackgroundImageSpan extends ImageSpan {
         }
         d.setBounds((int) x - mPadding.left, realTop - mPadding.top, (int) x + mWidth + mPadding.right, realBottom + mPadding.bottom);
         d.draw(canvas);
+
+        int transY = bottom - b.getBounds().bottom;
+        if (mVerticalAlignment == ALIGN_BASELINE) {
+            transY -= paint.getFontMetricsInt().descent;
+        }
+
+        canvas.translate(x, transY);
+
+
 
         if (mPaint == null) mPaint = new Paint();
         mPaint.set(paint);
