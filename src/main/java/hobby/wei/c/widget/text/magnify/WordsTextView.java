@@ -17,6 +17,7 @@
 package hobby.wei.c.widget.text.magnify;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.text.Layout;
 import android.text.Spannable;
@@ -28,7 +29,7 @@ import android.util.Log;
 import android.widget.TextView;
 
 import hobby.chenai.nakam.assoid.R;
-import hobby.wei.c.widget.text.BackgroundImageSpan;
+import hobby.wei.c.widget.text.CheckedDrawableBgTextSpan;
 import hobby.wei.c.widget.text.IMotionEventObserver;
 import hobby.wei.c.widget.text.SpanUtils;
 import hobby.wei.c.widget.text.WordSpan;
@@ -45,7 +46,7 @@ public class WordsTextView extends TextView implements IMotionEventObserver {
      * 用Span不用Word字符串的原因是没法区分一个句子里两个相同的单词是同一个坐标还是两个不同的坐标。
      */
     private WordSpan mPrevWordSpan;
-    private BackgroundImageSpan mPrevBgSpan;
+    private CheckedDrawableBgTextSpan mPrevBgSpan;
     private int mWordBgDrawableId;
 
     public WordsTextView(Context context) {
@@ -166,8 +167,7 @@ public class WordsTextView extends TextView implements IMotionEventObserver {
     }
 
     private void setBgSpan(Spannable spannable, WordSpan wordSpan) {
-        mPrevBgSpan = new BackgroundImageSpan(getContext(), mWordBgDrawableId);
-        mPrevBgSpan.setColor(getWordColor(spannable, wordSpan));
+        mPrevBgSpan = new CheckedDrawableBgTextSpan(getContext(), mWordBgDrawableId, ColorStateList.valueOf(getWordColor(spannable, wordSpan)), this);
         SpanUtils.setSpan(spannable, mPrevBgSpan, wordSpan.start, wordSpan.end);
     }
 

@@ -36,7 +36,7 @@ public class LinkMovementMethod extends ScrollingMovementMethod {
     private static final int UP = 2;
     private static final int DOWN = 3;
 
-    private LinkSpan mLink = null;
+    private SpanLinkable mLink;
     private boolean mOutOfBounds = true, mHasMovedOut = false, mIntercepted = false;
 
     @Override
@@ -202,7 +202,7 @@ public class LinkMovementMethod extends ScrollingMovementMethod {
             /*
              * 通知上一个启用了颜色变化的超链接取颜色变化权限，由于状态更新有延迟，因此
 			 * 不能直接在ACTION_UP或ACTION_CANCEL事件里取消颜色变化权限，否则
-			 * 当快速点击超链接的时候将看不到任何颜色的变化
+			 * 当快速点击超链接的时候将看不到任何颜色的变化。
 			 */
             mOutOfBounds = true;
             dispatchLinkSpanEvent(widget, event);
@@ -223,25 +223,25 @@ public class LinkMovementMethod extends ScrollingMovementMethod {
             int line = layout.getLineForVertical(y);
             int off = layout.getOffsetForHorizontal(line, x);
             //获取触摸位置的超链接，如果有只会存在一个，因此后面使用了link[0]
-            LinkSpan[] link = buffer.getSpans(off, off, LinkSpan.class);得修改为一个接口，后面可以用子类实现。Html.java内的CharacterStyle.class 已经确认可行性。
+            SpanLinkable[] links = buffer.getSpans(off, off, SpanLinkable.class);
 
-            if (link.length != 0) {    //在触摸位置存在一个超链接，但不一定是ACTION_DOWN事件时的超链接
-				/*
-				 * 只有当超链接接收到了ACTION_DOWN事件才能够让LinkSpan接收到后续事件。
+            if (links.length != 0) {    //在触摸位置存在一个超链接，但不一定是ACTION_DOWN事件时的超链接
+                /*
+                 * 只有当超链接接收到了ACTION_DOWN事件才能够让LinkSpan接收到后续事件。
 				 * 如果LinkSpan接收到ACTION_DOWN事件后手指移出了该超链接区域，依然需要接收后续事件作出处理。
 				 * 是否超过界限由参数outOfBounds标记。
 				 */
 
 				/*
-				 * 在ACTION_MOVE事件中可能移动到另一个链接上去了，也可能先移出本链接再移进来
+				 * 在ACTION_MOVE事件中可能移动到另一个链接上去了，也可能先移出本链接再移进来。
 				 */
-                mOutOfBounds = mLink != link[0];
+                mOutOfBounds = mLink != links[0];
 
                 if (action == MotionEvent.ACTION_DOWN) {
                     Selection.setSelection(buffer,
-                            buffer.getSpanStart(link[0]),
-                            buffer.getSpanEnd(link[0]));
-                    mLink = link[0];
+                            buffer.getSpanStart(links[0]),
+                            buffer.getSpanEnd(links[0]));
+                    mLink = links[0];
                     mOutOfBounds = false;
                     mHasMovedOut = false;
                     dispatchLinkSpanEvent(widget, event);
