@@ -18,9 +18,10 @@ package hobby.chenai.nakam.assoid.compat
 
 import android.support.v7.app.AppCompatActivity
 import android.view.View
+import hobby.chenai.nakam.lang.TypeBring.AsIs
 
 /**
-  * TypeBring and {{{TypedFindView.findViewById[V <: View](id: Int): V}}}
+  * {{{TypedFindView.findViewById[V <: View](id: Int): V}}}
   * compat for `AppCompatActivity`.
   * <p>
   * 注意：要兼容包 `AppCompatActivity`，就必须使用 `Theme.AppCompat`
@@ -31,7 +32,7 @@ import android.view.View
   * @author Chenai Nakam(chenai.nakam@gmail.com)
   * @version 1.0, 11/09/2017
   */
-class AssoidCompat4ActyV7 extends AppCompatActivity with AssoidCompat {
+class AssoidCompat4ActyV7 extends AppCompatActivity {
   // 由于自动生成了特质 TypedFindView 生成了未实现的方法签名 findViewById[V <: View](id: Int): V，
   // 一般情况下，如果页面继承了 android.app.Activity，由于 Activity 中该方法的实现与特质中的方法签名
   // 相同，当追加（with）了特质 TypedFindView，不用手动覆盖该方法便算 impl 了。
@@ -44,5 +45,5 @@ class AssoidCompat4ActyV7 extends AppCompatActivity with AssoidCompat {
   // 试了很多方法，均无法在方法签名和类型上做手脚，以至于最终发现了下面的这样一个方法，可以欺骗编译器。
 
   // 需要注意的是：为了兼容 super[AppCompatActivity]，本类的定义必须是 class 而非 trait。
-  protected def findViewById[V <: View](id: Int)(implicit v: V = null): V = super[AppCompatActivity].findViewById(id)
+  protected def findViewById[V <: View](id: Int)(implicit v: V = null): V = super[AppCompatActivity].findViewById(id).as[V]
 }

@@ -18,13 +18,12 @@ package hobby.chenai.nakam.assoid
 
 import android.app.Activity
 import android.os.Bundle
-import hobby.chenai.nakam.assoid.compat.AssoidCompat
 
 /**
   * @author Chenai Nakam(chenai.nakam@gmail.com)
   * @version 1.0, 11/09/2017
   */
-class SampleActy extends Activity with TypedFindView with AssoidCompat {
+class SampleActy extends Activity with TypedFindView {
   // 或者：
   // class SampleActy extends AssoidCompat4ActyV7 with TypedFindView {
 
