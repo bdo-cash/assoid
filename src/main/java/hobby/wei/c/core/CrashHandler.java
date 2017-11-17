@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package hobby.wei.c.framework;
+package hobby.wei.c.core;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;

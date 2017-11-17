@@ -16,7 +16,7 @@
 
 package hobby.wei.c.used;
 
-import hobby.wei.c.framework.AbsApp;
+import hobby.wei.c.core.AbsApp;
 import hobby.wei.c.persist.Storer;
 
 /**

@@ -38,7 +38,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import hobby.wei.c.framework.AbsApp;
+import hobby.wei.c.core.AbsApp;
 
 /**
  * &lt;provider<br/>

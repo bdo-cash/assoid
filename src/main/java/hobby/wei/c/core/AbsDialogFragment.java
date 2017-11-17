@@ -14,21 +14,15 @@
  * limitations under the License.
  */
 
-package hobby.wei.c.framework;
+package hobby.wei.c.core;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.FragmentManager;
 import android.content.DialogInterface;
-import android.content.res.Resources;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
 import hobby.chenai.nakam.assoid.R;
-import hobby.wei.c.anno.inject.Injector;
 
 /**
  * @author Wei.Chou
@@ -36,7 +30,6 @@ import hobby.wei.c.anno.inject.Injector;
  */
 public abstract class AbsDialogFragment extends DialogFragment implements DialogInterface.OnShowListener {
     private OnDialogListener mOnDialogListener;
-    private Activity mActy;
 
     public void show(FragmentManager manager, String tag, boolean allowStateLoss) {
         if (allowStateLoss) {
@@ -54,39 +47,11 @@ public abstract class AbsDialogFragment extends DialogFragment implements Dialog
         throw new RuntimeException();
     }
 
-    public Activity getActy() {
-        if (mActy == null) {
-            synchronized (this) {
-                if (mActy == null) {
-                    mActy = super.getActivity();
-                }
-            }
-        }
-        return mActy;
-    }
-
-    public Resources getRes() {
-        return getActy().getResources();
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        mActy = activity;
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setCancelable(cancelable());
         setStyle(STYLE_NO_TITLE, myTheme());
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        final View view = inflater.inflate(Injector.layoutID(getActivity(), getClass()), container, false);
-        Injector.inject(this, view, AbsDialogFragment.class);
-        return view;
     }
 
     @Override
@@ -124,7 +89,7 @@ public abstract class AbsDialogFragment extends DialogFragment implements Dialog
     }
 
     public void delayDismiss(final boolean allowingStateLoss, final int timeDelayed) {
-        AbsApp.get().getMainHandler().postDelayed(new Runnable() {
+        AbsApp.get().mainHandler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 if (allowingStateLoss) {

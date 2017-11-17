@@ -19,7 +19,7 @@ package hobby.wei.c.persist
 import java.util
 import java.util.Collections
 import hobby.chenai.nakam.tool.cache.{Delegate, LazyGet, Lru, Memoize}
-import hobby.wei.c.framework.AbsApp
+import hobby.wei.c.core.AbsApp
 
 /**
   * @author Chenakam (chenai.nakam@gmail.com)
