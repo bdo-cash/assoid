@@ -37,10 +37,6 @@ object AbsApp {
   private var sInstance: AbsApp = _
 
   def get[A <: AbsApp]: A = sInstance.ensuring(_.nonNull).as[A]
-
-  trait %[A <: AbsApp] {
-    def getApp: A = get
-  }
 }
 
 abstract class AbsApp extends Application with TAG.ClassName {

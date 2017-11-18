@@ -31,9 +31,7 @@ import hobby.wei.c.core.EventHost.PeriodMode.PeriodMode
   * @version 1.1, 17/11/2017, 重构旧代码。
   */
 object EventHost {
-  trait Acty extends AbsActy with EventHost {
-    override private[core] def context4EventHost = this
-
+  trait Acty extends AbsActy with EventHost with Ctx.Acty {
     override protected def onStart(): Unit = {
       super.onStart()
       eventDelegator.onStart()
@@ -55,9 +53,7 @@ object EventHost {
     }
   }
 
-  trait Fragmt extends Fragment with EventHost {
-    override private[core] def context4EventHost = getContext
-
+  trait Fragmt extends Fragment with EventHost with Ctx.Fragmt {
     override def onActivityCreated(savedInstanceState: Bundle): Unit = {
       super.onActivityCreated(savedInstanceState)
       eventDelegator.onActivityCreated()
@@ -153,18 +149,17 @@ object EventHost {
   }
 }
 
-trait EventHost {
-  private implicit lazy val host: EventHost = this
+trait EventHost extends Ctx.Abs {
+  private implicit val host: EventHost = this
 
-  private[core] def context4EventHost: Context
-  private[core] lazy val eventDelegator = new EventDelegator(context4EventHost)
+  private[core] lazy val eventDelegator = new EventDelegator(context)
 
   def sendLocalEvent(eventName: String, data: Bundle): Unit = {
-    EventHost.sendLocalEvent(context4EventHost, eventName, data)
+    EventHost.sendLocalEvent(context, eventName, data)
   }
 
   def sendGlobalEvent(eventName: String, data: Bundle): Unit = {
-    EventHost.sendGlobalEvent(context4EventHost, eventName, data)
+    EventHost.sendGlobalEvent(context, eventName, data)
   }
 
   def hostingLocalEventReceiver(eventName: String, periodMode: PeriodMode, receiver: EventReceiver): Unit = {
