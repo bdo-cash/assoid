@@ -66,8 +66,10 @@ public abstract class AbsDialogFragment extends DialogFragment implements Dialog
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
+    public void onActivityCreated(Bundle savedInstanceState) {
+        // 在这里进行的 mDialog.setContentView(view)
+        super.onActivityCreated(savedInstanceState);
+        // 所以修改尺寸放在这
         getDialog().getWindow().setLayout(getLayoutWidth(), getLayoutHeight());
     }
 

@@ -18,16 +18,21 @@ package hobby.wei.c.core
 
 import android.app.Activity
 import android.content.{Context, Intent}
+import android.os.Bundle
 import hobby.chenai.nakam.basis.TAG
+import hobby.chenai.nakam.lang.TypeBring.AsIs
 
 /**
   * @author Chenakam (chenai.nakam@gmail.com)
   * @version 1.0, 17/11/2017
   */
 trait StartMe {
-  def startMe(context: Context, intent: Intent): Unit = {
-    if (!context.isInstanceOf[Activity]) intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    context.startActivity(intent)
+  protected def startMe(context: Context, intent: Intent, forResult: Boolean = false, requestCode: Int = 0, options: Bundle = null): Unit = {
+    if (forResult) context.ensuring(_.is[Activity]).as[Activity].startActivityForResult(intent, requestCode, options)
+    else {
+      if (!context.isInstanceOf[Activity]) intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+      context.startActivity(intent)
+    }
   }
 
   def show[P <: AbsDialogFragment with TAG.ClassName](acty: Activity, panel: P): Unit = {

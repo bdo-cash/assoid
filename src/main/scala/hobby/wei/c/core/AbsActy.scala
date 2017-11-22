@@ -28,7 +28,7 @@ import hobby.wei.c.Const
   */
 abstract class AbsActy extends Activity {
   override protected def onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
-    super.onActivityResult(requestCode, resultCode, data);
+    super.onActivityResult(requestCode, resultCode, data)
     //退出应用，无论是否退出，都应该首先执行上面的代码，确保数据不丢失
     if (data.nonNull) {
       if (data.getBooleanExtra(Const.EXTRA_BACK_CONTINUOUS, false)) {
