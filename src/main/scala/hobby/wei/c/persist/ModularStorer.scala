@@ -18,6 +18,7 @@ package hobby.wei.c.persist
 
 import java.util
 import java.util.Collections
+import hobby.chenai.nakam.lang.TypeBring.AsIs
 import hobby.chenai.nakam.tool.cache.{Delegate, LazyGet, Lru, Memoize}
 import hobby.wei.c.core.AbsApp
 
@@ -26,10 +27,6 @@ import hobby.wei.c.core.AbsApp
   * @version 1.0, 27/10/2017
   */
 abstract class ModularStorer extends Storer.Wrapper
-
-trait Creator[+K <: ModularStorer] {
-  def create(builder: Storer.Builder): K
-}
 
 object ModularStorer {
   private val STORER_NAME = "storer-modular"
@@ -46,9 +43,9 @@ object ModularStorer {
         * @return `Some(V)` 表示有数据，`None` 表示没有数据。
         */
       override def load(key: Key[ModularStorer]) = {
-        val module = if (key.clear) key.module + "_c" else key.module
-        ensureModule2Meta(key.userId, module, key.clear)
-        Option(key.creator.create(getModule(key.userId, module))).ensuring(_.isDefined)
+        val module = if (key.clearable) key.module + "_c" else key.module
+        ensureModule2Meta(key.userId, module, key.clearable)
+        Option(key.creator(getModule(key.userId, module))).ensuring(_.isDefined)
       }
 
       /**
@@ -62,18 +59,18 @@ object ModularStorer {
     }
   }
 
-  private case class Key[+K <: ModularStorer](userId: String, module: String, clear: Boolean, creator: Creator[K]) extends Equals {
+  private case class Key[+K <: ModularStorer](userId: String, module: String, clearable: Boolean, creator: Storer.Builder => K) extends Equals {
     require(userId.nonEmpty)
     require(module.nonEmpty)
 
     override def equals(any: scala.Any) = any match {
-      case that: Key[_] if that.canEqual(this) => that.userId == this.userId && that.module == this.module && that.clear == this.clear
+      case that: Key[_] if that.canEqual(this) => that.userId == this.userId && that.module == this.module && that.clearable == this.clearable
       case _ => false
     }
 
-    override def canEqual(that: Any) = that.isInstanceOf[Key[_]]
+    override def canEqual(that: Any) = that.is[Key[_]]
 
-    override def hashCode = 41 * (userId.hashCode + (41 * (module.hashCode + (if (clear) 1 else 0))))
+    override def hashCode = 41 * (userId.hashCode + (41 * (module.hashCode + (if (clearable) 1 else 0))))
   }
 
   /**
@@ -86,11 +83,11 @@ object ModularStorer {
     *
     * @param userId
     * @param module
-    * @param clear 在特定情况下（退出之后或登录之前）是否清除该数据。
+    * @param clearable 是否可清除，以便在特定情况下（退出之后或登录之前）执行删除操作时。
     * @return
     */
-  def get[K <: ModularStorer](userId: String, module: String, clear: Boolean, creator: Creator[K]): K =
-    sCache.get(Key(userId, module, clear, creator)).get.asInstanceOf[K]
+  def get[K <: ModularStorer](userId: String, module: String, clearable: Boolean)(creator: Storer.Builder => K): K =
+    sCache.get(Key(userId, module, clearable, creator)).get.as[K]
 
   private def getModule(userId: String, module: String) = Storer.Wrapper.get(AbsApp.get[AbsApp].getApplicationContext,
     STORER_NAME + "-" + module).withUser(userId).multiProcess
@@ -113,7 +110,7 @@ object ModularStorer {
     var b: Boolean = false
     import scala.collection.JavaConversions._
     set.toSeq.foreach { module =>
-      if (meta.contains(module)) { // 是否有 clear 标识，见上面的 meta.storeBoolean(module)。
+      if (meta.contains(module)) { // 是否有 clearable 标识，见上面的 meta.storeBoolean(module)。
         if (!b) b = true
         getModule(userId, module).ok.edit.clear.apply()
         set.remove(module)
