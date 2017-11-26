@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">assoid</string>
+
+    <string name="toast_message_4_twice_back_guide"><![CDATA[
+        <i><span style="color:#ff00ddff;">Double</span></i> click <i><span style="color:#ff0099cc;">BACK</span> key</i> to exit
+    ]]></string>
 </resources>
