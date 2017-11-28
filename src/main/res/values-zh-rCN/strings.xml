@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="toast_message_4_twice_back_guide"><![CDATA[
-        连续<i><span style="color:#ff00ddff;">两次</span></i>点击<i><span style="color:#ff0099cc;">返回</span>键</i>可退出应用
+        <i><font color="#00ddff">双</font>击</i><i><font color="#0099cc">返回</font>键</i>可退出应用
     ]]></string>
+    <!--API level 24+ 可以用这种方式：-->
+    <!--<i><span style="color:#ff00ddff;">双</span></i>击<i><span style="color:#ff0099cc;">返回</span>键</i>可退出应用-->
 </resources>

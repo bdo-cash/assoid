@@ -45,9 +45,6 @@ abstract class AbsApp extends Application with TAG.ClassName {
 
   private val sHandlerRefMap = new util.WeakHashMap[Looper, Handler]
 
-  private var mHasLogout = false
-  private var mLoginedRun: Runnable = _
-
   private var mFirstLaunch = true
   private var mForceExit = false
 

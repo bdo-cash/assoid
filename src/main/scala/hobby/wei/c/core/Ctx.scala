@@ -18,6 +18,7 @@ package hobby.wei.c.core
 
 import android.app.{DialogFragment, Fragment}
 import android.content.Context
+import android.os.Handler
 import android.view.Window
 import hobby.chenai.nakam.basis.TAG.ThrowMsg
 import hobby.chenai.nakam.lang.J2S.NonNull
@@ -33,6 +34,7 @@ object Ctx {
     implicit def activity: AbsActy
     implicit def context: Context
     implicit def window: Window
+    def mainHandler: Handler = AbsApp.get.mainHandler
   }
 
   trait %[A <: AbsApp] {

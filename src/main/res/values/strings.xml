@@ -3,6 +3,8 @@
     <string name="app_name">assoid</string>
 
     <string name="toast_message_4_twice_back_guide"><![CDATA[
-        <i><span style="color:#ff00ddff;">Double</span></i> click <i><span style="color:#ff0099cc;">BACK</span> key</i> to exit
+        <i><font color="#00ddff">Double</font></i> click <i><font color="#0099cc">BACK</font> key</i> to exit
     ]]></string>
+    <!--API level 24+ 可以用这种方式：-->
+    <!--<i><span style="color:#ff00ddff;">Double</span></i> click <i><span style="color:#ff0099cc;">BACK</span> key</i> to exit-->
 </resources>

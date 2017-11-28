@@ -28,6 +28,10 @@ import hobby.wei.c.core.AbsApp
   */
 abstract class ModularStorer extends Storer.Wrapper
 
+object noUser {
+  def apply(): String = "no_user"
+}
+
 object ModularStorer {
   private val STORER_NAME = "storer-modular"
   private val STORER_META = STORER_NAME + "_meta"
@@ -118,4 +122,6 @@ object ModularStorer {
     }
     if (b) meta.edit.putStringSet(KEY_META, set).apply()
   }
+
+  def clearNoUser(): Unit = clear(noUser())
 }

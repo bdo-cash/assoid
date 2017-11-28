@@ -30,16 +30,24 @@ trait TwiceBack extends Ctx.Acty {
   private val TIME_INTERVAL_BACK_4_FINISH = 600
   private val TIME_INTERVAL_BACK_4_TOAST = 5000
   private var timeBackPressed: Long = 0
+  private var pressCount = 0
 
   protected def toastMsg4TwiceBackGuide: CharSequence = Html.fromHtml(getString(R.string.toast_message_4_twice_back_guide))
 
   override def onBackPressed(): Unit = {
-    val interval = SystemClock.elapsedRealtime() - timeBackPressed
-    if (interval <= TIME_INTERVAL_BACK_4_FINISH) super.onBackPressed()
-    else if (interval <= TIME_INTERVAL_BACK_4_TOAST) {
-      Toast.makeText(this, toastMsg4TwiceBackGuide, Toast.LENGTH_LONG).show()
-      // 弹出提示的时候重置时间，是为了更好的贯彻两次点击操作感受。
-      timeBackPressed = 0
-    } else timeBackPressed = SystemClock.elapsedRealtime()
+    val currTime = SystemClock.elapsedRealtime()
+    val interval = currTime - timeBackPressed
+    if (interval <= TIME_INTERVAL_BACK_4_FINISH) {
+      mainHandler.removeCallbacks(runnable)
+      super.onBackPressed()
+    } else {
+      if (interval <= TIME_INTERVAL_BACK_4_TOAST) pressCount += 1 else pressCount = 0
+      if (pressCount % 2 == 0) mainHandler.postDelayed(runnable, TIME_INTERVAL_BACK_4_FINISH)
+    }
+    timeBackPressed = currTime
+  }
+
+  private lazy val runnable = new Runnable {
+    override def run(): Unit = Toast.makeText(context, toastMsg4TwiceBackGuide, Toast.LENGTH_SHORT).show()
   }
 }
