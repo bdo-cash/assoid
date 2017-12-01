@@ -20,9 +20,9 @@ import java.util
 import java.lang.ref.WeakReference
 import android.app.{ActivityManager, Application}
 import android.content.pm.PackageManager
-import android.os.{Handler, Looper}
+import android.os.{Handler, Looper, Process}
 import hobby.chenai.nakam.basis.TAG
-import hobby.chenai.nakam.lang.J2S.NonNull
+import hobby.chenai.nakam.lang.J2S.{NonNull, WrapIterator}
 import hobby.chenai.nakam.lang.TypeBring.AsIs
 import hobby.wei.c.LOG._
 import hobby.wei.c.used.UsedStorer
@@ -131,15 +131,29 @@ abstract class AbsApp extends Application with TAG.ClassName {
 
   private[core] def doExit(): Unit = {
     if (onExit(mFirstLaunch) && checkCallingOrSelfPermission(android.Manifest.permission.KILL_BACKGROUND_PROCESSES) == PackageManager.PERMISSION_GRANTED) {
-      w("@@@@@@@@@@@@@@@@@@---程序关闭---killBackgroundProcesses")
+      e("@@@@@@@@@@----[应用退出]----[将]自动结束进程（设置项）: %s", getProcessName(Process.myPid()).orNull.s)
       //只会对后台进程起作用，当本App最后一个Activity.onDestroy()的时候也会起作用，并且是立即起作用，即本语句后面的语句将不会执行。
       getSystemService(classOf[ActivityManager]).killBackgroundProcesses(getPackageName)
-      w("@@@@@@@@@@@@@@@@@@---程序关闭---走不到这里来")
+      e("@@@@@@@@@@----[应用退出]---走不到这里来")
     }
     mForceExit = false
     mFirstLaunch = false
-    w("@@@@@@@@@@@@@@@@@@---程序关闭---没有killBackgroundProcesses")
+    w("@@@@@@@@@@----[应用退出]---[未]自动结束进程: %s", getProcessName(Process.myPid()).orNull.s)
   }
+
+  def getProcessName(pid: Int): Option[String] = {
+    var name: Option[String] = None
+    breakable {
+      for (info <- getSystemService(classOf[ActivityManager]).getRunningAppProcesses.iterator().toSeq if info.pid == pid) {
+        w("[process]id: %s, name: %s", info.pid, info.processName.s)
+        name = Option(info.processName)
+        break
+      }
+    }
+    name
+  }
+
+  def isCurrentProcessOf(name: String): Boolean = getProcessName(Process.myPid()).exists(_.endsWith(name))
 
   /**
     * 关闭activity. 只可在onActivityDestroy()的内部调用，否则返回值会不准确。
