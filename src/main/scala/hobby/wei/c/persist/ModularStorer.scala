@@ -72,7 +72,7 @@ object ModularStorer {
       case _ => false
     }
 
-    override def canEqual(that: Any) = that.is[Key[_]]
+    override def canEqual(that: Any) = that.isInstanceOf[Key[_]]
 
     override def hashCode = 41 * (userId.hashCode + (41 * (module.hashCode + (if (clearable) 1 else 0))))
   }

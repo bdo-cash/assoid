@@ -145,7 +145,7 @@ object EventHost {
       case _ => false
     }
 
-    override def canEqual(that: Any) = that.is[EventSession]
+    override def canEqual(that: Any) = that.isInstanceOf[EventSession]
   }
 }
 
