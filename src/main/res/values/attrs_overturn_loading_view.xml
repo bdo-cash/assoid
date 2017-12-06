@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+    以下是示例
+    <declare-styleable name="RingtonePreference">
+        <attr name="ringtoneType">
+            <flag name="ringtone" value="1" />
+            <flag name="notification" value="2" />
+            <flag name="alarm" value="4" />
+            <flag name="all" value="7" />
+        </attr>
+        <attr name="showDefault" format="boolean" />
+        <attr name="showSilent" format="boolean" />
+    </declare-styleable>
+
+    <declare-styleable name="VolumePreference">
+        <attr name="streamType">
+            <enum name="voice" value="0" />
+            <enum name="system" value="1" />
+            <enum name="ring" value="2" />
+            <enum name="music" value="3" />
+            <enum name="alarm" value="4" />
+        </attr>
+    </declare-styleable>
+
+    <declare-styleable name="Keyboard">
+        <attr name="keyWidth" format="dimension|fraction" />
+        <attr name="keyHeight" format="dimension|fraction" />
+        <attr name="horizontalGap" format="dimension|fraction" />
+        <attr name="verticalGap" format="dimension|fraction" />
+    </declare-styleable>
+    -->
+    <!-- flag和enum的区别：flag表示的值可以同时使用一个或多个，如：ringtoneType=“ringtone|notification|alarm”，而enum只能用一个 -->
+    <!-- format的类型：integer|float|dimension|fraction|reference|color|boolean|string -->
+    <!-- 以下为自定义 -->
+
+    <declare-styleable name="OverturnLoadingView">
+        <attr name="overturnMinLevel" format="integer" />
+        <attr name="overturnMaxLevel" format="integer" />
+        <attr name="overturnCyclicality" format="integer" />
+        <attr name="overturnInterpolator" format="reference" />
+        <attr name="overturnAutoStart" format="boolean" />
+        <attr name="overturnCameraDistance" format="dimension" />
+    </declare-styleable>
+</resources>
