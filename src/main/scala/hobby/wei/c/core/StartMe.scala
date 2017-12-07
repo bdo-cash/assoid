@@ -27,6 +27,8 @@ import hobby.chenai.nakam.lang.TypeBring.AsIs
   * @version 1.0, 17/11/2017
   */
 trait StartMe {
+  protected def startMe(context: Context, intent: Intent, options: Bundle): Unit = startMe(context, intent, false, 0, options)
+
   protected def startMe(context: Context, intent: Intent, forResult: Boolean = false, requestCode: Int = 0, options: Bundle = null): Unit = {
     if (forResult) context.ensuring(_.isInstanceOf[Activity]).as[Activity].startActivityForResult(intent, requestCode, options)
     else {
