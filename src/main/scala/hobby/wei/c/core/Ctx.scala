@@ -23,7 +23,6 @@ import android.view.Window
 import hobby.chenai.nakam.basis.TAG.ThrowMsg
 import hobby.chenai.nakam.lang.J2S.NonNull
 import hobby.chenai.nakam.lang.TypeBring.AsIs
-import hobby.wei.c.core.AbsApp.get
 
 /**
   * @author Chenakam (chenai.nakam@gmail.com)
@@ -38,7 +37,7 @@ object Ctx {
   }
 
   trait %[A <: AbsApp] {
-    def getApp: A = get
+    def getApp: A = AbsApp.get
   }
 
   trait Acty extends AbsActy with Abs {
