@@ -75,8 +75,7 @@ trait Keyboard extends Ctx.Abs {
     override def onClick(v: View): Unit = hideInputMethod()
   }
 
-  protected def showInputMethod(): Unit = {
-    val focusView = if (window.nonNull) window.getCurrentFocus else null
+  protected def showInputMethod(focusView: View = if (window.nonNull) window.getCurrentFocus else null): Unit = {
     if (focusView.nonNull) { //是否存在焦点
       inputMethodMgr.showSoftInput(focusView, InputMethodManager.SHOW_IMPLICIT)
     }
