@@ -20,7 +20,9 @@ import android.app.{DialogFragment, Fragment}
 import android.os.Bundle
 import android.view.{View, ViewGroup}
 import android.view.inputmethod.InputMethodManager
+import android.view.View.OnFocusChangeListener
 import android.view.ViewGroup.LayoutParams
+import android.widget.EditText
 import hobby.chenai.nakam.lang.J2S.NonNull
 import hobby.chenai.nakam.lang.TypeBring.AsIs
 
@@ -73,6 +75,17 @@ trait Keyboard extends Ctx.Abs {
 
   private val mOnClickBlankAreaListener = new View.OnClickListener() {
     override def onClick(v: View): Unit = hideInputMethod()
+  }
+
+  protected def autoShowInputMethod(editText: EditText): Unit = {
+    editText.setOnFocusChangeListener(new OnFocusChangeListener {
+      override def onFocusChange(v: View, hasFocus: Boolean): Unit = mainHandler.postDelayed(new Runnable {
+        override def run(): Unit = if (hasFocus) {
+          showInputMethod(editText)
+          editText.setSelection(editText.getText.length)
+        }
+      }, 300)
+    })
   }
 
   protected def showInputMethod(focusView: View = if (window.nonNull) window.getCurrentFocus else null): Unit = {
