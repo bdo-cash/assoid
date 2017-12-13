@@ -49,7 +49,10 @@ class CheckedDrawableBgTextSpan(context: Context, drawableId: Int, linkColor: Co
   private var mChecked: Boolean = false
   private var mText: String = _
 
-  def this(context: Context, drawableId: Int)(implicit textView: TextView) = this(context, drawableId, null)
+  def this(context: Context, drawableId: Int, linkColor: Int)(implicit textView: TextView) = this(context, drawableId,
+    if (linkColor == 0) null else context.getColorStateList(linkColor))
+
+  def this(context: Context, drawableId: Int)(implicit textView: TextView) = this(context, drawableId, 0)
 
   override protected val mLinkColor = linkColor
 
