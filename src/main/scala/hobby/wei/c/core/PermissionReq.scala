@@ -26,10 +26,6 @@ import scala.collection.mutable
   */
 object PermissionReq {
   private[PermissionReq] trait Abs extends Ctx.Abs with ReqCode {
-    trait Feedback {
-      def ok(): Unit
-    }
-
     private val permissionsDenied = mutable.HashSet[(String, Boolean)]()
 
     /**

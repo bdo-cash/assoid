@@ -42,6 +42,7 @@ object CheckedDrawableBgTextSpan {
 }
 class CheckedDrawableBgTextSpan(context: Context, drawableId: Int, linkColor: ColorStateList)(implicit textView: TextView)
   extends ImageSpan(context: Context, drawableId: Int) with SpanLinkable {
+  private val mViewRef = new WeakReference(textView)
   private val mPadding, mDirty = new Rect()
   private val mPaint = new TextPaint()
   private var mTextStyle: TextAppearanceSpan = _
@@ -64,9 +65,20 @@ class CheckedDrawableBgTextSpan(context: Context, drawableId: Int, linkColor: Co
   }
 
   def setChecked(b: Boolean): Unit = {
-    mChecked = b
-    if (mDirty.width() > 0 && mDirty.height() > 0) textView.invalidate(mDirty)
-    else textView.invalidate()
+    if (b != mChecked) {
+      mChecked = b
+      // 还是不刷新。
+      // getCachedDrawable.setState(if (isChecked) CheckedDrawableBgTextSpan.CHECKED_STATE_SET else CheckedDrawableBgTextSpan.NORMAL_STATE_SET)
+      Option(mViewRef.get()).foreach { view =>
+        Option(view.getEditableText).foreach { s =>
+          val span = CheckedDrawableBgTextSpan.this
+          val sta = s.getSpanStart(span)
+          val end = s.getSpanEnd(span)
+          if (sta >= 0 && end >= 0) s.setSpan(span, sta, end, s.getSpanFlags(span))
+        }
+        if (mDirty.width() > 0 && mDirty.height() > 0) view.invalidate(mDirty) else view.invalidate()
+      }
+    }
   }
 
   def isChecked = mChecked
@@ -165,6 +177,7 @@ class CheckedDrawableBgTextSpan(context: Context, drawableId: Int, linkColor: Co
     if (wr.nonNull) d = wr.get()
     if (d.isNull) {
       d = getDrawable
+      Option(mViewRef.get()).foreach(d.setCallback(_))
       mDrawableRef = new WeakReference[Drawable](d)
     }
     d
