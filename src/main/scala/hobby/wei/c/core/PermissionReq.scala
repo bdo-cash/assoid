@@ -17,6 +17,8 @@
 package hobby.wei.c.core
 
 import android.content.pm.PackageManager
+import hobby.chenai.nakam.lang.J2S.NonFlat
+import hobby.wei.c.LOG._
 
 import scala.collection.mutable
 
@@ -27,6 +29,7 @@ import scala.collection.mutable
 object PermissionReq {
   private[PermissionReq] trait Abs extends Ctx.Abs with ReqCode {
     private val permissionsDenied = mutable.HashSet[(String, Boolean)]()
+    private var needShowRationale = List[String]()
 
     /**
       * 要申请的一些权限。 `_1`表示权限名称，见{{{
@@ -58,19 +61,34 @@ object PermissionReq {
 
     /** 请求动态授权。 */
     def requirePermissions(): Boolean = {
+      permissionsDenied.clear()
+      needShowRationale = Nil
       var reqDirect = List[String]()
       for (p <- permissions; perm = p._1) {
         if (!isPermissionGranted(perm)) {
           permissionsDenied += p
           if (activity.shouldShowRequestPermissionRationale(perm)) {
-            onShowPermissionRationale(perm, new Feedback {
-              override def ok(): Unit = activity.requestPermissions(Array(perm), REQUEST_CODE)
-            })
+            i("shouldShowRequestPermissionRationale: %s.", perm.s)
+            needShowRationale ::= perm
           } else reqDirect ::= perm
         }
       }
       if (reqDirect.nonEmpty) activity.requestPermissions(reqDirect.toArray, REQUEST_CODE)
+      else showReqPermRationale()
       !permissionsDenied.exists(_._2)
+    }
+
+    private def showReqPermRationale(): Unit = {
+      while (needShowRationale.nonEmpty && isPermissionGranted(needShowRationale.head)) {
+        needShowRationale = needShowRationale.tail
+      }
+      if (needShowRationale.nonEmpty) {
+        val perm = needShowRationale.head
+        needShowRationale = needShowRationale.tail
+        onShowPermissionRationale(perm, new Feedback {
+          override def ok(): Unit = activity.requestPermissions(Array(perm), REQUEST_CODE)
+        })
+      }
     }
 
     protected def onRequestPermissionsResult(requestCode: Int, permissions: Array[String], grantResults: Array[Int]): Unit = {
@@ -81,6 +99,13 @@ object PermissionReq {
             onPermissionGranted(perm)
           } else onPermissionDenied(perm)
         }
+        // 再查询一次，不然由于在同一个组的权限可能仅显式授权一个，另一个不需要再次被授权而
+        // permissionsDenied列表里又没有被删除，导致不会回调onForcePermissionGranted()。
+        for (den <- permissionsDenied.clone() if isPermissionGranted(den._1)) {
+          permissionsDenied.filter(_._1 == den._1).foreach(permissionsDenied -= _)
+        }
+        showReqPermRationale()
+        w("permissionsDenied: %s.", permissionsDenied.toSeq.mkString$.s)
         if (!permissionsDenied.exists(_._2)) onForcePermissionGranted()
       }
     }
