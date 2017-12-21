@@ -34,6 +34,14 @@ object Ctx {
     implicit def context: Context
     implicit def window: Window
     def mainHandler: Handler = AbsApp.get.mainHandler
+
+    def post(f: => Any) = mainHandler.post(new Runnable {
+      override def run(): Unit = f
+    })
+
+    def postDelayed(delayed: Long)(f: => Any) = mainHandler.postDelayed(new Runnable {
+      override def run(): Unit = f
+    }, delayed)
   }
 
   trait %[A <: AbsApp] {
