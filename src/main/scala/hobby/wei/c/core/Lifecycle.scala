@@ -134,9 +134,14 @@ object Lifecycle {
       i("onDestroyToExit")
       super.onDestroyToExit()
     }
+
+    override def onBackPressed(): Unit = {
+      i("onBackPressed")
+      super.onBackPressed()
+    }
   }
 
-  trait Frmgt extends Fragment with TAG.ClassName {
+  trait Fragmt extends Fragment with TAG.ClassName {
     override def onAttach(activity: Activity): Unit = {
       i("onAttach")
       super.onAttach(activity)
@@ -228,5 +233,5 @@ object Lifecycle {
     }
   }
 
-  trait Dialog extends AbsDialogFragment with Frmgt
+  trait Dialog extends AbsDialogFragment with Fragmt
 }
