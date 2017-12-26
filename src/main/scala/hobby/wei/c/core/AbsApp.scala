@@ -27,6 +27,7 @@ import hobby.chenai.nakam.lang.TypeBring.AsIs
 import hobby.wei.c.LOG._
 import hobby.wei.c.used.UsedStorer
 
+import scala.collection.JavaConversions.asScalaBuffer
 import scala.util.control.Breaks._
 
 /**
@@ -90,6 +91,18 @@ abstract class AbsApp extends Application with TAG.ClassName {
   }
 
   //////////////////////////////////////////////////////////////////////////////////////////
+
+  def finishActies(actyClasses: Class[_]*): Unit = {
+    for (clazz <- actyClasses; ref <- mActivitieStack.toSeq) {
+      Option(ref.get).foreach { acty =>
+        w("[finishActies]acty: %s.", acty.getClass.getSimpleName.s)
+        if (clazz.isAssignableFrom(acty.getClass) && acty.getClass.isAssignableFrom(clazz)) {
+          w("[finishActies]----finish: %s.", acty.getClass.getSimpleName.s)
+          acty.finish()
+        }
+      }
+    }
+  }
 
   /**
     * 退出应用。如果希望在退出之后本App的所有进程也关闭，则需要加上权限：android.permission.KILL_BACKGROUND_PROCESSES。
