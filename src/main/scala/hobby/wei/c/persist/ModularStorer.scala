@@ -100,10 +100,10 @@ object ModularStorer {
     val meta: Storer = getMeta(userId)
     val set: util.Set[String] = meta.getSharedPreferences.getStringSet(KEY_META, new util.HashSet[String] /*后面有add()操作*/)
     if (!set.contains(module)) {
+      if (clear) meta.edit().putBoolean(module.ensuring(_ != KEY_META), true).commit()
       set.add(module)
-      meta.edit.putStringSet(KEY_META, set).apply()
+      meta.edit.putStringSet(KEY_META, set).commit()
     }
-    if (clear) meta.storeBoolean(module.ensuring(_ != KEY_META), true)
   }
 
   private def getMeta(userId: String): Storer = Storer.Wrapper.get(AbsApp.get[AbsApp].getApplicationContext, STORER_META).withUser(userId).multiProcess.ok
@@ -116,11 +116,11 @@ object ModularStorer {
     set.toSeq.foreach { module =>
       if (meta.contains(module)) { // 是否有 clearable 标识，见上面的 meta.storeBoolean(module)。
         if (!b) b = true
-        getModule(userId, module).ok.edit.clear.apply()
+        getModule(userId, module).ok.edit.clear.commit()
         set.remove(module)
       }
     }
-    if (b) meta.edit.putStringSet(KEY_META, set).apply()
+    if (b) meta.edit.putStringSet(KEY_META, set).commit()
   }
 
   def clearNoUser(): Unit = clear(noUser())
