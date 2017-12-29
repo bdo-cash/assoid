@@ -32,7 +32,7 @@ import android.widget.Scroller;
 import hobby.chenai.nakam.assoid.R;
 
 /**
- * @author 周伟 Wei Chou(weichou2010@gmail.com)
+ * @author Wei Chou(weichou2010@gmail.com)
  */
 public class OverturnLoadingView extends ImageView {
     private boolean mAutoStart = true;

@@ -19,7 +19,7 @@ package hobby.wei.c.data.abs;
 import org.json.JSONObject;
 
 /**
- * @author 周伟 Wei Chou(weichou2010@gmail.com)
+ * @author Wei Chou(weichou2010@gmail.com)
  */
 public interface IJson<T> {
     String toJson();

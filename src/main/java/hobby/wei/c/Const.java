@@ -17,7 +17,7 @@
 package hobby.wei.c;
 
 /**
- * @author 周伟 Wei Chou(weichou2010@gmail.com)
+ * @author Wei Chou(weichou2010@gmail.com)
  */
 public class Const {
     @Deprecated

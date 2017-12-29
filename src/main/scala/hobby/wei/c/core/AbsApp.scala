@@ -31,7 +31,7 @@ import scala.collection.JavaConversions.asScalaBuffer
 import scala.util.control.Breaks._
 
 /**
-  * @author 周伟 Wei Chou(weichou2010@gmail.com)
+  * @author Wei Chou(weichou2010@gmail.com)
   * @version 1.1, 17/11/2017, 重构旧代码。
   */
 object AbsApp {

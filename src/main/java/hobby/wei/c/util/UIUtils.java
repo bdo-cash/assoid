@@ -24,7 +24,7 @@ import android.view.Window;
 import android.view.WindowManager;
 
 /**
- * @author 周伟 Wei Chou(weichou2010@gmail.com)
+ * @author Wei Chou(weichou2010@gmail.com)
  */
 public class UIUtils {
     public static float dip2pix(Context context, float dp) {

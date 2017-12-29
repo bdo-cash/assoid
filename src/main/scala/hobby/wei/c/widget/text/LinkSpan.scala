@@ -26,7 +26,7 @@ import android.view.View
 import hobby.chenai.nakam.lang.J2S.NonNull
 
 /**
-  * @author 周伟 Wei Chou(weichou2010@gmail.com)
+  * @author Wei Chou(weichou2010@gmail.com)
   */
 class LinkSpan(linkColor: ColorStateList, url: String) extends ClickableSpan with SpanLinkable {
   //[.]点字符放在括号里只能匹配其本身，等同于\\.，若单独放在外面则匹配除\n之外所有字符

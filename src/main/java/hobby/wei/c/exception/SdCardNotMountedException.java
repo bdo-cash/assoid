@@ -17,7 +17,7 @@
 package hobby.wei.c.exception;
 
 /**
- * @author 周伟 Wei Chou(weichou2010@gmail.com)
+ * @author Wei Chou(weichou2010@gmail.com)
  */
 public class SdCardNotMountedException extends Exception {
     private static final long serialVersionUID = -7194616733196800372L;

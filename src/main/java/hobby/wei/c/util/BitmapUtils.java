@@ -57,7 +57,7 @@ import hobby.wei.c.exception.FileCreateFailureException;
 import hobby.wei.c.file.FileUtils;
 
 /**
- * @author 周伟 Wei Chou(weichou2010@gmail.com)
+ * @author Wei Chou(weichou2010@gmail.com)
  */
 public class BitmapUtils {
     private static TAG.LogTag TAG = new TAG.LogTag(BitmapUtils.class.getName());

@@ -33,7 +33,7 @@ import hobby.chenai.nakam.lang.J2S.NonNull
   * 1. 如果drawable有paddings, 需要给`TextView`设置行高，如：`android:lineSpacingExtra="16dp"`；
   * 2. 需要给`TextView`去掉高亮，即：`android:textColorHighlight="#0fff"` 但不能是0，那就把透明度设为0即可。
   *
-  * @author 周伟 Wei Chou(weichou2010@gmail.com)
+  * @author Wei Chou(weichou2010@gmail.com)
   * @version 2.0, 14/11/2017, 重构自2014年版本的 BackgroundImageSpan。
   */
 object CheckedDrawableBgTextSpan {

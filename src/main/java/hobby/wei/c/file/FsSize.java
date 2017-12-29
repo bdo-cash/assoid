@@ -19,7 +19,7 @@ package hobby.wei.c.file;
 import java.text.DecimalFormat;
 
 /**
- * @author 周伟 Wei Chou(weichou2010@gmail.com)
+ * @author Wei Chou(weichou2010@gmail.com)
  */
 public class FsSize {
     public static final byte B		= 0;

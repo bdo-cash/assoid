@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * @author 周伟 Wei Chou(weichou2010@gmail.com)
+ * @author Wei Chou(weichou2010@gmail.com)
  */
 @SuppressWarnings("unchecked")
 public class ArrayUtils {

@@ -34,7 +34,7 @@ import hobby.wei.c.data.abs.AbsJsonTyped;
 import hobby.wei.c.data.abs.TypeToken;
 
 /**
- * @author 周伟 Wei Chou(weichou2010@gmail.com)
+ * @author Wei Chou(weichou2010@gmail.com)
  */
 public class PhotoUtils {
     private static TAG.LogTag TAG = new TAG.LogTag(PhotoUtils.class.getName());

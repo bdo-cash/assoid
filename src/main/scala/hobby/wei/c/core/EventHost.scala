@@ -27,7 +27,7 @@ import hobby.wei.c.core.EventHost.{EventReceiver, EventSession, PeriodMode}
 import hobby.wei.c.core.EventHost.PeriodMode.PeriodMode
 
 /**
-  * @author 周伟 Wei Chou(weichou2010@gmail.com)
+  * @author Wei Chou(weichou2010@gmail.com)
   * @version 1.1, 17/11/2017, 重构旧代码。
   */
 object EventHost {

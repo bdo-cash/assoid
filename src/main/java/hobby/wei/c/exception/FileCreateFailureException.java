@@ -17,7 +17,7 @@
 package hobby.wei.c.exception;
 
 /**
- * @author 周伟 Wei Chou(weichou2010@gmail.com)
+ * @author Wei Chou(weichou2010@gmail.com)
  */
 public class FileCreateFailureException extends Exception {
     private static final long serialVersionUID = -5076198159595208735L;

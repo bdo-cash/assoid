@@ -26,7 +26,7 @@ import java.util.Locale;
 /**
  * MD5生成及验证工具
  *
- * @author 周伟 Wei Chou(weichou2010@gmail.com)
+ * @author Wei Chou(weichou2010@gmail.com)
  */
 public class MD5Utils {
     private final static String HEX_NUMS_STR = "0123456789ABCDEF";

@@ -39,7 +39,7 @@ import hobby.wei.c.anno.proguard.KeepVp$e;
 /**
  * Json序列化和反序列化的Gson封装。静态变量会被忽略掉，不受影响。
  *
- * @author 周伟 Wei Chou(weichou2010@gmail.com)
+ * @author Wei Chou(weichou2010@gmail.com)
  * @version 1.1，28/07/2016 增加对时间时区的反序列化支持。
  */
 @KeepVp$e

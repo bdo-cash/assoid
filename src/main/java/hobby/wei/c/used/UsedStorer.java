@@ -20,7 +20,7 @@ import hobby.wei.c.core.AbsApp;
 import hobby.wei.c.persist.Storer;
 
 /**
- * @author 周伟 Wei Chou(weichou2010@gmail.com)
+ * @author Wei Chou(weichou2010@gmail.com)
  */
 public class UsedStorer {
     public static class absApp extends Storer.Wrapper {

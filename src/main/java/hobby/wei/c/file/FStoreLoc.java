@@ -41,7 +41,7 @@ import hobby.wei.c.phone.Storage.SdCard;
  * 注意需要权限android.permission.WRITE_EXTERNAL_STORAGE，该权限包含了
  * android.permission.READ_EXTERNAL_STORAGE
  *
- * @author 周伟 Wei Chou(weichou2010@gmail.com)
+ * @author Wei Chou(weichou2010@gmail.com)
  */
 @TargetApi(Build.VERSION_CODES.KITKAT)
 public class FStoreLoc {

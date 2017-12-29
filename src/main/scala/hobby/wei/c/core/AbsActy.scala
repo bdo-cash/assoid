@@ -23,7 +23,7 @@ import hobby.chenai.nakam.lang.J2S.NonNull
 import hobby.wei.c.Const
 
 /**
-  * @author 周伟 Wei Chou(weichou2010@gmail.com)
+  * @author Wei Chou(weichou2010@gmail.com)
   * @version 1.1, 17/11/2017, 重构旧代码。
   */
 abstract class AbsActy extends Activity {

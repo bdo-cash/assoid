@@ -20,7 +20,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * @author 周伟 Wei Chou(weichou2010@gmail.com)
+ * @author Wei Chou(weichou2010@gmail.com)
  */
 public abstract class AbsJsonTyped<T extends AbsJsonTyped<T>> extends AbsJson<T> {
     private String parseType(JSONObject json) {

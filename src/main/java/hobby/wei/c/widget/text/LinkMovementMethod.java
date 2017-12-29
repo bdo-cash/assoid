@@ -29,7 +29,7 @@ import android.view.View;
 import android.widget.TextView;
 
 /**
- * @author 周伟 Wei Chou(weichou2010@gmail.com)
+ * @author Wei Chou(weichou2010@gmail.com)
  */
 public class LinkMovementMethod extends ScrollingMovementMethod {
     private static final int CLICK = 1;

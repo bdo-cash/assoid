@@ -26,7 +26,7 @@ import hobby.wei.c.L;
 import hobby.wei.c.phone.Storage;
 
 /**
- * @author 周伟 Wei Chou(weichou2010@gmail.com)
+ * @author Wei Chou(weichou2010@gmail.com)
  */
 public class CrashHandler {
     private static final TAG.LogTag TAG = new TAG.LogTag(CrashHandler.class.getName());

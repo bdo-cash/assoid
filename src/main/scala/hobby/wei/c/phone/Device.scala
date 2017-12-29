@@ -33,7 +33,7 @@ import hobby.wei.c.util.MD5Utils
   * `android.permission.READ_PHONE_STATE`。
   * </pre>
   *
-  * @author 周伟 Wei Chou(weichou2010@gmail.com)
+  * @author Wei Chou(weichou2010@gmail.com)
   * @version 1.1, 15/11/2017, 重构旧代码。
   */
 object Device {
