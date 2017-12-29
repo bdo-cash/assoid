@@ -17,11 +17,14 @@
 package space.edge.d.wallet.persist.db
 
 import java.util.Properties
+import android.os.AsyncTask
 import com.fortysevendeg.mvessel.DataSource
 import com.fortysevendeg.mvessel.api.impl.AndroidCursor
 import com.j256.ormlite.android.apptools.OpenHelperManager
 import hobby.chenai.nakam.basis.IO.Close$
+import hobby.chenai.nakam.lang.J2S.Run
 import hobby.wei.c.core.AbsApp
+import hobby.wei.c.core.Ctx.%
 import hobby.wei.c.persist.db._
 import io.getquill.{CamelCase, SqliteJdbcContext}
 
@@ -29,13 +32,31 @@ import io.getquill.{CamelCase, SqliteJdbcContext}
   * @author Chenakam (chenai.nakam@gmail.com)
   * @version 1.0, 28/12/2017
   */
-trait QuillCtx[HELPER <: AbsOrmLiteHelper] {
+trait QuillCtx[HELPER <: AbsOrmLiteHelper] extends %[AbsApp] {
   protected def classOfDbHelper: Class[HELPER]
 
-  def sqliteDbHelper: AbsOrmLiteHelper = OpenHelperManager.getHelper(AbsApp.get, classOfDbHelper)
+  private def sqliteDbHelper: AbsOrmLiteHelper = OpenHelperManager.getHelper(AbsApp.get, classOfDbHelper)
 
   def mapDb[A](f: AbsOrmLiteHelper => A): A = {
     try f(sqliteDbHelper) finally OpenHelperManager.releaseHelper()
+  }
+
+  def mapDb[A](toUi: A => Unit)(f: AbsOrmLiteHelper => A): Unit = {
+    AsyncTask.THREAD_POOL_EXECUTOR.execute({
+      val value: A = mapDb(f)
+      getApp.mainHandler.post(toUi(value).run$)
+    }.run$)
+  }
+
+  def mapCtx[A](f: SqliteJdbcContext[_] => A): A = {
+    try f(quillCtx) finally OpenHelperManager.releaseHelper()
+  }
+
+  def mapCtx[A](toUi: A => Unit)(f: SqliteJdbcContext[_] => A): Unit = {
+    AsyncTask.THREAD_POOL_EXECUTOR.execute({
+      val value: A = mapCtx(f)
+      getApp.mainHandler.post(toUi(value).run$)
+    }.run$)
   }
 
   /**
@@ -57,7 +78,7 @@ trait QuillCtx[HELPER <: AbsOrmLiteHelper] {
     }, new Properties, mapDb(_.getReadableDatabase.getPath), DBLogWrapper) with java.io.Closeable {
     override def close(): Unit = {
       connection.close$()
-      OpenHelperManager.releaseHelper() // 数据库关闭操作由
+      OpenHelperManager.releaseHelper() // 数据库关闭操作由它完成。
     }
   }
 
