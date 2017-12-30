@@ -24,7 +24,7 @@ offline := true
 
 libraryDependencies ++= Seq(
   "com.android.support" % "appcompat-v7" % "26.+",
-  "com.j256.ormlite" % "ormlite-android" % "[4.48,)",
+  "com.j256.ormlite" % "ormlite-android" % "[5.0,)",
 
   "io.getquill" %% "quill-jdbc" % "[2.3.0,)",
   // 我们不用这个驱动（不过还是得导入，如果不导入的话，会自动导入一个低版本的）。
