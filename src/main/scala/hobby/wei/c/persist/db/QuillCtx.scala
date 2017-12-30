@@ -16,6 +16,7 @@
 
 package hobby.wei.c.persist.db
 
+import java.io.File
 import java.util.Properties
 import android.os.AsyncTask
 import com.fortysevendeg.mvessel.DataSource
@@ -72,7 +73,9 @@ trait QuillCtx[HELPER <: AbsOrmLiteHelper] extends %[AbsApp] {
   def dataSource: javax.sql.DataSource with java.io.Closeable = new DataSource[AndroidCursor](
     new QuillAndroidDriver {
       override def databaseFactory = new QuillAndroidDatabaseFactory {
-        override def sqliteOpenHelper(name: String, flags: Int) = sqliteDbHelper.ensuring(_.getDatabaseName == name)
+        override def sqliteOpenHelper(path: String, flags: Int) = {
+          sqliteDbHelper.ensuring(_.getDatabaseName == new File(path).getName, s"param{path: $path, flags: $flags}, ${sqliteDbHelper.getDatabaseName}")
+        }
       }
     }, new Properties, mapDb(_.getReadableDatabase.getPath), DBLogWrapper) with java.io.Closeable {
     override def close(): Unit = {

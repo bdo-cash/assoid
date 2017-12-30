@@ -25,17 +25,17 @@ import com.fortysevendeg.mvessel.api.impl.{AndroidCursor, AndroidDatabase, Andro
   * @version 1.0, 29/12/2017
   */
 abstract class QuillAndroidDatabaseFactory extends AndroidDatabaseFactory {
-  override def openDatabase(name: String, flags: Int): DatabaseProxy[AndroidCursor] =
-    new AndroidDatabase(sqliteOpenHelper(name, flags).getWritableDatabase) {
+  override def openDatabase(path: String, flags: Int): DatabaseProxy[AndroidCursor] =
+    new AndroidDatabase(sqliteOpenHelper(path, flags).getWritableDatabase) {
       override def getDriverName: String = QuillAndroidDriver.driverName
     }
 
   /**
     * 把创建`SQLiteDatabase`的工厂指向`Android`提供的`SQLiteOpenHelper`，以确保`创建/升级`操作能正确完成。
     *
-    * @param name  数据库名称（注意确保一致性）。
+    * @param path  数据库路径（注意确保一致性）。
     * @param flags 数据库的读写模式参数（这里用不到）。
     * @return `SQLiteOpenHelper`实例。
     */
-  def sqliteOpenHelper(name: String, flags: Int): SQLiteOpenHelper
+  def sqliteOpenHelper(path: String, flags: Int): SQLiteOpenHelper
 }
