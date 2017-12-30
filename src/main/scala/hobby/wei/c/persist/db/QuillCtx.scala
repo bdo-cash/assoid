@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package space.edge.d.wallet.persist.db
+package hobby.wei.c.persist.db
 
 import java.util.Properties
 import android.os.AsyncTask
@@ -25,7 +25,6 @@ import hobby.chenai.nakam.basis.IO.Close$
 import hobby.chenai.nakam.lang.J2S.Run
 import hobby.wei.c.core.AbsApp
 import hobby.wei.c.core.Ctx.%
-import hobby.wei.c.persist.db._
 import io.getquill.{CamelCase, SqliteJdbcContext}
 
 /**
