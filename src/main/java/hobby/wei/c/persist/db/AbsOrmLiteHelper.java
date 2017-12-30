@@ -166,7 +166,7 @@ public abstract class AbsOrmLiteHelper extends OrmLiteSqliteOpenHelper {
                         continue;
                     }
                     if (createSql.equals(oldSql)) {    //表结构没有变更，不用导数据
-                        L.i(TAG, "Upgrade Tables。表结构没有变更： %s.", name);
+                        L.i(TAG, "Upgrade Tables。表结构没有变更： %s.", L.s(name));
                         // newTableSqls不删除，需要在最后再执行一遍创建，因为TableUtils.getCreateTableStatements()返回是是一个list。
                         continue;    // 表结构相同，不用执行升级操作
                     } else {
@@ -203,7 +203,7 @@ public abstract class AbsOrmLiteHelper extends OrmLiteSqliteOpenHelper {
                 if (tableName == null) continue;    //注意有些是系统表
                 sqls.put(tableName, createSql);
 
-                L.i(TAG, "TableName: %s, SQL: %s.", tableName, createSql);
+                L.i(TAG, "TableName: %s, SQL: %s.", L.s(tableName), L.s(createSql));
             }
             cursor.close();
         }
@@ -226,11 +226,11 @@ public abstract class AbsOrmLiteHelper extends OrmLiteSqliteOpenHelper {
                         newTableSqls.put(tableName, sql);
                         newTables.put(tableName, clazz);
 
-                        L.i(TAG, "Table Class: %s, TableName: %s, SQL: %s.", clazz.getSimpleName(), tableName, sql);
+                        L.i(TAG, "Table Class: %s, TableName: %s, SQL: %s.", L.s(clazz.getSimpleName()), L.s(tableName), L.s(sql));
                     }
                 }
             } catch (SQLException e) {
-                L.e(TAG, "Table Class: %s, SQLException: %s.", clazz.getSimpleName(), e.getLocalizedMessage());
+                L.e(TAG, e, "Table Class: %s.", L.s(clazz.getSimpleName()));
             }
         }
     }
@@ -239,7 +239,7 @@ public abstract class AbsOrmLiteHelper extends OrmLiteSqliteOpenHelper {
      * 导数据。查询数据到内存，删除旧表，创建新表，写入数据。
      */
     protected static void upgradeTable(SQLiteDatabase database, ConnectionSource connSource, Class<?> tableClazz, String name, String oldSql, String createSql) {
-        L.i(TAG, "[upgradeTable start]Table: %s.", name);
+        L.i(TAG, "[upgradeTable start]Table: %s.", L.s(name));
 
         String[] fields = getSameFields(oldSql, createSql);
         if (fields == null || fields.length == 0) return;
@@ -271,10 +271,10 @@ public abstract class AbsOrmLiteHelper extends OrmLiteSqliteOpenHelper {
             database.execSQL("DROP TABLE " + name_backup);
 
             database.setTransactionSuccessful();
-            L.i(TAG, "[upgradeTable Successful]Table: %s.", name);
+            L.i(TAG, "[upgradeTable Successful]Table: %s.", L.s(name));
         } catch (Exception e) {
             database.execSQL("DROP TABLE " + name);
-            L.i(TAG, "[upgradeTable Exception][SQL]DROP TABLE %s.", name);
+            L.i(TAG, "[upgradeTable Exception][SQL]DROP TABLE %s.", L.s(name));
         } finally {
             database.endTransaction();
         }
@@ -289,26 +289,26 @@ public abstract class AbsOrmLiteHelper extends OrmLiteSqliteOpenHelper {
     protected static void deleteTable(SQLiteDatabase database, String tableName) {
         tableName = DOT + tableName + DOT;
         String sql = "DROP TABLE IF EXISTS " + tableName;
-        L.w(TAG, "[deleteTable][SQL]%s.", sql);
+        L.w(TAG, "[deleteTable][SQL]%s.", L.s(sql));
         database.execSQL(sql);
     }
 
     protected static String parseTableNameInSql(String createSql, boolean except, Set<String> exceptTableNames) {
         if (!createSql.substring(0, 12).equalsIgnoreCase("CREATE TABLE")) {
-            L.i(TAG, "[getTableName] not create SQL: %s.", createSql);
+            L.i(TAG, "[getTableName] not create SQL: %s.", L.s(createSql));
             return null;
         }
         int $ = createSql.indexOf('(');    // 注意有可能是CREATE TABLE IF NOT EXISTS
         String sys = createSql.substring(0, $);
         if (sys.contains("android_") || sys.contains("sqlite_") || sys.contains("metadata")) {
-            L.i(TAG, "[getTableName] systable SQL: %s.", createSql);
+            L.i(TAG, "[getTableName] systable SQL: %s.", L.s(createSql));
             return null;
         }
 
         int s = createSql.indexOf(DOT) + 1;
         int e = createSql.indexOf(DOT, s);
         if (e <= 0 || e > $) {    // 系统表中没有这些字符
-            L.i(TAG, "[getTableName]Index s: %s, e: %s, SQL: %s.", s, e, createSql);
+            L.i(TAG, "[getTableName]Index s: %s, e: %s, SQL: %s.", s, e, L.s(createSql));
             return null;
         }
         String name = createSql.substring(s, e);
@@ -361,7 +361,7 @@ public abstract class AbsOrmLiteHelper extends OrmLiteSqliteOpenHelper {
             int $index = field.indexOf('(');
             if ($index >= 0 && $index < index) {    // PRIMARY KEY (`key_param`)
                 result = null;
-                L.i(TAG, "[parseFieldName] 带有括号(``): %s.", field);
+                L.i(TAG, "[parseFieldName] 带有括号(``): %s.", L.s(field));
             } else {
                 index++;
                 result = field.substring(index, field.indexOf(DOT, index));
@@ -375,7 +375,7 @@ public abstract class AbsOrmLiteHelper extends OrmLiteSqliteOpenHelper {
                 result = field.split(" ")[0].trim();
             }
         }
-        L.i(TAG, "[parseFieldName] result: %s.", result);
+        L.i(TAG, "[parseFieldName] result: %s.", L.s(result));
         return result;
     }
 

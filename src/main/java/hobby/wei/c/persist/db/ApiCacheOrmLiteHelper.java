@@ -87,12 +87,12 @@ public abstract class ApiCacheOrmLiteHelper extends AbsOrmLiteHelper {
                     String category;
                     for (Api api : newApis) {
                         category = KeyUtils.getCategory(api);
-                        L.d(TAG, "接口数据缓存表导Api数据：%s.", category);
+                        L.d(TAG, "接口数据缓存表导Api数据：%s.", L.s(category));
                         if (oldApiCategorys.remove(category)) {
                             if (api.cacheTimeMS >= 0) {
                                 upgradeApiCache(oldVersion, dao, api, category);
                             } else {
-                                L.d(TAG, "cacheTimeMS < 0 删除不用缓存的数据。category：%s.", category);
+                                L.d(TAG, "cacheTimeMS < 0 删除不用缓存的数据。category：%s.", L.s(category));
                                 DeleteBuilder<ApiCacheTable, String> deleteBuilder = dao.deleteBuilder();
                                 deleteBuilder.where().eq(ApiCacheTable.FIELD_CATEGORY, category);
                                 deleteBuilder.delete();
@@ -132,7 +132,7 @@ public abstract class ApiCacheOrmLiteHelper extends AbsOrmLiteHelper {
                 categorys = new HashSet<>(list.size());
                 for (ApiCacheTable table : list) {
                     categorys.add(table.category);
-                    L.i(TAG, "OldApiCategory: %s.", table.category);
+                    L.i(TAG, "OldApiCategory: %s.", L.s(table.category));
                 }
             }
         } catch (SQLException e) {
@@ -164,11 +164,11 @@ public abstract class ApiCacheOrmLiteHelper extends AbsOrmLiteHelper {
                 try {
                     if (test) {
                         if (!KeyUtils.isDBCacheKeyChanged(table.key, newApi)) {
-                            L.d(TAG, "[upgradeApiCache] 没有改变：%s.", category);
+                            L.d(TAG, "[upgradeApiCache] 没有改变：%s.", L.s(category));
                             break;
                         }
                         saveOldData = getUpgrader().needSaveOldApiData(oldVersion, newApi.baseUrl, newApi.name, newApi);
-                        L.w(TAG, "[upgradeApiCache] 是否保存旧数据：%s, %s.", saveOldData, category);
+                        L.w(TAG, "[upgradeApiCache] 是否保存旧数据：%s, %s.", saveOldData, L.s(category));
                         if (!saveOldData) {
                             break;
                         }
@@ -178,23 +178,23 @@ public abstract class ApiCacheOrmLiteHelper extends AbsOrmLiteHelper {
                     if (newKey == null || newKey.length() == 0) {
                         // delete
                         dao.deleteById(table.key);
-                        L.d(TAG, "[upgradeApiCache] 删除：%s.", table.key);
+                        L.d(TAG, "[upgradeApiCache] 删除：%s.", L.s(table.key));
                     } else if (newKey.equals(table.key)) {
                         // 保持不变
-                        L.d(TAG, "[upgradeApiCache] 保持不变：%s.", table.key);
+                        L.d(TAG, "[upgradeApiCache] 保持不变：%s.", L.s(table.key));
                     } else {
                         // 注意每次调用dao.updateBuilder()都会new一个新的。
                         UpdateBuilder<ApiCacheTable, String> updateBuilder = dao.updateBuilder();
                         updateBuilder.where().eq(ApiCacheTable.FIELD_KEY, table.key);
                         updateBuilder.updateColumnValue(ApiCacheTable.FIELD_KEY, newKey);
-                        L.d(TAG, "[upgradeApiCache] 更新语句：%s.", updateBuilder.prepareStatementString());
+                        L.d(TAG, "[upgradeApiCache] 更新语句：%s.", L.s(updateBuilder.prepareStatementString()));
                         updateBuilder.update();
-                        L.d(TAG, "[upgradeApiCache] 更新 oldkey: %s, newkey: %s.", table.key, newKey);
+                        L.d(TAG, "[upgradeApiCache] 更新 oldkey: %s, newkey: %s.", L.s(table.key), L.s(newKey));
                     }
                 } catch (SQLException e) {
                     e.printStackTrace();
-                    L.e(TAG, "[upgradeApiCache] category: %s, SQLException: %s.", category, e.getLocalizedMessage());
-                    L.e(TAG, "发生异常，则清空数据。category: %s.", category);
+                    L.e(TAG, e, "[upgradeApiCache] category: %s.", L.s(category));
+                    L.e(TAG, "发生异常，则清空数据。category: %s.", L.s(category));
                     saveOldData = false;
                 }
             }
@@ -208,7 +208,7 @@ public abstract class ApiCacheOrmLiteHelper extends AbsOrmLiteHelper {
                     DeleteBuilder<ApiCacheTable, String> deleteBuilder = dao.deleteBuilder();
                     deleteBuilder.where().eq(ApiCacheTable.FIELD_CATEGORY, category);
                     deleteBuilder.delete();
-                    L.w(TAG, "[upgradeApiCache] 删除旧数据。%s.", category);
+                    L.w(TAG, "[upgradeApiCache] 删除旧数据。%s.", L.s(category));
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
@@ -224,12 +224,12 @@ public abstract class ApiCacheOrmLiteHelper extends AbsOrmLiteHelper {
                 for (String sql : statements) {
                     tableSql = sql.trim();    // trim()很重要
                     if (tableSql == null) continue;
-                    L.i(TAG, "ApiCacheTableName: %s, ApiCacheTableSql: %s.", sApiCacheTable.clazz.getSimpleName(), tableSql);
+                    L.i(TAG, "ApiCacheTableName: %s, ApiCacheTableSql: %s.", L.s(sApiCacheTable.clazz.getSimpleName()), L.s(tableSql));
                     break;
                 }
             }
         } catch (SQLException e) {
-            L.e(TAG, e, "ApiCacheTableName: %s.", sApiCacheTable.clazz.getSimpleName());
+            L.e(TAG, e, "ApiCacheTableName: %s.", L.s(sApiCacheTable.clazz.getSimpleName()));
         }
         return tableSql;
     }

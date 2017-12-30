@@ -16,17 +16,16 @@
 
 package hobby.wei.c.remote.api;
 
-import android.util.Log;
-
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import hobby.chenai.nakam.basis.TAG;
 import hobby.wei.c.L;
-import hobby.wei.c.util.ReflectUtils;
 
+/**
+ * @author Wei Chou(weichou2010@gmail.com)
+ */
 public class KeyUtils {
     private static final TAG.LogTag TAG = new TAG.LogTag(KeyUtils.class.getName());
 
@@ -82,7 +81,7 @@ public class KeyUtils {
                 }
             }
         }
-        L.d(TAG, "[makeDBCacheKey] cacheKey: %s.", cacheKey);
+        L.d(TAG, "[makeDBCacheKey] cacheKey: %s.", L.s(cacheKey));
         return cacheKey;
     }
 
@@ -151,7 +150,7 @@ public class KeyUtils {
                 }
             }
         }
-        L.d(TAG, "[updateDBCacheKey] key: %s, oldkey: %s.", result, oldKey);
+        L.d(TAG, "[updateDBCacheKey] key: %s, oldkey: %s.", L.s(result), L.s(oldKey));
         return result;
     }
 
@@ -191,7 +190,7 @@ public class KeyUtils {
                 }
             }
         }
-        L.d(TAG, "[isDBCacheKeyChanged] changed: %s, key: %s, oldkey: %s.", changed, makeDBCacheKey(newApi, null, true), oldKey);
+        L.d(TAG, "[isDBCacheKeyChanged] changed: %s, key: %s, oldkey: %s.", changed, L.s(makeDBCacheKey(newApi, null, true)), L.s(oldKey));
         return changed;
     }
 }

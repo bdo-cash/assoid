@@ -85,7 +85,7 @@ public class PhotoUtils {
             activity.startActivityForResult(i, requestCode);
             return new Session(requestCode, cropArgs);
         } catch (Exception e) {
-            L.e(TAG, "[openSysCamaraToTakeImageCapture]INTENT_ACTION_STILL_IMAGE_CAMERA", e);
+            L.e(TAG, e, "[openSysCamaraToTakeImageCapture]INTENT_ACTION_STILL_IMAGE_CAMERA");
             return null;
         }
     }
@@ -97,7 +97,7 @@ public class PhotoUtils {
             context.startActivity(intent);
             return true;
         } catch (Exception e) {
-            L.e(TAG, "[openSysCamara]INTENT_ACTION_STILL_IMAGE_CAMERA", e);
+            L.e(TAG, e, "[openSysCamara]INTENT_ACTION_STILL_IMAGE_CAMERA");
             return false;
         }
     }
@@ -113,7 +113,7 @@ public class PhotoUtils {
             context.startActivity(intent);
             return true;
         } catch (Exception e) {
-            L.e(TAG, "[openSysCamaraSecure]INTENT_ACTION_STILL_IMAGE_CAMERA_SECURE", e);
+            L.e(TAG, e, "[openSysCamaraSecure]INTENT_ACTION_STILL_IMAGE_CAMERA_SECURE");
             return false;
         }
     }
@@ -125,14 +125,14 @@ public class PhotoUtils {
             context.startActivity(intent);
             return 0;
         } catch (Exception e) {
-            L.e(TAG, "[openSysCamaraPure]INTENT_ACTION_STILL_IMAGE_CAMERA_SECURE", e);
+            L.e(TAG, e, "[openSysCamaraPure]INTENT_ACTION_STILL_IMAGE_CAMERA_SECURE");
             try {
                 final Intent intent = new Intent(MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA);
                 if (!(context instanceof Activity)) intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(intent);
                 return 1;
             } catch (Exception e1) {
-                L.e(TAG, "[openSysCamaraPure]INTENT_ACTION_STILL_IMAGE_CAMERA", e1);
+                L.e(TAG, e1, "[openSysCamaraPure]INTENT_ACTION_STILL_IMAGE_CAMERA");
                 return 2;
             }
         }
