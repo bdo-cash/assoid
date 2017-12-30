@@ -17,12 +17,8 @@
 package hobby.wei.c.persist.db
 
 import java.io.File
-import java.util.Properties
 import android.os.AsyncTask
-import com.fortysevendeg.mvessel.DataSource
-import com.fortysevendeg.mvessel.api.impl.AndroidCursor
 import com.j256.ormlite.android.apptools.OpenHelperManager
-import hobby.chenai.nakam.basis.IO.Close$
 import hobby.chenai.nakam.lang.J2S.Run
 import hobby.wei.c.core.AbsApp
 import hobby.wei.c.core.Ctx.%
@@ -34,6 +30,7 @@ import io.getquill.{CamelCase, SqliteJdbcContext}
   */
 trait QuillCtx[HELPER <: AbsOrmLiteHelper] extends %[AbsApp] {
   protected def classOfDbHelper: Class[HELPER]
+  protected def databaseName: String
 
   private def sqliteDbHelper: AbsOrmLiteHelper = OpenHelperManager.getHelper(AbsApp.get, classOfDbHelper)
 
@@ -70,16 +67,16 @@ trait QuillCtx[HELPER <: AbsOrmLiteHelper] extends %[AbsApp] {
     * DriverManager.getConnection("jdbc:sqlite:" + database.getPath)
     * }}}
     */
-  def dataSource: javax.sql.DataSource with java.io.Closeable = new DataSource[AndroidCursor](
+  def dataSource: javax.sql.DataSource with java.io.Closeable = new QuillDataSource(
     new QuillAndroidDriver {
       override def databaseFactory = new QuillAndroidDatabaseFactory {
         override def sqliteOpenHelper(path: String, flags: Int) = {
           sqliteDbHelper.ensuring(_.getDatabaseName == new File(path).getName, s"param{path: $path, flags: $flags}, ${sqliteDbHelper.getDatabaseName}")
         }
       }
-    }, new Properties, mapDb(_.getReadableDatabase.getPath), DBLogWrapper) with java.io.Closeable {
+    }, getApp.getDatabasePath(databaseName).getPath) {
     override def close(): Unit = {
-      connection.close$()
+      super.close()
       OpenHelperManager.releaseHelper() // 数据库关闭操作由它完成。
     }
   }

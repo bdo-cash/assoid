@@ -21,6 +21,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.j256.ormlite.dao.CloseableIterator;
 import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.stmt.UpdateBuilder;
@@ -79,7 +80,7 @@ public abstract class ApiCacheOrmLiteHelper extends AbsOrmLiteHelper {
         L.d(TAG, "接口数据缓存表导Api数据：");
         Dao<ApiCacheTable, String> dao = null;
         try {
-            dao = getDao(sApiCacheTable.clazz);
+            dao = DaoManager.createDao(connSource, sApiCacheTable.clazz);
             Set<String> oldApiCategorys = getOldApiCategorys(dao);
             if (oldApiCategorys != null && oldApiCategorys.size() > 0) {
                 Set<Api> newApis = getApis();
