@@ -58,7 +58,7 @@ trait QuillCtx[HELPER <: AbsOrmLiteHelper] extends %[AbsApp] {
 
   /**
     * `DriverManager`已经过时，`DataSource`是连接到数据源的`首选`方法。（见`DriverManager`开头的文档。）
-    * `DriverManager` 用法示例（`https://github.com/47deg/mvessel`）：
+    * `DriverManager`用法示例（`https://github.com/47deg/mvessel`）：
     * {{{
     * val database: SQLiteDatabase = getReadableDatabase()
     * 2. Register the driver, making available for `java.sql`
