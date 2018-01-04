@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-present, Wei Chou (weichou2010@gmail.com)
+ * Copyright (C) 2015-present, Wei Chou(weichou2010@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import android.content.SharedPreferences;
 import android.os.Build;
 
 /**
- * @author Wei.Chou(weichou2010@gmail.com) 2015/9
+ * @author Wei Chou(weichou2010@gmail.com) 2015/9
  */
 public class SPrefHelper {
     private static final SPrefHelper sSPrefHelper = new SPrefHelper();

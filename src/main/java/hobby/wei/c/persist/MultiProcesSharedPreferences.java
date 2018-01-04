@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-present, Wei Chou (weichou2010@gmail.com)
+ * Copyright (C) 2015-present, Wei Chou(weichou2010@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,14 +34,14 @@ import java.util.Map;
 import java.util.Set;
 
 import hobby.chenai.nakam.basis.TAG;
-import hobby.wei.c.tools.LruCache;
+import hobby.wei.c.tool.LruCache;
 
 import static hobby.wei.c.L.d;
 import static hobby.wei.c.L.i;
 import static hobby.wei.c.L.s;
 
 /**
- * @author Wei.Chou(weichou2010@gmail.com) 2015/9/2
+ * @author Wei Chou(weichou2010@gmail.com) 2015/9/2
  */
 public class MultiProcesSharedPreferences implements SharedPreferences {
     private static final TAG.LogTag TAG = new TAG.LogTag(MultiProcesSharedPreferences.class.getName());

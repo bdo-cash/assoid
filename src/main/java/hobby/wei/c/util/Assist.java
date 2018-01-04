@@ -25,7 +25,7 @@ import static android.text.TextUtils.isEmpty;
 import static hobby.wei.c.util.ArrayUtils.isEmpty;
 
 /**
- * @author Wei.Chou(weichou2010@gmail.com)
+ * @author Wei Chou(weichou2010@gmail.com)
  * @version 1.0, 02/07/2016
  */
 public class Assist {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-present, Wei Chou (weichou2010@gmail.com)
+ * Copyright (C) 2015-present, Wei Chou(weichou2010@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ import hobby.wei.c.core.AbsApp;
  * &nbsp;&nbsp;&nbsp;&nbsp;android:exported="true"<br/>
  * &nbsp;&nbsp;&nbsp;&nbsp;android:multiprocess="false" /&gt;<br/>
  *
- * @author Wei.Chou(weichou2010@gmail.com) 2015/9/2
+ * @author Wei Chou(weichou2010@gmail.com) 2015/9/2
  */
 public class SharedPreferencesProvider extends ContentProvider {
     public static final String AUTHORITY            = AbsApp.get().withPackageNamePrefix("MPSPREF");

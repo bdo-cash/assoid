@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-present, Wei Chou (weichou2010@gmail.com)
+ * Copyright (C) 2015-present, Wei Chou(weichou2010@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import static hobby.wei.c.util.Assist.requireNonEmpty;
 import static hobby.wei.c.util.Assist.requireNotNull;
 
 /**
- * @author Wei.Chou(weichou2010@gmail.com)
+ * @author Wei Chou(weichou2010@gmail.com)
  * @version 1.0, 02/12/2015;
  * 1.1, 04/01/2017, 增加withUser().
  */
