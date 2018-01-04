@@ -28,7 +28,7 @@ import scala.util.Try
 /**
   * Copy 自`AndroidDriver`，目前是为了重写里面的`AndroidDatabaseFactory`和`LogWrapper`。
   *
-  * @author Chenakam (chenai.nakam@gmail.com)
+  * @author Chenai Nakam(chenai.nakam@gmail.com)
   * @version 1.0, 29/12/2017
   */
 abstract class QuillAndroidDriver extends BaseDriver[AndroidCursor] {

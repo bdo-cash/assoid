@@ -25,7 +25,7 @@ import hobby.wei.c.core.Ctx.%
 import io.getquill.{CamelCase, SqliteJdbcContext}
 
 /**
-  * @author Chenakam (chenai.nakam@gmail.com)
+  * @author Chenai Nakam(chenai.nakam@gmail.com)
   * @version 1.0, 28/12/2017
   */
 trait QuillCtx[HELPER <: AbsOrmLiteHelper] extends %[AbsApp] {

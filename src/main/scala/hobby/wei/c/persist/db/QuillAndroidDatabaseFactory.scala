@@ -21,7 +21,7 @@ import com.fortysevendeg.mvessel.api.DatabaseProxy
 import com.fortysevendeg.mvessel.api.impl.{AndroidCursor, AndroidDatabase, AndroidDatabaseFactory}
 
 /**
-  * @author Chenakam (chenai.nakam@gmail.com)
+  * @author Chenai Nakam(chenai.nakam@gmail.com)
   * @version 1.0, 29/12/2017
   */
 abstract class QuillAndroidDatabaseFactory extends AndroidDatabaseFactory {

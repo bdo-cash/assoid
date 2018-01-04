@@ -17,7 +17,7 @@
 package hobby.wei.c.core
 
 /**
-  * @author Chenakam (chenai.nakam@gmail.com)
+  * @author Chenai Nakam(chenai.nakam@gmail.com)
   * @version 1.0, 14/12/2017
   */
 trait Feedback {

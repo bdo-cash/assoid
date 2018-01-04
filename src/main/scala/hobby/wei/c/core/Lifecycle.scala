@@ -25,7 +25,7 @@ import hobby.chenai.nakam.basis.TAG
 import hobby.wei.c.LOG._
 
 /**
-  * @author Chenakam (chenai.nakam@gmail.com)
+  * @author Chenai Nakam(chenai.nakam@gmail.com)
   * @version 1.0, 25/12/2017
   */
 object Lifecycle {

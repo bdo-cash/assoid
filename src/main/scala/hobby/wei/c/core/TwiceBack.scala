@@ -23,7 +23,7 @@ import android.widget.Toast
 import hobby.chenai.nakam.assoid.R
 
 /**
-  * @author Chenakam (chenai.nakam@gmail.com)
+  * @author Chenai Nakam(chenai.nakam@gmail.com)
   * @version 1.0, 26/11/2017
   */
 trait TwiceBack extends Ctx.Acty {

@@ -23,7 +23,7 @@ import hobby.wei.c.LOG._
 import scala.collection.mutable
 
 /**
-  * @author Chenakam (chenai.nakam@gmail.com)
+  * @author Chenai Nakam(chenai.nakam@gmail.com)
   * @version 1.0, 08/12/2017
   */
 object PermissionReq {

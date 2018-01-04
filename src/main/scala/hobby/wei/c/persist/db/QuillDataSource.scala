@@ -24,7 +24,7 @@ import com.fortysevendeg.mvessel.logging.LogWrapper
 import hobby.chenai.nakam.basis.IO.Close$
 
 /**
-  * @author Chenakam (chenai.nakam@gmail.com)
+  * @author Chenai Nakam(chenai.nakam@gmail.com)
   * @version 1.0, 30/12/2017
   */
 class QuillDataSource(driver: BaseDriver[AndroidCursor],

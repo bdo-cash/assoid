@@ -22,7 +22,7 @@ import android.view.{LayoutInflater, ViewGroup}
 import hobby.wei.c.anno.inject.Injector
 
 /**
-  * @author Chenakam (chenai.nakam@gmail.com)
+  * @author Chenai Nakam(chenai.nakam@gmail.com)
   * @version 1.0, 17/11/2017
   */
 object Inject {

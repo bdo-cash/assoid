@@ -28,8 +28,9 @@ import hobby.wei.c.LOG._
 /**
   * 重构 `LinkSpan`。
   *
-  * @author Chenakam (chenai.nakam@gmail.com)
-  * @version 1.0, 14/11/2017
+  * @author Wei Chou(weichou2010@gmail.com)
+  * @version 1.0, xx/xx/2014;
+  *          2.0, 14/11/2017.
   */
 trait SpanLinkable extends UpdateAppearance with TAG.ClassName {
   private var mCanHighLight, mRefreshed = false

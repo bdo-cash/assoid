@@ -21,7 +21,7 @@ import hobby.chenai.nakam.basis.TAG
 import hobby.wei.c.LOG
 
 /**
-  * @author Chenakam (chenai.nakam@gmail.com)
+  * @author Chenai Nakam(chenai.nakam@gmail.com)
   * @version 1.0, 29/12/2017
   */
 object DBLogWrapper extends LogWrapper with TAG.ClassName {

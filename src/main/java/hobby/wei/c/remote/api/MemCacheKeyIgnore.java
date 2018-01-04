@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-present, Chenai Nakam(chenai.nakam@gmail.com)
+ * Copyright (C) 2013-present, Wei Chou(weichou2010@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,8 @@ import java.lang.annotation.Target;
 import hobby.wei.c.anno.proguard.Keep$$;
 
 /**
- * @author Chenakam (chenai.nakam@gmail.com)
- * @version 1.0, 29/12/2017
+ * @author Wei Chou(weichou2010@gmail.com)
+ * @version 1.0, xx/xx/2013
  */
 @Keep$$
 @Target(ElementType.FIELD)
