@@ -19,6 +19,7 @@ package hobby.wei.c.core
 import android.app.Activity
 import android.os.Bundle
 import android.view.{Window, WindowManager}
+import hobby.chenai.nakam.assoid.BuildConfig
 
 /**
   * @author Chenai Nakam(chenai.nakam@gmail.com)
@@ -27,7 +28,7 @@ import android.view.{Window, WindowManager}
 object Secure {
   trait Abs {
     def secure(window: Window): Unit = {
-      window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+      if(!BuildConfig.DEBUG) window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
     }
   }
 
