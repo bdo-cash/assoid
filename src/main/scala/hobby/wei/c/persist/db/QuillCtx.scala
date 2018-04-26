@@ -17,11 +17,12 @@
 package hobby.wei.c.persist.db
 
 import java.io.File
-import android.os.AsyncTask
 import com.j256.ormlite.android.apptools.OpenHelperManager
 import hobby.chenai.nakam.lang.J2S.Run
 import hobby.wei.c.core.AbsApp
 import hobby.wei.c.core.Ctx.%
+import hobby.wei.c.reflow.Reflow
+import hobby.wei.c.reflow.implicits._
 import io.getquill.{CamelCase, SqliteJdbcContext}
 
 /**
@@ -39,10 +40,10 @@ trait QuillCtx[HELPER <: AbsOrmLiteHelper] extends %[AbsApp] {
   }
 
   def mapDb[A](toUi: A => Unit)(f: AbsOrmLiteHelper => A): Unit = {
-    AsyncTask.THREAD_POOL_EXECUTOR.execute({
+    Reflow.submit {
       val value: A = mapDb(f)
       getApp.mainHandler.post(toUi(value).run$)
-    }.run$)
+    }(TRANSIENT)
   }
 
   def mapCtx[A](f: SqliteJdbcContext[_] => A): A = {
@@ -50,10 +51,10 @@ trait QuillCtx[HELPER <: AbsOrmLiteHelper] extends %[AbsApp] {
   }
 
   def mapCtx[A](toUi: A => Unit)(f: SqliteJdbcContext[_] => A): Unit = {
-    AsyncTask.THREAD_POOL_EXECUTOR.execute({
+    Reflow.submit {
       val value: A = mapCtx(f)
       getApp.mainHandler.post(toUi(value).run$)
-    }.run$)
+    }(TRANSIENT)
   }
 
   /**
