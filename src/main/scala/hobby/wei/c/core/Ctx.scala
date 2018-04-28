@@ -16,7 +16,7 @@
 
 package hobby.wei.c.core
 
-import android.app.{DialogFragment, Fragment}
+import android.app.{DialogFragment, Fragment, Service}
 import android.content.Context
 import android.os.Handler
 import android.view.Window
@@ -46,6 +46,12 @@ object Ctx {
 
   trait %[A <: AbsApp] {
     def getApp: A = AbsApp.get
+  }
+
+  trait Srvce extends Service with Abs {
+    implicit def activity: AbsActy = ???
+    implicit def context: Context = this
+    implicit def window: Window = ???
   }
 
   trait Acty extends AbsActy with Abs {

@@ -17,12 +17,11 @@
 package hobby.wei.c.core
 
 import java.util
-import android.app.Fragment
+import android.app.{Fragment, Service}
 import android.content.{BroadcastReceiver, Context, Intent, IntentFilter}
 import android.os.Bundle
 import android.support.v4.content.LocalBroadcastManager
 import hobby.chenai.nakam.lang.J2S.{NonNull, WrapIterator}
-import hobby.chenai.nakam.lang.TypeBring.AsIs
 import hobby.wei.c.core.EventHost.{EventReceiver, EventSession, PeriodMode}
 import hobby.wei.c.core.EventHost.PeriodMode.PeriodMode
 
@@ -31,6 +30,18 @@ import hobby.wei.c.core.EventHost.PeriodMode.PeriodMode
   * @version 1.1, 17/11/2017, 重构旧代码。
   */
 object EventHost {
+  trait Srvce extends Service with EventHost with Ctx.Srvce {
+    override def onStartCommand(intent: Intent, flags: Int, startId: Int) = {
+      eventDelegator.onStart()
+      super.onStartCommand(intent, flags, startId)
+    }
+
+    override def onDestroy(): Unit = {
+      eventDelegator.onStop()
+      super.onDestroy()
+    }
+  }
+
   trait Acty extends AbsActy with EventHost with Ctx.Acty {
     override protected def onStart(): Unit = {
       super.onStart()
