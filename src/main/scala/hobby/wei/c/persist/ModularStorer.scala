@@ -96,11 +96,11 @@ object ModularStorer {
   private def getModule(userId: String, module: String) = Storer.Wrapper.get(AbsApp.get[AbsApp].getApplicationContext,
     STORER_NAME + "-" + module).withUser(userId).multiProcess
 
-  private def ensureModule2Meta(userId: String, module: String, clear: Boolean): Unit = {
+  private def ensureModule2Meta(userId: String, module: String, clearable: Boolean): Unit = {
     val meta: Storer = getMeta(userId)
     val set: util.Set[String] = meta.getSharedPreferences.getStringSet(KEY_META, new util.HashSet[String] /*后面有add()操作*/)
     if (!set.contains(module)) {
-      if (clear) meta.edit().putBoolean(module.ensuring(_ != KEY_META), true).commit()
+      if (clearable) meta.edit.putBoolean(module.ensuring(_ != KEY_META), true).commit()
       set.add(module)
       meta.edit.putStringSet(KEY_META, set).commit()
     }
