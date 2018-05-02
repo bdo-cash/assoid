@@ -23,6 +23,7 @@ import android.os.Build
 import android.provider.Settings
 import android.telephony.TelephonyManager
 import hobby.chenai.nakam.lang.J2S.NonNull
+import hobby.chenai.nakam.lang.TypeBring.AsIs
 import hobby.wei.c.used.UsedStorer
 import hobby.wei.c.util.MD5Utils
 
@@ -84,14 +85,12 @@ object Device {
   /** 设备型号 */
   def brand = Build.BRAND + " " + Build.MODEL
 
-  /* 旧代码：
-  {
-     if (Build.VERSION.SDK_INT < 8) Build.CPU_ABI
-     else Build.CPU_ABI + (if (Build.CPU_ABI2 == Build.UNKNOWN) "" else ", " + Build.CPU_ABI2)
-   }*/
-  def cpuAbi = Build.SUPPORTED_ABIS.filterNot(_ == Build.UNKNOWN).mkString(", ")
+  def cpuAbi = {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) Array(Build.CPU_ABI, Build.CPU_ABI2)
+    else Build.SUPPORTED_ABIS
+  }.filterNot(_ == Build.UNKNOWN).mkString(", ")
 
-  private def getTelephonyManager(context: Context) = context.getSystemService(classOf[TelephonyManager])
+  private def getTelephonyManager(context: Context) = context.getSystemService(Context.TELEPHONY_SERVICE).as[TelephonyManager]
 
-  private def getWifiManager(context: Context) = context.getSystemService(classOf[WifiManager])
+  private def getWifiManager(context: Context) = context.getSystemService(Context.WIFI_SERVICE).as[WifiManager]
 }

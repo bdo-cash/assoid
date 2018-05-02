@@ -17,6 +17,7 @@
 package hobby.wei.c.core
 
 import android.app.{DialogFragment, Fragment}
+import android.content.Context
 import android.os.Bundle
 import android.view.{View, ViewGroup}
 import android.view.inputmethod.InputMethodManager
@@ -101,5 +102,5 @@ trait Keyboard extends Ctx.Abs {
     }
   }
 
-  protected def inputMethodMgr = window.getContext.getSystemService(classOf[InputMethodManager])
+  protected def inputMethodMgr = window.getContext.getSystemService(Context.INPUT_METHOD_SERVICE).as[InputMethodManager]
 }

@@ -19,6 +19,7 @@ package hobby.wei.c.core
 import java.util
 import java.lang.ref.WeakReference
 import android.app.{ActivityManager, Application}
+import android.content.Context
 import android.content.pm.PackageManager
 import android.os.{Handler, Looper, Process}
 import hobby.chenai.nakam.basis.TAG
@@ -146,7 +147,7 @@ abstract class AbsApp extends Application with TAG.ClassName {
     if (onExit(mFirstLaunch) && checkCallingOrSelfPermission(android.Manifest.permission.KILL_BACKGROUND_PROCESSES) == PackageManager.PERMISSION_GRANTED) {
       e("@@@@@@@@@@----[应用退出]----[将]自动结束进程（设置项）: %s", getProcessName(Process.myPid()).orNull.s)
       //只会对后台进程起作用，当本App最后一个Activity.onDestroy()的时候也会起作用，并且是立即起作用，即本语句后面的语句将不会执行。
-      getSystemService(classOf[ActivityManager]).killBackgroundProcesses(getPackageName)
+      getSystemService(Context.ACTIVITY_SERVICE).as[ActivityManager].killBackgroundProcesses(getPackageName)
       e("@@@@@@@@@@----[应用退出]---走不到这里来")
     }
     mForceExit = false
@@ -157,7 +158,7 @@ abstract class AbsApp extends Application with TAG.ClassName {
   def getProcessName(pid: Int): Option[String] = {
     var name: Option[String] = None
     breakable {
-      for (info <- getSystemService(classOf[ActivityManager]).getRunningAppProcesses.iterator().toSeq if info.pid == pid) {
+      for (info <- getSystemService(Context.ACTIVITY_SERVICE).as[ActivityManager].getRunningAppProcesses.iterator().toSeq if info.pid == pid) {
         w("[process]id: %s, name: %s", info.pid, info.processName.s)
         name = Option(info.processName)
         break

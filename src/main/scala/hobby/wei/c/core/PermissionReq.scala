@@ -16,7 +16,9 @@
 
 package hobby.wei.c.core
 
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
+import android.os.Build
 import hobby.chenai.nakam.lang.J2S.NonFlat
 import hobby.wei.c.LOG._
 
@@ -26,6 +28,7 @@ import scala.collection.mutable
   * @author Chenai Nakam(chenai.nakam@gmail.com)
   * @version 1.0, 08/12/2017
   */
+@SuppressLint(Array("NewApi"))
 object PermissionReq {
   private[PermissionReq] trait Abs extends Ctx.Abs with ReqCode {
     private val permissionsDenied = mutable.HashSet[(String, Boolean)]()
@@ -60,7 +63,7 @@ object PermissionReq {
     def isPermissionGranted(permission: String): Boolean = activity.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
 
     /** 请求动态授权。 */
-    def requirePermissions(): Boolean = {
+    def requirePermissions(): Boolean = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) true else {
       permissionsDenied.clear()
       needShowRationale = Nil
       var reqDirect = List[String]()

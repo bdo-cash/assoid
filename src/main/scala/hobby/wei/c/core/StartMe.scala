@@ -18,7 +18,7 @@ package hobby.wei.c.core
 
 import android.app.Activity
 import android.content.{Context, Intent}
-import android.os.Bundle
+import android.os.{Build, Bundle}
 import hobby.chenai.nakam.basis.TAG
 import hobby.chenai.nakam.lang.TypeBring.AsIs
 
@@ -30,8 +30,12 @@ trait StartMe {
   protected def startMe(context: Context, intent: Intent, options: Bundle): Unit = startMe(context, intent, false, 0, options)
 
   protected def startMe(context: Context, intent: Intent, forResult: Boolean = false, requestCode: Int = 0, options: Bundle = null): Unit = {
-    if (forResult) context.ensuring(_.isInstanceOf[Activity]).as[Activity].startActivityForResult(intent, requestCode, options)
-    else {
+    if (forResult) {
+      assert(context.isInstanceOf[Activity])
+      if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN)
+        context.as[Activity].startActivityForResult(intent, requestCode)
+      else context.as[Activity].startActivityForResult(intent, requestCode, options)
+    } else {
       if (!context.isInstanceOf[Activity]) intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
       context.startActivity(intent)
     }

@@ -18,7 +18,7 @@ package hobby.wei.c.core
 
 import android.app.{DialogFragment, Fragment, Service}
 import android.content.Context
-import android.os.Handler
+import android.os.{Build, Handler}
 import android.view.Window
 import hobby.chenai.nakam.basis.TAG.ThrowMsg
 import hobby.chenai.nakam.lang.J2S.NonNull
@@ -65,7 +65,7 @@ object Ctx {
 
     // 由于 Activity 在 Fragment 的生命周期中，可能会重建。所以不能定义为 val。
     override implicit def activity: AbsActy = getActivity.as[AbsActy].ensuring(_.nonNull, msg)
-    override implicit def context: Context = getContext.ensuring(_.nonNull, msg)
+    override implicit def context: Context = (if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) activity else getContext).ensuring(_.nonNull, msg)
     override implicit def window: Window = activity.getWindow
   }
 
