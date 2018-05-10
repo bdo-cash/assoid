@@ -100,11 +100,17 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
 
   //////////////////////////////////////////////////////////////////////////////////////////
   private val mEventReceiver4Exit = new EventReceiver {
-    override def onEvent(data: Bundle): Unit = exit()
+    override def onEvent(data: Bundle): Unit = {
+      e("跨进程 exit(), process: %s.", myProcessName)
+      exit()
+    }
   }
   private val mEventReceiver4FinishActivities = new EventReceiver {
-    override def onEvent(data: Bundle): Unit = if (data.getInt(sEventHost_bundle_pid) != Process.myPid())
-      finishActivitiesInner(data.getStringArray(sEventHost_bundle_activities).map(Class.forName(_).as[Class[AbsActy]]): _*)
+    override def onEvent(data: Bundle): Unit = if (data.getInt(sEventHost_bundle_pid) != Process.myPid()) {
+      val activities = data.getStringArray(sEventHost_bundle_activities)
+      e("跨进程 finish activities. process: %s, activities: %s.", myProcessName, activities.mkString("\n").s)
+      finishActivitiesInner(activities.map(Class.forName(_).as[Class[AbsActy]]): _*)
+    }
   }
 
   def finishActivities(actyClasses: Class[_ <: AbsActy]*): Unit = {
@@ -112,7 +118,7 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
     data.putStringArray(sEventHost_bundle_activities, actyClasses.map(_.getName).toArray)
     data.putInt(sEventHost_bundle_pid, Process.myPid())
     sendGlobalEvent(sEventHost_event4FinishActivities, data)
-    finishActivitiesInner()
+    finishActivitiesInner(actyClasses: _*)
   }
 
   private def finishActivitiesInner(actyClasses: Class[_ <: AbsActy]*): Unit = {
@@ -165,22 +171,22 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
   }
 
   private[core] def doExit(): Unit = {
-    if (onExit(currentProcessName.get, isFirstTimeLaunch("0")) && checkCallingOrSelfPermission(android.Manifest.permission.KILL_BACKGROUND_PROCESSES) == PackageManager.PERMISSION_GRANTED) {
-      e("@@@@@@@@@@----[应用退出]----[将]自动结束进程（设置项）: %s", getProcessName(Process.myPid()).orNull.s)
+    if (onExit(myProcessName.orNull, isFirstTimeLaunch("0")) && checkCallingOrSelfPermission(android.Manifest.permission.KILL_BACKGROUND_PROCESSES) == PackageManager.PERMISSION_GRANTED) {
+      e("@@@@@@@@@@----[应用退出]----[将]自动结束进程（设置项）: %s.", myProcessName.orNull.s)
       //只会对后台进程起作用，当本App最后一个Activity.onDestroy()的时候也会起作用，并且是立即起作用，即本语句后面的语句将不会执行。
       getSystemService(Context.ACTIVITY_SERVICE).as[ActivityManager].killBackgroundProcesses(getPackageName)
-      e("@@@@@@@@@@----[应用退出]---走不到这里来")
+      e("@@@@@@@@@@----[应用退出]---走不到这里来.")
     }
     mForceExit.set(false)
     doneFirstTimeLaunch("0")
-    w("@@@@@@@@@@----[应用退出]---[未]自动结束进程: %s", getProcessName(Process.myPid()).orNull.s)
+    w("@@@@@@@@@@----[应用退出]---[未]自动结束进程: %s.", myProcessName.orNull.s)
   }
 
   def getProcessName(pid: Int): Option[String] = {
     var name: Option[String] = None
     breakable {
       for (info <- getSystemService(Context.ACTIVITY_SERVICE).as[ActivityManager].getRunningAppProcesses.iterator().toSeq if info.pid == pid) {
-        w("[process]id: %s, name: %s", info.pid, info.processName.s)
+        w("[process]id: %s, name: %s.", info.pid, info.processName.s)
         name = Option(info.processName)
         break
       }
@@ -188,9 +194,9 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
     name
   }
 
-  def currentProcessName = getProcessName(Process.myPid())
+  lazy val myProcessName = getProcessName(Process.myPid())
 
-  def isCurrentProcessOf(name: String): Boolean = currentProcessName.exists(_.endsWith(name))
+  def isMyProcessOf(name: String): Boolean = myProcessName.exists(_.endsWith(name))
 
   /**
     * 关闭activity. 只可在onActivityDestroy()的内部调用，否则返回值会不准确。
