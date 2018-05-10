@@ -28,16 +28,16 @@ public class UsedStorer {
             return get(AbsApp.get(), "absapp").multiProcess().ok();
         }
 
-        public static Storer getModule(int moduleId) {
-            return get(AbsApp.get(), "absapp_module_" + moduleId).multiProcess().ok();
+        public static Storer getModule(String module) {
+            return get(AbsApp.get(), "absapp-m_" + module).multiProcess().ok();
         }
 
-        public static boolean getFirstLaunch(int moduleId) {
-            return getModule(moduleId).loadBoolean("first_launch", true);
+        public static boolean isFirstLaunch(String module) {
+            return getModule(module).loadBoolean("first_launch", true);
         }
 
-        public static void clearFirstLaunch(int moduleId) {
-            getModule(moduleId).storeBoolean("first_launch", false);
+        public static void clearFirstLaunchFlag(String module) {
+            getModule(module).storeBoolean("first_launch", false);
         }
     }
 

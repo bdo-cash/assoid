@@ -18,17 +18,23 @@ package hobby.wei.c.core
 
 import java.util
 import java.lang.ref.WeakReference
+import java.util.concurrent.atomic.AtomicBoolean
 import android.app.{ActivityManager, Application}
 import android.content.Context
 import android.content.pm.PackageManager
-import android.os.{Handler, Looper, Process}
+import android.os.{Bundle, Handler, Looper, Process}
+import android.view.Window
 import hobby.chenai.nakam.basis.TAG
 import hobby.chenai.nakam.lang.J2S.{NonNull, WrapIterator}
 import hobby.chenai.nakam.lang.TypeBring.AsIs
+import hobby.chenai.nakam.tool.cache.{Delegate, LazyGet, Memoize, WeakKey}
+import hobby.wei.c
 import hobby.wei.c.LOG._
+import hobby.wei.c.core.EventHost.{EventReceiver, PeriodMode}
 import hobby.wei.c.used.UsedStorer
 
 import scala.collection.JavaConversions.asScalaBuffer
+import scala.language.implicitConversions
 import scala.util.control.Breaks._
 
 /**
@@ -41,59 +47,75 @@ object AbsApp {
   def get[A <: AbsApp]: A = sInstance.ensuring(_.nonNull).as[A]
 }
 
-abstract class AbsApp extends Application with TAG.ClassName {
+abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.ClassName {
+  outer =>
   CrashHandler.startCaughtAllException(false, true)
   AbsApp.sInstance = this
 
-  private val sHandlerRefMap = new util.WeakHashMap[Looper, Handler]
+  private lazy val mForceExit = new AtomicBoolean(false)
+  private lazy val sEventHost_bundle_pid = "pid"
+  private lazy val sEventHost_bundle_activities = "activities"
+  private lazy val sEventHost_event4Exit = withPackageNamePrefix("GLOBAL_EVENT_4_EXIT")
+  private lazy val sEventHost_event4FinishActivities = withPackageNamePrefix("GLOBAL_EVENT_4_FINISH_ACTIVITIES")
+  private lazy val sHandlerMem = new Memoize[Looper, Handler] with WeakKey /*.Sync*/ with LazyGet {
+    override protected val delegate = new Delegate[Looper, Handler] {
+      override def load(looper: Looper) = Option(new Handler(looper))
 
-  private var mFirstLaunch = true
-  private var mForceExit = false
+      override def update(key: Looper, value: Handler) = Option(value)
+    }
+  }
 
   def withPackageNamePrefix(name: String) = getPackageName + "." + name
 
   /**
     * 获取一个全局的与UI线程相关联的Handler. 注意：不可在{@link AbsApp#onCreate()}前调用。
     */
-  def mainHandler = getHandler(getMainLooper)
+  override def mainHandler = getHandler(getMainLooper)
 
-  def getHandler(looper: Looper) = {
-    require(looper.nonNull)
-    var handler = sHandlerRefMap.get(looper)
-    if (handler == null) {
-      synchronized {
-        handler = sHandlerRefMap.get(looper)
-        if (handler == null) {
-          handler = new Handler(looper)
-          sHandlerRefMap.put(looper, handler)
-        }
-      }
-    }
-    handler
-  }
+  def getHandler(looper: Looper): Handler = sHandlerMem.get(looper).get
+
+  implicit def activity: AbsActy = ???
+
+  implicit def context: Context = this
+
+  implicit def window: Window = ???
 
   override def onCreate(): Unit = {
+    // registerActivityLifecycleCallbacks(mActivityLifecycleCallbacks) // 不太可控
+    hostingGlobalEventReceiver(sEventHost_event4Exit, PeriodMode.START_STOP, mEventReceiver4Exit)
+    hostingGlobalEventReceiver(sEventHost_event4FinishActivities, PeriodMode.START_STOP, mEventReceiver4FinishActivities)
+    eventDelegator.onStart()
     super.onCreate()
-    // if(getConfig().isNull) throw new NullPointerException("getConfig() 返回值不能为null。请不要返回Config.get()");
-    loadInfos()
   }
-
-  //protected def getConfig(): Config
 
   /**
     * 退出应用事件回调。
     *
-    * @return `true`表示 kill 当前 App 以及其所有后台进程（需要加上权限：android.permission.KILL_BACKGROUND_PROCESSES），`false`则不 kill。
+    * @param processName 当前进程名称（可能是子进程）。
+    * @param firstLaunch 是否第一次启动。
+    * @return `true`表示 kill 当前进程（进程名称由参数报告），`false`则不 kill。
+    *         注意：要实现 kill 能力，需要加上权限：android.permission.KILL_BACKGROUND_PROCESSES。
     */
-  protected def onExit(firstLaunch: Boolean): Boolean = false
-
-  private def loadInfos(): Unit = {
-    mFirstLaunch = isFirstTimeLaunch(0)
-  }
+  protected def onExit(processName: String, firstLaunch: Boolean): Boolean = false
 
   //////////////////////////////////////////////////////////////////////////////////////////
+  private val mEventReceiver4Exit = new EventReceiver {
+    override def onEvent(data: Bundle): Unit = exit()
+  }
+  private val mEventReceiver4FinishActivities = new EventReceiver {
+    override def onEvent(data: Bundle): Unit = if (data.getInt(sEventHost_bundle_pid) != Process.myPid())
+      finishActivitiesInner(data.getStringArray(sEventHost_bundle_activities).map(Class.forName(_).as[Class[AbsActy]]): _*)
+  }
 
-  def finishActies(actyClasses: Class[_]*): Unit = {
+  def finishActivities(actyClasses: Class[_ <: AbsActy]*): Unit = {
+    val data = new Bundle()
+    data.putStringArray(sEventHost_bundle_activities, actyClasses.map(_.getName).toArray)
+    data.putInt(sEventHost_bundle_pid, Process.myPid())
+    sendGlobalEvent(sEventHost_event4FinishActivities, data)
+    finishActivitiesInner()
+  }
+
+  private def finishActivitiesInner(actyClasses: Class[_ <: AbsActy]*): Unit = {
     for (clazz <- actyClasses; ref <- mActivitieStack.toSeq) {
       Option(ref.get).foreach { acty =>
         w("[finishActies]acty: %s.", acty.getClass.getSimpleName.s)
@@ -108,34 +130,33 @@ abstract class AbsApp extends Application with TAG.ClassName {
   /**
     * 退出应用。如果希望在退出之后本App的所有进程也关闭，则需要加上权限：android.permission.KILL_BACKGROUND_PROCESSES。
     */
-  def exit(): Unit = {
-    mForceExit = true
-    mainHandler.post(new Runnable() {
-      override def run(): Unit = finishActivities
-    })
-  }
+  def exit(): Unit = if (!mForceExit.getAndSet(true)) mainHandler.post(new Runnable() {
+    override def run(): Unit = {
+      sendGlobalEvent(sEventHost_event4Exit, null)
+      finishActivities
+    }
+  })
 
-  /**
-    * 是否是第一次启动该模块。
-    */
-  def isFirstTimeLaunch(moduleId: Int) = {
-    val firstLaunch = UsedStorer.absApp.getFirstLaunch(moduleId)
-    if (firstLaunch) UsedStorer.absApp.clearFirstLaunch(moduleId)
-    firstLaunch
-  }
+  /** 是否是第一次启动某模块。 */
+  def isFirstTimeLaunch(module: String, withVersion: Boolean = true) = UsedStorer.absApp.isFirstLaunch(withVer(module, withVersion))
 
-  def isExiting = mForceExit
+  /** 在完成第一次启动某模块的某些动作后，清除该标识。 */
+  def doneFirstTimeLaunch(module: String, withVersion: Boolean = true) = UsedStorer.absApp.clearFirstLaunchFlag(withVer(module, withVersion))
+
+  private def withVer(module: String, ver: Boolean = true) = module + (if (ver) "_" + c.util.Manifest.getVersionName(this) else "")
+
+  def isExiting = mForceExit.get()
 
   //没有意义，已经退出了的话，没人会调用本方法
   // def isExited = isActivitieStackEmpty()
 
-  private[core] def onActivityCreate(acty: AbsActy): Unit = {
+  private[core] def onActivityCreated(acty: AbsActy): Unit = {
     mActivitieStack.push(new WeakReference[AbsActy](acty))
   }
 
-  private[core] def onActivityDestroy(acty: AbsActy): Boolean = {
+  private[core] def onActivityDestroyed(acty: AbsActy): Boolean = {
     cleanStackOrDelete(acty)
-    if (mForceExit) finishActivities
+    if (mForceExit.get) finishActivities
     val exit = isCurrentTheLastActivityToExit(acty)
     if (exit) mainHandler.post(new Runnable() {
       override def run(): Unit = doExit()
@@ -144,14 +165,14 @@ abstract class AbsApp extends Application with TAG.ClassName {
   }
 
   private[core] def doExit(): Unit = {
-    if (onExit(mFirstLaunch) && checkCallingOrSelfPermission(android.Manifest.permission.KILL_BACKGROUND_PROCESSES) == PackageManager.PERMISSION_GRANTED) {
+    if (onExit(currentProcessName.get, isFirstTimeLaunch("0")) && checkCallingOrSelfPermission(android.Manifest.permission.KILL_BACKGROUND_PROCESSES) == PackageManager.PERMISSION_GRANTED) {
       e("@@@@@@@@@@----[应用退出]----[将]自动结束进程（设置项）: %s", getProcessName(Process.myPid()).orNull.s)
       //只会对后台进程起作用，当本App最后一个Activity.onDestroy()的时候也会起作用，并且是立即起作用，即本语句后面的语句将不会执行。
       getSystemService(Context.ACTIVITY_SERVICE).as[ActivityManager].killBackgroundProcesses(getPackageName)
       e("@@@@@@@@@@----[应用退出]---走不到这里来")
     }
-    mForceExit = false
-    mFirstLaunch = false
+    mForceExit.set(false)
+    doneFirstTimeLaunch("0")
     w("@@@@@@@@@@----[应用退出]---[未]自动结束进程: %s", getProcessName(Process.myPid()).orNull.s)
   }
 
@@ -167,7 +188,9 @@ abstract class AbsApp extends Application with TAG.ClassName {
     name
   }
 
-  def isCurrentProcessOf(name: String): Boolean = getProcessName(Process.myPid()).exists(_.endsWith(name))
+  def currentProcessName = getProcessName(Process.myPid())
+
+  def isCurrentProcessOf(name: String): Boolean = currentProcessName.exists(_.endsWith(name))
 
   /**
     * 关闭activity. 只可在onActivityDestroy()的内部调用，否则返回值会不准确。
