@@ -16,8 +16,9 @@
 
 package hobby.wei.c.core
 
-import android.app.{Activity, Fragment}
+import android.app.{Activity, Fragment, Service}
 import android.content.{Context, Intent}
+import android.content.res.Configuration
 import android.os.{Bundle, PersistableBundle}
 import android.util.AttributeSet
 import android.view.{LayoutInflater, View, ViewGroup}
@@ -29,6 +30,58 @@ import hobby.wei.c.LOG._
   * @version 1.0, 25/12/2017
   */
 object Lifecycle {
+  trait Srvce extends Service with TAG.ClassName {
+    override def onBind(intent: Intent) = {
+      i("onBind")
+      ???
+    }
+
+    override def onRebind(intent: Intent): Unit = {
+      i("onRebind")
+      super.onRebind(intent)
+    }
+
+    override def onUnbind(intent: Intent) = {
+      i("onUnbind")
+      super.onUnbind(intent)
+    }
+
+    override def onStartCommand(intent: Intent, flags: Int, startId: Int) = {
+      i("onStartCommand")
+      super.onStartCommand(intent, flags, startId)
+    }
+
+    override def onTaskRemoved(rootIntent: Intent): Unit = {
+      i("onTaskRemoved")
+      super.onTaskRemoved(rootIntent)
+    }
+
+    override def onCreate(): Unit = {
+      i("onCreate")
+      super.onCreate()
+    }
+
+    override def onLowMemory(): Unit = {
+      i("onLowMemory")
+      super.onLowMemory()
+    }
+
+    override def onTrimMemory(level: Int): Unit = {
+      i("onTrimMemory")
+      super.onTrimMemory(level)
+    }
+
+    override def onDestroy(): Unit = {
+      i("onDestroy")
+      super.onDestroy()
+    }
+
+    override def onConfigurationChanged(newConfig: Configuration): Unit = {
+      i("onConfigurationChanged")
+      super.onConfigurationChanged(newConfig)
+    }
+  }
+
   trait Acty extends AbsActy with TAG.ClassName {
     override protected def onCreate(savedInstanceState: Bundle): Unit = {
       i("onCreate")
