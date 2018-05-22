@@ -16,9 +16,9 @@
 
 package hobby.wei.c.util;
 
-import java.lang.ref.WeakReference;
 import java.util.Collection;
 
+import hobby.chenai.nakam.assoid.BuildConfig;
 import hobby.wei.c.anno.proguard.Burden;
 
 import static android.text.TextUtils.isEmpty;
@@ -29,11 +29,7 @@ import static hobby.wei.c.util.ArrayUtils.isEmpty;
  * @version 1.0, 02/07/2016
  */
 public class Assist {
-    private static final boolean DEBUG = true;
-
-    public static <T> T getRef(WeakReference<T> ref) {
-        return ref == null ? null : ref.get();
-    }
+    private static final boolean DEBUG = BuildConfig.DEBUG;
 
     public static float between(float min, float value, float max) {
         return Math.max(min, Math.min(value, max));

@@ -19,7 +19,7 @@ package hobby.wei.c.core
 import android.app.{Activity, Fragment, Service}
 import android.content.{Context, Intent}
 import android.content.res.Configuration
-import android.os.{Bundle, PersistableBundle}
+import android.os.{Bundle, IBinder, PersistableBundle}
 import android.util.AttributeSet
 import android.view.{LayoutInflater, View, ViewGroup}
 import hobby.chenai.nakam.basis.TAG
@@ -31,7 +31,7 @@ import hobby.wei.c.LOG._
   */
 object Lifecycle {
   trait Srvce extends Service with TAG.ClassName {
-    override def onBind(intent: Intent) = {
+    override def onBind(intent: Intent): IBinder = {
       i("onBind")
       ???
     }
