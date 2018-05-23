@@ -99,7 +99,7 @@ trait AbsService extends Service with TAG.ClassName {
     super.onCreate()
     try {
       // 需要权限 android.permission.WAKE_LOCK
-      // 现在（省电模式`Dose`下）其实已经没有效果了。
+      // 现在（省电模式`Doze`下）其实已经没有效果了。
       //mWakeLock = getSystemService(Context.POWER_SERVICE).asInstanceOf[PowerManager].newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG)
       //mWakeLock.acquire()
     } catch {
