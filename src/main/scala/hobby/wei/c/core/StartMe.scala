@@ -29,31 +29,50 @@ import hobby.wei.c.LOG._
   */
 object StartMe {
   trait Srvce extends TAG.ClassName {
+    /** 必须与重写的`AbsService.MSG_REPLY_TO`一致。 */
+    protected val MSG_REPLY_TO: Int
+
+    /** 必须与重写的`AbsService.CMD_EXTRA_STOP_SERVICE`一致。 */
+    protected val CMD_EXTRA_STOP_SERVICE: String
+    /** 必须与重写的`AbsService.CMD_EXTRA_START_FOREGROUND`一致。 */
+    protected val CMD_EXTRA_START_FOREGROUND: String
+    /** 必须与重写的`AbsService.CMD_EXTRA_STOP_FOREGROUND`一致。 */
+    protected val CMD_EXTRA_STOP_FOREGROUND: String
+
     def start[S <: Service](ctx: Context, clazz: Class[S]): Unit = ctx.startService(new Intent(ctx, clazz))
 
-    /**
-      * 停止`clazz`参数指定的`Service`。
-      *
-      * @param CMD_EXTRA_OF_STOP 必须与重写的`AbsService.CMD_EXTRA_OF_STOP`一致。
-      */
-    def stop[S <: Service](ctx: Context, clazz: Class[S], CMD_EXTRA_OF_STOP: String): Unit = {
+    def startFg[S <: Service](ctx: Context, clazz: Class[S]): Unit = {
       val intent = new Intent(ctx, clazz)
-      intent.putExtra(CMD_EXTRA_OF_STOP, true)
-      ctx.startService(intent) // 发送一个请求让其自己关闭，而不是直接stopService()。
-      /*
-       * 几种stopService()的异同：
-       *
-       * Context.stopService()
-       * 不论之前调用过多少次startService()，都会在调用一次本语句后关闭Service.
-       * 但是如果有还没断开的bind连接，则会一直等到全部断开后自动关闭Service.
-       *
-       * Service.stopSelf()完全等同于Context.stopService().
-       *
-       * stopSelfResult(startId)
-       * 只有startId是最后一次onStartCommand()所传来的时，才会返回true并执行与stopSelf()相同的操作.
-       *
-       * stopSelf(startId)等同于stopSelfResult(startId)，只是没有返回值.
-       */
+      intent.putExtra(CMD_EXTRA_START_FOREGROUND, true)
+      ctx.startService(intent)
+    }
+
+    def stopFg[S <: Service](ctx: Context, clazz: Class[S]): Unit = {
+      val intent = new Intent(ctx, clazz)
+      intent.putExtra(CMD_EXTRA_STOP_FOREGROUND, true)
+      ctx.startService(intent)
+    }
+
+    /**
+      * 停止`clazz`参数指定的`Service`（发送一个请求让其自己关闭，而不是直接`stopService()`）。
+      * <p>
+      * 几种`stopService`方法的异同：
+      * <br>
+      * 1. `Context.stopService()`
+      * 不论之前调用过多少次`startService()`，都会在调用一次本语句后关闭`Service`，
+      * 但是如果有还没断开的`bind`连接，则会一直等到全部断开后自动关闭`Service`；
+      * <br>
+      * 2. `Service.stopSelf()`完全等同于`Context.stopService()`；
+      * <br>
+      * 3. `stopSelfResult(startId)`
+      * 只有`startId`是最后一次`onStartCommand()`所传来的时，才会返回`true`并执行与`stopSelf()`相同的操作；
+      * <br>
+      * 4. `stopSelf(startId)`等同于`stopSelfResult(startId)`，只是没有返回值。
+      */
+    def stop[S <: Service](ctx: Context, clazz: Class[S]): Unit = {
+      val intent = new Intent(ctx, clazz)
+      intent.putExtra(CMD_EXTRA_STOP_SERVICE, true)
+      ctx.startService(intent)
     }
 
     def bind[S <: Service](ctx: Context, conn: ServiceConnection, clazz: Class[S]): Unit = {
@@ -79,12 +98,11 @@ object StartMe {
     /**
       * `Client`端调用本方法以使`Service`端可以向`Client`发送`Message`。
       *
-      * @param sender       `Client`取得的面向`Service`的信使对象。
-      * @param handler      `Client`用来处理`Service`发来的`Message`的`Handler`。
-      * @param MSG_REPLY_TO 必须与重写的`AbsService.MSG_REPLY_TO`一致。
+      * @param sender  `Client`取得的面向`Service`的信使对象。
+      * @param handler `Client`用来处理`Service`发来的`Message`的`Handler`。
       * @return 建立信使是否成功。
       */
-    def replyToClient(sender: Messenger, handler: Handler, MSG_REPLY_TO: Int): Boolean = {
+    def replyToClient(sender: Messenger, handler: Handler): Boolean = {
       val msg = Message.obtain()
       msg.what = MSG_REPLY_TO
       msg.replyTo = new Messenger(handler)

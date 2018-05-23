@@ -69,8 +69,10 @@ trait AbsService extends Service with TAG.ClassName {
     */
   protected def onStopWork(callCount: Int): Int
 
+  /** 请求调用`startForeground()`。 */
   protected def onStartForeground(): Unit
-  protected def onStopForeground(): Unit
+  /** 请求调用`stopForeground()`。 */
+  protected def onStopForeground(): Unit = stopForeground(true)
 
   /**
     * 是否保持唤醒（理论上，如果启用`startForeground()`，应用将不会进入待机状态；而如果用户启用了`低电耗模式`，本设置
