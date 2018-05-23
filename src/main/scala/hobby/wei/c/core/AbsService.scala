@@ -176,7 +176,7 @@ trait AbsService extends Service with TAG.ClassName {
 
   private def confirmIfSignify2Stop(intent: Intent): Boolean = {
     if (intent.nonNull) mStopRequested = intent.getBooleanExtra(CMD_EXTRA_STOP_SERVICE, false)
-    if (mStopRequested && mAllClientDisconnected) {
+    if (!mDestroyed && mStopRequested && mAllClientDisconnected) {
       // 让请求跟client的msg等排队执行
       mClientHandler.post(new Runnable() {
         override def run(): Unit = {
@@ -189,7 +189,7 @@ trait AbsService extends Service with TAG.ClassName {
 
   private def postStopSelf(delay: Int): Unit = mMainHandler.postDelayed(new Runnable() {
     override def run(): Unit = {
-      onStopWork(mCallStopCount) match {
+      if (!mDestroyed) onStopWork(mCallStopCount) match {
         case -1 => // 可能又重新bind()了
           require(!mStopRequested || !mAllClientDisconnected, "根据当前状态应该关闭。您可以为`onCallStopWork()`返回`>0`的值以延迟该时间后再询问关闭。")
         case 0 => stopSelf() //完全准备好了，该保存的都保存了，那就关闭吧。
@@ -200,11 +200,11 @@ trait AbsService extends Service with TAG.ClassName {
   }, delay)
 
   override def onDestroy(): Unit = {
+    mDestroyed = true
     mHandlerThread.quitSafely()
     if (mWakeLock.nonNull) {
       mWakeLock.release()
     }
-    mDestroyed = true
     super.onDestroy()
   }
 }
