@@ -59,7 +59,7 @@ trait AbsService extends Service with TAG.ClassName {
     *
     * @param callCount 当前回调被呼叫的次数，从`0`开始（`0`为第一次）。
     */
-  protected def onCallStartWork(callCount: Int): Unit
+  protected def onStartWork(callCount: Int): Unit
 
   /**
     * 请求停止任务。
@@ -67,7 +67,7 @@ trait AbsService extends Service with TAG.ClassName {
     * @return `-1`表示不可以关闭（应该继续运行）；`0`表示可以关闭；`> 0`表示延迟该时间后再来询问。
     * @param callCount 当前回调被呼叫的次数，从`0`开始（`0`为第一次）。
     */
-  protected def onCallStopWork(callCount: Int): Int
+  protected def onStopWork(callCount: Int): Int
 
   protected def onStartForeground(): Unit
   protected def onStopForeground(): Unit
@@ -154,7 +154,7 @@ trait AbsService extends Service with TAG.ClassName {
       mMainHandler.post(new Runnable {
         override def run(): Unit = {
           // 本服务就是要时刻保持连接畅通的
-          onCallStartWork(mCallStartCount)
+          onStartWork(mCallStartCount)
           mCallStartCount += 1
         }
       })
@@ -184,7 +184,7 @@ trait AbsService extends Service with TAG.ClassName {
 
   private def postStopSelf(delay: Int): Unit = mMainHandler.postDelayed(new Runnable() {
     override def run(): Unit = {
-      onCallStopWork(mCallStopCount) match {
+      onStopWork(mCallStopCount) match {
         case -1 => // 可能又重新bind()了
           require(!mStopRequested || !mAllClientDisconnected, "根据当前状态应该关闭。您可以为`onCallStopWork()`返回`>0`的值以延迟该时间后再询问关闭。")
         case 0 => stopSelf() //完全准备好了，该保存的都保存了，那就关闭吧。
