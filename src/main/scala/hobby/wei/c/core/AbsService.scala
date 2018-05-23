@@ -18,7 +18,7 @@ package hobby.wei.c.core
 
 import android.os
 import android.app.Service
-import android.content.Intent
+import android.content.{Context, Intent}
 import android.database.Observable
 import android.os.{HandlerThread, Messenger, PowerManager, _}
 import hobby.chenai.nakam.basis.TAG
@@ -37,12 +37,19 @@ trait AbsService extends Service with TAG.ClassName {
   @volatile private var mAllClientDisconnected = true
   @volatile private var mStopRequested = false
   private var mWakeLock: PowerManager#WakeLock = _
-  private var mCallStartCount, mCallstopCount = 0
+  private var mCallStartCount, mCallStopCount = 0
 
-  val MSG_REPLY_TO: Int
+  protected val MSG_REPLY_TO: Int
 
-  val CMD_EXTRA_OF_STOP: String
+  protected val CMD_EXTRA_STOP_SERVICE: String
+  protected val CMD_EXTRA_START_FOREGROUND: String
+  protected val CMD_EXTRA_STOP_FOREGROUND: String
 
+  /**
+    * 子类重写本方法以处理`Client`端发过来的消息。
+    *
+    * @param msg `Client`端发过来的消息对象。
+    */
   def handleClientMsg(msg: Message): Unit
 
   /**
@@ -61,6 +68,16 @@ trait AbsService extends Service with TAG.ClassName {
     * @param callCount 当前回调被呼叫的次数，从`0`开始（`0`为第一次）。
     */
   protected def onCallStopWork(callCount: Int): Int
+
+  protected def onStartForeground(): Unit
+  protected def onStopForeground(): Unit
+
+  /**
+    * 是否保持唤醒（理论上，如果启用`startForeground()`，应用将不会进入待机状态；而如果用户启用了`低电耗模式`，本设置
+    * 也将被忽略。因此本设置只能在非`低电耗模式`且未启用`startForeground()`的情况下可能有用。但为了减少权限的申请，还是推荐启用`startForeground()`）。
+    * 需要权限 `android.permission.WAKE_LOCK`。
+    */
+  protected val needKeepWake = false
 
   def sendMsg2Client(msg: Message): Unit = mClientHandler.post(new Runnable {
     override def run(): Unit = mMsgObservable.sendMessage(msg)
@@ -97,11 +114,22 @@ trait AbsService extends Service with TAG.ClassName {
 
   override def onCreate(): Unit = {
     super.onCreate()
+    // 需要权限 `android.permission.WAKE_LOCK`
+    // 注意：由于Android6.0+对电源管理启用了`Doze`机制，
+    // WakeLock在`低电耗模式`下，不起作用（被忽略）；但`应用待机模式`不受影响。
+    //
+    // 具有以下3个特征将`不`被判定为待机模式：
+    // 1. 用户显式启动应用；
+    // 2. 应用当前有一个进程位于前台（表现为 Activity 或前台服务形式，或被另一 Activity 或前台服务占用）；
+    // 3. 应用生成用户可在锁屏或通知托盘中看到的通知。
+    //
+    // 因此，startForeground()有助于keep服务避免进入待机。具体参见；
+    // https://developer.android.com/training/monitoring-device-state/doze-standby
     try {
-      // 需要权限 android.permission.WAKE_LOCK
-      // 现在（省电模式`Doze`下）其实已经没有效果了。
-      //mWakeLock = getSystemService(Context.POWER_SERVICE).asInstanceOf[PowerManager].newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG)
-      //mWakeLock.acquire()
+      if (needKeepWake) {
+        mWakeLock = getSystemService(Context.POWER_SERVICE).asInstanceOf[PowerManager].newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, className.toString)
+        mWakeLock.acquire()
+      }
     } catch {
       case ex: Exception => e(ex)
     }
@@ -121,7 +149,7 @@ trait AbsService extends Service with TAG.ClassName {
   }
 
   override def onStartCommand(intent: Intent, flags: Int, startId: Int) = {
-    // startForeground(id, notification)
+    confirmIfSignify2ToggleForeground(intent)
     if (!confirmIfSignify2Stop(intent)) {
       mMainHandler.post(new Runnable {
         override def run(): Unit = {
@@ -134,10 +162,15 @@ trait AbsService extends Service with TAG.ClassName {
     super.onStartCommand(intent, flags, startId)
   }
 
+  private def confirmIfSignify2ToggleForeground(intent: Intent): Unit = {
+    if (intent.getBooleanExtra(CMD_EXTRA_START_FOREGROUND, false)) onStartForeground()
+    else if (intent.getBooleanExtra(CMD_EXTRA_STOP_FOREGROUND, false)) onStopForeground()
+  }
+
   private def confirmIfSignify2Stop(): Boolean = confirmIfSignify2Stop(null)
 
   private def confirmIfSignify2Stop(intent: Intent): Boolean = {
-    if (intent.nonNull) mStopRequested = intent.getBooleanExtra(CMD_EXTRA_OF_STOP, false)
+    if (intent.nonNull) mStopRequested = intent.getBooleanExtra(CMD_EXTRA_STOP_SERVICE, false)
     if (mStopRequested && mAllClientDisconnected) {
       // 让请求跟client的msg等排队执行
       mClientHandler.post(new Runnable() {
@@ -151,13 +184,13 @@ trait AbsService extends Service with TAG.ClassName {
 
   private def postStopSelf(delay: Int): Unit = mMainHandler.postDelayed(new Runnable() {
     override def run(): Unit = {
-      onCallStopWork(mCallstopCount) match {
+      onCallStopWork(mCallStopCount) match {
         case -1 => // 可能又重新bind()了
           require(!mStopRequested || !mAllClientDisconnected, "根据当前状态应该关闭。您可以为`onCallStopWork()`返回`>0`的值以延迟该时间后再询问关闭。")
         case 0 => stopSelf() //完全准备好了，该保存的都保存了，那就关闭吧。
         case time => if (mStopRequested && mAllClientDisconnected) postStopSelf(time)
       }
-      mCallstopCount += 1
+      mCallStopCount += 1
     }
   }, delay)
 
