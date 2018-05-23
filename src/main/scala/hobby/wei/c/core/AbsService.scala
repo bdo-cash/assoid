@@ -36,6 +36,7 @@ import scala.ref.WeakReference
 trait AbsService extends Service with TAG.ClassName {
   @volatile private var mAllClientDisconnected = true
   @volatile private var mStopRequested = false
+  @volatile private var mDestroyed = false
   private var mWakeLock: PowerManager#WakeLock = _
   private var mCallStartCount, mCallStopCount = 0
 
@@ -80,6 +81,8 @@ trait AbsService extends Service with TAG.ClassName {
     * 需要权限 `android.permission.WAKE_LOCK`。
     */
   protected val needKeepWake = false
+
+  def isDestroyed = mDestroyed
 
   def sendMsg2Client(msg: Message): Unit = mClientHandler.post(new Runnable {
     override def run(): Unit = mMsgObservable.sendMessage(msg)
@@ -201,6 +204,7 @@ trait AbsService extends Service with TAG.ClassName {
     if (mWakeLock.nonNull) {
       mWakeLock.release()
     }
+    mDestroyed = true
     super.onDestroy()
   }
 }
