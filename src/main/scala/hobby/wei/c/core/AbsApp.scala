@@ -187,10 +187,8 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
       if (shouldKill(myProcessName)) {
         onKill(myProcessName)
         e("@@@@@@@@@@----[应用退出]----[将]自动结束进程（设置项）: %s。", myProcessName.orNull.s)
-        postDelayed(1000) {
-          Process.killProcess(Process.myPid())
-          e("@@@@@@@@@@----[应用退出]---走不到这里来。")
-        }
+        Process.killProcess(Process.myPid())
+        e("@@@@@@@@@@----[应用退出]---走不到这里来。")
       } else {
         mForceExit.set(false)
         w("@@@@@@@@@@----[应用退出]---[未]自动结束进程: %s。", myProcessName.orNull.s)
