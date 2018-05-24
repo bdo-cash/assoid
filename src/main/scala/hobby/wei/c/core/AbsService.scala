@@ -119,6 +119,7 @@ trait AbsService extends Service with TAG.ClassName {
 
   override def onCreate(): Unit = {
     super.onCreate()
+    AbsApp.get[AbsApp].onServiceCreated(this)
     // 需要权限 `android.permission.WAKE_LOCK`
     // 注意：由于Android6.0+对电源管理启用了`Doze`机制，
     // WakeLock在`低电耗模式`下，不起作用（被忽略）；但`应用待机模式`不受影响。
@@ -205,6 +206,7 @@ trait AbsService extends Service with TAG.ClassName {
     if (mWakeLock.nonNull) {
       mWakeLock.release()
     }
+    AbsApp.get[AbsApp].onServiceDestroyed(this)
     super.onDestroy()
   }
 }

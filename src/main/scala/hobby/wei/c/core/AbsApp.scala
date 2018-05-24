@@ -21,7 +21,6 @@ import java.lang.ref.WeakReference
 import java.util.concurrent.atomic.AtomicBoolean
 import android.app.{ActivityManager, Application}
 import android.content.Context
-import android.content.pm.PackageManager
 import android.os.{Bundle, Handler, Looper, Process}
 import android.view.Window
 import hobby.chenai.nakam.basis.TAG
@@ -67,9 +66,7 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
 
   def withPackageNamePrefix(name: String) = getPackageName + "." + name
 
-  /**
-    * 获取一个全局的与UI线程相关联的Handler. 注意：不可在{@link AbsApp#onCreate()}前调用。
-    */
+  /** 获取一个全局的与UI线程相关联的`Handler`。注意：不可在`AbsApp.onCreate()`前调用。 */
   override def mainHandler = getHandler(getMainLooper)
 
   def getHandler(looper: Looper): Handler = sHandlerMem.get(looper).get
@@ -89,14 +86,20 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
   }
 
   /**
-    * 退出应用事件回调。
+    * 在`Activity`或`Service`退出之后，询问是否 kill 进程。
     *
-    * @param processName 当前进程名称（可能是子进程）。
-    * @param firstLaunch 是否第一次启动。
+    * @param process 当前进程名称（可能是子进程）。
     * @return `true`表示 kill 当前进程（进程名称由参数报告），`false`则不 kill。
-    *         注意：要实现 kill 能力，需要加上权限：android.permission.KILL_BACKGROUND_PROCESSES。
+    *         注意：由于`WorkManager(JobScheduler)`之类的服务会运行在主进程，这里默认对于主进程会返回`false`。
     */
-  protected def onExit(processName: String, firstLaunch: Boolean): Boolean = false
+  protected def shouldKill(process: Option[String]): Boolean = !isMainProcess
+
+  /**
+    * 将要被 kill 之前会回到本方法（等同于`onDestroy()`）。
+    *
+    * @param process 当前进程名称（可能是子进程）。
+    */
+  protected def onKill(process: Option[String]): Unit
 
   //////////////////////////////////////////////////////////////////////////////////////////
   private val mEventReceiver4Exit = new EventReceiver {
@@ -134,7 +137,7 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
   }
 
   /**
-    * 退出应用。如果希望在退出之后本App的所有进程也关闭，则需要加上权限：android.permission.KILL_BACKGROUND_PROCESSES。
+    * 退出应用。
     */
   def exit(): Unit = if (!mForceExit.getAndSet(true)) mainHandler.post(new Runnable() {
     override def run(): Unit = {
@@ -154,14 +157,12 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
   def isExiting = mForceExit.get()
 
   //没有意义，已经退出了的话，没人会调用本方法
-  // def isExited = isActivitieStackEmpty()
+  // def isExited = hasNoMoreActivities()
 
-  private[core] def onActivityCreated(acty: AbsActy): Unit = {
-    mActivitieStack.push(new WeakReference[AbsActy](acty))
-  }
+  private[core] def onActivityCreated(acty: AbsActy): Unit = mActivitieStack.push(new WeakReference[AbsActy](acty))
 
   private[core] def onActivityDestroyed(acty: AbsActy): Boolean = {
-    cleanStackOrDelete(acty)
+    cleanCollOrDeleteActy(acty)
     if (mForceExit.get) finishActivities
     val exit = isCurrentTheLastActivityToExit(acty)
     if (exit) mainHandler.post(new Runnable() {
@@ -170,16 +171,32 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
     exit
   }
 
+  private[core] def onServiceCreated(srvce: AbsService): Unit = mServiceSet.put(srvce, this)
+
+  private[core] def onServiceDestroyed(srvce: AbsService): Unit = {
+    cleanCollOrDeleteSrvce(srvce)
+    if (hasNoMoreServices) mainHandler.post(new Runnable() {
+      override def run(): Unit = doExit()
+    })
+  }
+
   private[core] def doExit(): Unit = {
-    if (onExit(myProcessName.orNull, isFirstTimeLaunch("0")) && checkCallingOrSelfPermission(android.Manifest.permission.KILL_BACKGROUND_PROCESSES) == PackageManager.PERMISSION_GRANTED) {
-      e("@@@@@@@@@@----[应用退出]----[将]自动结束进程（设置项）: %s.", myProcessName.orNull.s)
-      //只会对后台进程起作用，当本App最后一个Activity.onDestroy()的时候也会起作用，并且是立即起作用，即本语句后面的语句将不会执行。
-      getSystemService(Context.ACTIVITY_SERVICE).as[ActivityManager].killBackgroundProcesses(getPackageName)
-      e("@@@@@@@@@@----[应用退出]---走不到这里来.")
+    // 为解决`onCreate()`和`onExit()`不对称的问题（即：`onExit()`之后如果进程没有被`kill`则下次不会再走`onCreate()`，导致一些调用也不对称），同时
+    // 为了优化进程的可控度，现弃用`ActivityManager.killBackgroundProcesses(getPackageName)`这种方式。
+    /*
+    if (onExit(myProcessName) &&
+      checkCallingOrSelfPermission(android.Manifest.permission.KILL_BACKGROUND_PROCESSES) == PackageManager.PERMISSION_GRANTED) {
+    // 只会对后台进程起作用，当本App最后一个Activity.onDestroy()的时候也会起作用，并且是立即起作用，即本语句后面的语句将不会执行。
+    getSystemService(Context.ACTIVITY_SERVICE).as[ActivityManager].killBackgroundProcesses(getPackageName)
+    */
+    if (hasNoMoreActivities && hasNoMoreServices && shouldKill(myProcessName)) {
+      e("@@@@@@@@@@----[应用退出]----[将]自动结束进程（设置项）: %s。", myProcessName.orNull.s)
+      onKill(myProcessName)
+      Process.killProcess(Process.myPid())
+      e("@@@@@@@@@@----[应用退出]---走不到这里来。")
     }
     mForceExit.set(false)
-    doneFirstTimeLaunch("0")
-    w("@@@@@@@@@@----[应用退出]---[未]自动结束进程: %s.", myProcessName.orNull.s)
+    w("@@@@@@@@@@----[应用退出]---[未]自动结束进程: %s。", myProcessName.orNull.s)
   }
 
   def getProcessName(pid: Int): Option[String] = {
@@ -197,6 +214,8 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
   lazy val myProcessName = getProcessName(Process.myPid())
 
   def isMyProcessOf(name: String): Boolean = myProcessName.exists(_.endsWith(name))
+
+  def isMainProcess: Boolean = myProcessName.contains(getPackageName)
 
   /**
     * 关闭activity. 只可在onActivityDestroy()的内部调用，否则返回值会不准确。
@@ -234,25 +253,32 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
     *
     * @return 当前是不是最后一个正在关闭的Activity。
     */
-  private def isCurrentTheLastActivityToExit(acty: AbsActy): Boolean = isActivitieStackEmpty
+  private def isCurrentTheLastActivityToExit(acty: AbsActy): Boolean = hasNoMoreActivities
 
-  private def isActivitieStackEmpty: Boolean = {
-    cleanStackOrDelete(null)
+  private def hasNoMoreActivities: Boolean = {
+    cleanCollOrDeleteActy(null)
     mActivitieStack.isEmpty
   }
 
-  private def cleanStackOrDelete(acty: AbsActy): Unit = {
-    var actyRef: WeakReference[_ <: AbsActy] = null
-    var refActy: AbsActy = null
+  private def cleanCollOrDeleteActy(acty: AbsActy): Unit = {
+    var ref: WeakReference[_ <: AbsActy] = null
+    var ins: AbsActy = null
     var i = 0
     while (i < mActivitieStack.size()) {
-      actyRef = mActivitieStack.get(i)
-      refActy = actyRef.get()
-      if (refActy.isNull || (refActy eq acty)) {
-        mActivitieStack.remove(actyRef)
+      ref = mActivitieStack.get(i)
+      ins = ref.get()
+      if (ins.isNull || (ins eq acty)) {
+        mActivitieStack.remove(ref)
       } else i += 1
     }
   }
+
+  private def hasNoMoreServices: Boolean = {
+    cleanCollOrDeleteSrvce(null)
+    mServiceSet.isEmpty
+  }
+
+  private def cleanCollOrDeleteSrvce(srvce: AbsService): Unit = for (ins <- mServiceSet.keySet.toArray if ins eq srvce) mServiceSet.remove(ins)
 
   /**
     * 由于无论是进入新的Activity还是返回到旧的Activity，将要显示的页面B总是先创建，将要放入后台或销毁的页面A
@@ -269,4 +295,5 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
     */
   //private final WeakHashMap<AbsActy, Object> mActivities = new WeakHashMap<AbsActy, Object>();
   private val mActivitieStack = new util.Stack[WeakReference[_ <: AbsActy]]
+  private val mServiceSet = new util.WeakHashMap[AbsService, AbsApp]
 }

@@ -16,7 +16,7 @@
 
 package hobby.wei.c.core
 
-import android.app.{DialogFragment, Fragment, Service}
+import android.app.{DialogFragment, Fragment}
 import android.content.Context
 import android.os.{Build, Handler}
 import android.view.Window
@@ -33,7 +33,7 @@ object Ctx {
     implicit def activity: AbsActy
     implicit def context: Context
     implicit def window: Window
-    def mainHandler: Handler = AbsApp.get.mainHandler
+    def mainHandler: Handler = AbsApp.get[AbsApp].mainHandler
 
     def post(f: => Any) = mainHandler.post(new Runnable {
       override def run(): Unit = f
@@ -48,7 +48,7 @@ object Ctx {
     def getApp: A = AbsApp.get
   }
 
-  trait Srvce extends Service with Abs {
+  trait Srvce extends AbsService with Abs {
     implicit def activity: AbsActy = ???
     implicit def context: Context = this
     implicit def window: Window = ???

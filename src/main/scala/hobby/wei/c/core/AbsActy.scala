@@ -49,11 +49,11 @@ abstract class AbsActy extends Activity {
 
   override protected def onCreate(savedInstanceState: Bundle): Unit = {
     super.onCreate(savedInstanceState)
-    AbsApp.get.onActivityCreated(this)
+    AbsApp.get[AbsApp].onActivityCreated(this)
   }
 
   override protected def onDestroy(): Unit = {
-    if (AbsApp.get.onActivityDestroyed(this)) {
+    if (AbsApp.get[AbsApp].onActivityDestroyed(this)) {
       onDestroyToExit()
     }
     super.onDestroy()
