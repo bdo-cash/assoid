@@ -139,12 +139,10 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
   /**
     * 退出应用。
     */
-  def exit(): Unit = if (!mForceExit.getAndSet(true)) mainHandler.post(new Runnable() {
-    override def run(): Unit = {
-      sendGlobalEvent(sEventHost_event4Exit, null)
-      finishActivities
-    }
-  })
+  def exit(): Unit = if (!mForceExit.getAndSet(true)) post {
+    sendGlobalEvent(sEventHost_event4Exit, null)
+    finishActivities
+  }
 
   /** 是否是第一次启动某模块。 */
   def isFirstTimeLaunch(module: String, withVersion: Boolean = true) = UsedStorer.absApp.isFirstLaunch(withVer(module, withVersion))
@@ -165,9 +163,7 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
     cleanCollOrDeleteActy(acty)
     if (mForceExit.get) finishActivities
     val exit = isCurrentTheLastActivityToExit(acty)
-    if (exit) mainHandler.post(new Runnable() {
-      override def run(): Unit = doExit()
-    })
+    if (exit) post(doExit())
     exit
   }
 
@@ -175,9 +171,7 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
 
   private[core] def onServiceDestroyed(srvce: AbsService): Unit = {
     cleanCollOrDeleteSrvce(srvce)
-    if (hasNoMoreServices) mainHandler.post(new Runnable() {
-      override def run(): Unit = doExit()
-    })
+    if (hasNoMoreServices) post(doExit())
   }
 
   private[core] def doExit(): Unit = {
@@ -190,10 +184,12 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
     getSystemService(Context.ACTIVITY_SERVICE).as[ActivityManager].killBackgroundProcesses(getPackageName)
     */
     if (hasNoMoreActivities && hasNoMoreServices && shouldKill(myProcessName)) {
-      e("@@@@@@@@@@----[应用退出]----[将]自动结束进程（设置项）: %s。", myProcessName.orNull.s)
       onKill(myProcessName)
-      Process.killProcess(Process.myPid())
-      e("@@@@@@@@@@----[应用退出]---走不到这里来。")
+      e("@@@@@@@@@@----[应用退出]----[将]自动结束进程（设置项）: %s。", myProcessName.orNull.s)
+      postDelayed(1000) {
+        Process.killProcess(Process.myPid())
+        e("@@@@@@@@@@----[应用退出]---走不到这里来。")
+      }
     }
     mForceExit.set(false)
     w("@@@@@@@@@@----[应用退出]---[未]自动结束进程: %s。", myProcessName.orNull.s)
