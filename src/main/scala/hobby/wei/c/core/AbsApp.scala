@@ -183,16 +183,19 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
     // 只会对后台进程起作用，当本App最后一个Activity.onDestroy()的时候也会起作用，并且是立即起作用，即本语句后面的语句将不会执行。
     getSystemService(Context.ACTIVITY_SERVICE).as[ActivityManager].killBackgroundProcesses(getPackageName)
     */
-    if (hasNoMoreActivities && hasNoMoreServices && shouldKill(myProcessName)) {
-      onKill(myProcessName)
-      e("@@@@@@@@@@----[应用退出]----[将]自动结束进程（设置项）: %s。", myProcessName.orNull.s)
-      postDelayed(1000) {
-        Process.killProcess(Process.myPid())
-        e("@@@@@@@@@@----[应用退出]---走不到这里来。")
+    if (hasNoMoreActivities && hasNoMoreServices) {
+      if (shouldKill(myProcessName)) {
+        onKill(myProcessName)
+        e("@@@@@@@@@@----[应用退出]----[将]自动结束进程（设置项）: %s。", myProcessName.orNull.s)
+        postDelayed(1000) {
+          Process.killProcess(Process.myPid())
+          e("@@@@@@@@@@----[应用退出]---走不到这里来。")
+        }
+      } else {
+        mForceExit.set(false)
+        w("@@@@@@@@@@----[应用退出]---[未]自动结束进程: %s。", myProcessName.orNull.s)
       }
     }
-    mForceExit.set(false)
-    w("@@@@@@@@@@----[应用退出]---[未]自动结束进程: %s。", myProcessName.orNull.s)
   }
 
   def getProcessName(pid: Int): Option[String] = {
