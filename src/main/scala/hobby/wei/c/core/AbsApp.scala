@@ -167,9 +167,9 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
     exit
   }
 
-  private[core] def onServiceCreated(srvce: AbsService): Unit = mServiceSet.put(srvce, this)
+  private[core] def onServiceCreated(srvce: AbsSrvce): Unit = mServiceSet.put(srvce, this)
 
-  private[core] def onServiceDestroyed(srvce: AbsService): Unit = {
+  private[core] def onServiceDestroyed(srvce: AbsSrvce): Unit = {
     cleanCollOrDeleteSrvce(srvce)
     if (hasNoMoreServices) post(doExit())
   }
@@ -275,7 +275,7 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
     mServiceSet.isEmpty
   }
 
-  private def cleanCollOrDeleteSrvce(srvce: AbsService): Unit = for (ins <- mServiceSet.keySet.toArray if ins eq srvce) mServiceSet.remove(ins)
+  private def cleanCollOrDeleteSrvce(srvce: AbsSrvce): Unit = for (ins <- mServiceSet.keySet.toArray if ins eq srvce) mServiceSet.remove(ins)
 
   /**
     * 由于无论是进入新的Activity还是返回到旧的Activity，将要显示的页面B总是先创建，将要放入后台或销毁的页面A
@@ -292,5 +292,5 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
     */
   //private final WeakHashMap<AbsActy, Object> mActivities = new WeakHashMap<AbsActy, Object>();
   private val mActivitieStack = new util.Stack[WeakReference[_ <: AbsActy]]
-  private val mServiceSet = new util.WeakHashMap[AbsService, AbsApp]
+  private val mServiceSet = new util.WeakHashMap[AbsSrvce, AbsApp]
 }

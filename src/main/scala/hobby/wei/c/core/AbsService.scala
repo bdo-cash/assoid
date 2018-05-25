@@ -17,10 +17,9 @@
 package hobby.wei.c.core
 
 import android.os
-import android.app.Service
-import android.content.{Context, Intent}
+import android.content.Intent
 import android.database.Observable
-import android.os.{HandlerThread, Messenger, PowerManager, _}
+import android.os.{HandlerThread, Messenger, _}
 import hobby.chenai.nakam.basis.TAG
 import hobby.chenai.nakam.lang.J2S
 import hobby.chenai.nakam.lang.J2S.NonNull
@@ -33,11 +32,9 @@ import scala.ref.WeakReference
   * @author Chenai Nakam(chenai.nakam@gmail.com)
   * @version 1.0, 22/05/2018
   */
-trait AbsService extends Service with TAG.ClassName {
+trait AbsService extends AbsSrvce with Ctx.Srvce {
   @volatile private var mAllClientDisconnected = true
   @volatile private var mStopRequested = false
-  @volatile private var mDestroyed = false
-  private var mWakeLock: PowerManager#WakeLock = _
   private var mCallStartCount, mCallStopCount = 0
 
   protected val MSG_REPLY_TO: Int
@@ -51,7 +48,7 @@ trait AbsService extends Service with TAG.ClassName {
     *
     * @param msg `Client`端发过来的消息对象。
     */
-  def handleClientMsg(msg: Message): Unit
+  def handleClientMsg(msg: Message, handler: Handler): Unit
 
   /**
     * 请求启动任务。
@@ -75,16 +72,7 @@ trait AbsService extends Service with TAG.ClassName {
   /** 请求调用`stopForeground()`。 */
   protected def onStopForeground(): Unit = stopForeground(true)
 
-  /**
-    * 是否保持唤醒（理论上，如果启用`startForeground()`，应用将不会进入待机状态；而如果用户启用了`低电耗模式`，本设置
-    * 也将被忽略。因此本设置只能在非`低电耗模式`且未启用`startForeground()`的情况下可能有用。但为了减少权限的申请，还是推荐启用`startForeground()`）。
-    * 需要权限 `android.permission.WAKE_LOCK`。
-    */
-  protected val needKeepWake = false
-
-  def isDestroyed = mDestroyed
-
-  def sendMsg2Client(msg: Message): Unit = mClientHandler.post(new Runnable {
+  def sendMsg2Client(msg: Message): Unit = clientHandler.post(new Runnable {
     override def run(): Unit = mMsgObservable.sendMessage(msg)
   })
 
@@ -102,47 +90,21 @@ trait AbsService extends Service with TAG.ClassName {
     ht
   }
 
-  private lazy val mMainHandler = new Handler
-
   /** 主要用于客户端消息的`接收`和`回复`。 */
-  private lazy val mClientHandler = new Handler(mHandlerThread.getLooper) {
+  protected lazy val clientHandler: Handler = new Handler(mHandlerThread.getLooper) {
     override def handleMessage(msg: Message): Unit = {
       if (msg.what == MSG_REPLY_TO) {
         if (msg.replyTo.nonNull) mMsgObservable.registerObserver(new MsgObserver(msg.replyTo, mMsgObservable))
       } else {
-        handleClientMsg(msg)
+        handleClientMsg(msg, clientHandler)
       }
     }
   }
 
-  private lazy val mMessenger = new Messenger(mClientHandler)
-
-  override def onCreate(): Unit = {
-    super.onCreate()
-    AbsApp.get[AbsApp].onServiceCreated(this)
-    // 需要权限 `android.permission.WAKE_LOCK`
-    // 注意：由于Android6.0+对电源管理启用了`Doze`机制，
-    // WakeLock在`低电耗模式`下，不起作用（被忽略）；但`应用待机模式`不受影响。
-    //
-    // 具有以下3个特征将`不`被判定为待机模式：
-    // 1. 用户显式启动应用；
-    // 2. 应用当前有一个进程位于前台（表现为 Activity 或前台服务形式，或被另一 Activity 或前台服务占用）；
-    // 3. 应用生成用户可在锁屏或通知托盘中看到的通知。
-    //
-    // 因此，startForeground()有助于keep服务避免进入待机。具体参见；
-    // https://developer.android.com/training/monitoring-device-state/doze-standby
-    try {
-      if (needKeepWake) {
-        mWakeLock = getSystemService(Context.POWER_SERVICE).asInstanceOf[PowerManager].newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, className.toString)
-        mWakeLock.acquire()
-      }
-    } catch {
-      case ex: Exception => e(ex)
-    }
-  }
+  private lazy val mMessenger = new Messenger(clientHandler)
 
   override def onBind(intent: Intent) = {
-    w("bind------------")
+    w("onBind | intent: %s.", intent)
     mAllClientDisconnected = false
     mMessenger.getBinder
   }
@@ -156,14 +118,10 @@ trait AbsService extends Service with TAG.ClassName {
 
   override def onStartCommand(intent: Intent, flags: Int, startId: Int) = {
     confirmIfSignify2ToggleForeground(intent)
-    if (!confirmIfSignify2Stop(intent)) {
-      mMainHandler.post(new Runnable {
-        override def run(): Unit = {
-          // 本服务就是要时刻保持连接畅通的
-          onStartWork(mCallStartCount)
-          mCallStartCount += 1
-        }
-      })
+    if (!confirmIfSignify2Stop(intent)) post {
+      // 本服务就是要时刻保持连接畅通的
+      onStartWork(mCallStartCount)
+      mCallStartCount += 1
     }
     super.onStartCommand(intent, flags, startId)
   }
@@ -177,9 +135,9 @@ trait AbsService extends Service with TAG.ClassName {
 
   private def confirmIfSignify2Stop(intent: Intent): Boolean = {
     if (intent.nonNull) mStopRequested = intent.getBooleanExtra(CMD_EXTRA_STOP_SERVICE, false)
-    if (!mDestroyed && mStopRequested && mAllClientDisconnected) {
+    if (!isDestroyed && mStopRequested && mAllClientDisconnected) {
       // 让请求跟client的msg等排队执行
-      mClientHandler.post(new Runnable() {
+      clientHandler.post(new Runnable() {
         override def run(): Unit = {
           postStopSelf(0)
         }
@@ -188,26 +146,19 @@ trait AbsService extends Service with TAG.ClassName {
     mStopRequested
   }
 
-  private def postStopSelf(delay: Int): Unit = mMainHandler.postDelayed(new Runnable() {
-    override def run(): Unit = {
-      if (!mDestroyed) onStopWork(mCallStopCount) match {
-        case -1 => // 可能又重新bind()了
-          require(!mStopRequested || !mAllClientDisconnected, "根据当前状态应该关闭。您可以为`onCallStopWork()`返回`>0`的值以延迟该时间后再询问关闭。")
-        case 0 => stopSelf() //完全准备好了，该保存的都保存了，那就关闭吧。
-        case time => if (mStopRequested && mAllClientDisconnected) postStopSelf(time)
-      }
-      mCallStopCount += 1
+  private def postStopSelf(delay: Int): Unit = postDelayed(delay) {
+    if (!isDestroyed) onStopWork(mCallStopCount) match {
+      case -1 => // 可能又重新bind()了
+        require(!mStopRequested || !mAllClientDisconnected, "根据当前状态应该关闭。您可以为`onCallStopWork()`返回`>0`的值以延迟该时间后再询问关闭。")
+      case 0 => stopSelf() //完全准备好了，该保存的都保存了，那就关闭吧。
+      case time => if (mStopRequested && mAllClientDisconnected) postStopSelf(time)
     }
-  }, delay)
+    mCallStopCount += 1
+  }
 
   override def onDestroy(): Unit = {
-    mDestroyed = true
-    mHandlerThread.quitSafely()
-    if (mWakeLock.nonNull) {
-      mWakeLock.release()
-    }
-    AbsApp.get[AbsApp].onServiceDestroyed(this)
     super.onDestroy()
+    mHandlerThread.quitSafely()
   }
 }
 

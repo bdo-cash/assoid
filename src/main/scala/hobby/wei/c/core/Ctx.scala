@@ -48,7 +48,7 @@ object Ctx {
     def getApp: A = AbsApp.get
   }
 
-  trait Srvce extends AbsService with Abs {
+  trait Srvce extends AbsSrvce with Abs {
     implicit def activity: AbsActy = ???
     implicit def context: Context = this
     implicit def window: Window = ???
