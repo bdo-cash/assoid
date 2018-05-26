@@ -126,7 +126,7 @@ trait AbsService extends AbsSrvce with Ctx.Srvce {
     super.onStartCommand(intent, flags, startId)
   }
 
-  private def confirmIfSignify2ToggleForeground(intent: Intent): Unit = {
+  private def confirmIfSignify2ToggleForeground(intent: Intent): Unit = if (intent.nonNull) {
     if (intent.getBooleanExtra(CMD_EXTRA_START_FOREGROUND, false)) onStartForeground()
     else if (intent.getBooleanExtra(CMD_EXTRA_STOP_FOREGROUND, false)) onStopForeground()
   }
