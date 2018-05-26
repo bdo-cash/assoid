@@ -22,9 +22,10 @@ import android.database.Observable
 import android.os.{HandlerThread, Messenger, _}
 import hobby.chenai.nakam.basis.TAG
 import hobby.chenai.nakam.lang.J2S
-import hobby.chenai.nakam.lang.J2S.NonNull
+import hobby.chenai.nakam.lang.J2S.{NonNull, Run}
 import hobby.wei.c.LOG._
 import hobby.wei.c.core.AbsService._
+import hobby.wei.c.tool.Magic
 
 import scala.ref.WeakReference
 
@@ -72,15 +73,22 @@ trait AbsService extends AbsSrvce with Ctx.Srvce {
   /** 请求调用`stopForeground()`。 */
   protected def onStopForeground(): Unit = stopForeground(true)
 
-  def sendMsg2Client(msg: Message): Unit = clientHandler.post(new Runnable {
-    override def run(): Unit = mMsgObservable.sendMessage(msg)
-  })
+  def sendMsg2Client(msg: Message): Unit = clientHandler.post({
+    Magic.retryForceful(1200) {
+      if (hasClient) {
+        mMsgObservable.sendMessage(msg)
+        true
+      } else false
+    }(clientHandler)
+  }.run$)
 
   /** 在没有client bind的情况下，会停止Service，否则等待最后一个client取消bind的时候会自动断开。 **/
   def requestStopService(): Unit = {
     mStopRequested = true
     confirmIfSignify2Stop()
   }
+
+  def hasClient = !mAllClientDisconnected
 
   private lazy val mMsgObservable = new MsgObservable
 
