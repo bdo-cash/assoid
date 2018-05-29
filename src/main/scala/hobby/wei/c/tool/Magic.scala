@@ -30,14 +30,13 @@ object Magic extends TAG.ClassName {
     *
     * @param delay   延迟多长时间后重试。单位：毫秒。
     * @param times   最多重试多少次。
-    * @param action  具体要执行的操作。返回`true`表示成功，结束重试。
+    * @param action  具体要执行的操作。该函数的参数为`times`，返回`true`表示成功，结束重试。
     * @param handler 用于延迟`action`的执行器。
     */
-  def retryForceful(delay: Int, times: Int = 8)(action: => Boolean)(implicit handler: Handler): Unit = if (times > 0) {
-    val f = () => action
-    i("retryForceful | delay: %s, times: %s, action => f: %s.", delay, times, f)
-    if (!f()) handler.postDelayed(new Runnable {
-      override def run(): Unit = retryForceful(delay, times - 1)(f())(handler)
+  def retryForceful(delay: Int, times: Int = 8)(action: Int => Boolean)(implicit handler: Handler): Unit = if (times > 0) {
+    i("retryForceful | delay: %s, times: %s, action => f: %s.", delay, times, action)
+    if (!action(times)) handler.postDelayed(new Runnable {
+      override def run(): Unit = retryForceful(delay, times - 1)(action)(handler)
     }, delay)
   }
 }

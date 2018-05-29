@@ -99,9 +99,9 @@ object EventHost {
   private lazy val eventHostName = classOf[EventHost].getSimpleName
 
   // 必须也是个定值，因为消息的发送接收往往在不同的EventHost对象之间。
-  private def bundleExtraName = AbsApp.get.withPackageNamePrefix(eventHostName)
+  private def bundleExtraName = AbsApp.get[AbsApp].withPackageNamePrefix(eventHostName)
 
-  private def actionName(name: String) = AbsApp.get.withPackageNamePrefix(name)
+  private def actionName(name: String) = AbsApp.get[AbsApp].withPackageNamePrefix(name)
 
   def sendLocalEvent(context: Context, eventName: String, data: Bundle)(implicit host: EventHost): Unit = {
     val intent = new Intent(actionName(eventName))
@@ -116,7 +116,7 @@ object EventHost {
   }
 
   def registerReceiver(context: Context, session: EventSession): Unit = {
-    try { //避免在重复注册的时候导致异常
+    try { // 避免在重复注册的时候导致异常
       if (session.local) {
         LocalBroadcastManager.getInstance(context).registerReceiver(session.broadcastReceiver, session.intentFilter)
       } else {
@@ -128,7 +128,7 @@ object EventHost {
   }
 
   def unregisterReceiver(context: Context, session: EventSession): Unit = {
-    try { //避免在重复取消注册的时候导致异常
+    try { // 避免在重复取消注册的时候导致异常
       if (session.local) {
         LocalBroadcastManager.getInstance(context).unregisterReceiver(session.broadcastReceiver)
       } else {
@@ -203,8 +203,8 @@ class EventDelegator(context: => Context)(implicit host: EventHost) {
   }
 
   /**
-    * {@link android.app.Fragment#onActivityCreated(Bundle) Fragment}会用到：旋转屏幕的时候，Activity会重建，但是Fragment不会。
-    **/
+    * {{{android.app.Fragment#onActivityCreated(Bundle)}}}会用到：旋转屏幕的时候，Activity会重建，但是Fragment不会。
+    */
   private[core] def onActivityCreated(): Unit = {
     unregisterReceiver(PeriodMode.PAUSE_RESUME)
     unregisterReceiver(PeriodMode.START_STOP)

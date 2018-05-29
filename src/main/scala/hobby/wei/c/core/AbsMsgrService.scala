@@ -21,11 +21,11 @@ import android.content.Intent
 import android.database.Observable
 import android.os.{HandlerThread, Messenger, _}
 import hobby.chenai.nakam.basis.TAG
-import hobby.chenai.nakam.lang.J2S
-import hobby.chenai.nakam.lang.J2S.{NonNull, Run}
+import hobby.chenai.nakam.lang.J2S.{getRef, NonNull, Run}
+import hobby.chenai.nakam.lang.TypeBring.AsIs
 import hobby.wei.c.LOG._
-import hobby.wei.c.core.AbsService._
-import hobby.wei.c.tool.Magic
+import hobby.wei.c.core.AbsMsgrService._
+import hobby.wei.c.tool.Magic.retryForceful
 
 import scala.ref.WeakReference
 
@@ -33,7 +33,7 @@ import scala.ref.WeakReference
   * @author Chenai Nakam(chenai.nakam@gmail.com)
   * @version 1.0, 22/05/2018
   */
-trait AbsService extends AbsSrvce with Ctx.Srvce {
+trait AbsMsgrService extends AbsSrvce with Ctx.Srvce {
   @volatile private var mAllClientDisconnected = true
   @volatile private var mStopRequested = false
   private var mCallStartCount, mCallStopCount = 0
@@ -49,7 +49,17 @@ trait AbsService extends AbsSrvce with Ctx.Srvce {
     *
     * @param msg `Client`端发过来的消息对象。
     */
-  def handleClientMsg(msg: Message, handler: Handler): Unit
+  protected def handleClientMsg(msg: Message, handler: Handler): Unit = msg.what match {
+    case 1234567 =>
+      i("handleClientMsg | msg > what: %s, content: %s.", msg.what, msg.obj.as[Bundle].getString("msg_key").s)
+      val answer = Message.obtain()
+      answer.what = 7654321
+      val b = new Bundle
+      b.putString("msg_key", "<<< 这是一个测试`应答`消息 <<<。")
+      answer.obj = b
+      sendMsg2Client(answer)
+    case _ =>
+  }
 
   /**
     * 请求启动任务。
@@ -73,8 +83,16 @@ trait AbsService extends AbsSrvce with Ctx.Srvce {
   /** 请求调用`stopForeground()`。 */
   protected def onStopForeground(): Unit = stopForeground(true)
 
+  /**
+    * 子类重写该方法以消化特定命令。
+    *
+    * @return `true`表示消化了参数`intent`携带的命令（这意味着本父类不再继续处理命令），
+    *         `false`表示没有消化（即：没有自己关注命令）。
+    */
+  protected def confirmIfCommandConsumed(intent: Intent): Boolean = false
+
   def sendMsg2Client(msg: Message): Unit = clientHandler.post({
-    Magic.retryForceful(1200) {
+    retryForceful(1200) { _ =>
       if (hasClient) {
         mMsgObservable.sendMessage(msg)
         true
@@ -102,42 +120,60 @@ trait AbsService extends AbsSrvce with Ctx.Srvce {
   protected lazy val clientHandler: Handler = new Handler(mHandlerThread.getLooper) {
     override def handleMessage(msg: Message): Unit = {
       if (msg.what == MSG_REPLY_TO) {
-        if (msg.replyTo.nonNull) mMsgObservable.registerObserver(new MsgObserver(msg.replyTo, mMsgObservable))
+        if (msg.replyTo.nonNull) {
+          mAllClientDisconnected = false
+          mMsgObservable.registerObserver(new MsgObserver(msg.replyTo, mMsgObservable))
+        }
       } else {
         handleClientMsg(msg, clientHandler)
       }
     }
   }
 
-  private lazy val mMessenger = new Messenger(clientHandler)
-
   override def onBind(intent: Intent) = {
     w("onBind | intent: %s.", intent)
+    // 注意：`onUnbind()`之后，如果再次`bindService()`并不一定会再走这里。即：`onBind()`和`onUnbind()`并不对称。
+    // 但只要`onUnbind()`返回`true`，下次会走`onRebind()`。
     mAllClientDisconnected = false
-    mMessenger.getBinder
+    new Messenger(clientHandler).getBinder
+  }
+
+  override def onRebind(intent: Intent): Unit = {
+    mAllClientDisconnected = false
+    super.onRebind(intent)
   }
 
   override def onUnbind(intent: Intent) = { // 当所有的bind连接都断开之后会回调
     mAllClientDisconnected = true
     mMsgObservable.unregisterAll()
     confirmIfSignify2Stop()
-    super.onUnbind(intent) // 默认返回false. 当返回true时，下次的的bind操作将执行onRebind()。
+    super.onUnbind(intent)
+    // 默认返回`false`（注意：下次`bind`的时候既不执行`onBind()`，也不执行`onRebind()`）。当返回`true`时，下次的`bind`操作将执行`onRebind()`。
+    true
   }
 
   override def onStartCommand(intent: Intent, flags: Int, startId: Int) = {
-    confirmIfSignify2ToggleForeground(intent)
-    if (!confirmIfSignify2Stop(intent)) post {
-      // 本服务就是要时刻保持连接畅通的
-      onStartWork(mCallStartCount)
-      mCallStartCount += 1
+    if (!confirmIfSignify2Stop(intent) // 注意这几个顺序所表达的优先级
+      && !confirmIfSignify2ToggleForeground(intent)
+      && !confirmIfCommandConsumed(intent)) {
+      post {
+        // 本服务就是要时刻保持连接畅通的
+        onStartWork(mCallStartCount)
+        mCallStartCount += 1
+      }
     }
     super.onStartCommand(intent, flags, startId)
   }
 
-  private def confirmIfSignify2ToggleForeground(intent: Intent): Unit = if (intent.nonNull) {
-    if (intent.getBooleanExtra(CMD_EXTRA_START_FOREGROUND, false)) onStartForeground()
-    else if (intent.getBooleanExtra(CMD_EXTRA_STOP_FOREGROUND, false)) onStopForeground()
-  }
+  private def confirmIfSignify2ToggleForeground(intent: Intent): Boolean = if (intent.nonNull) {
+    if (intent.getBooleanExtra(CMD_EXTRA_START_FOREGROUND, false)) {
+      onStartForeground()
+      true
+    } else if (intent.getBooleanExtra(CMD_EXTRA_STOP_FOREGROUND, false)) {
+      onStopForeground()
+      true
+    } else false
+  } else false
 
   private def confirmIfSignify2Stop(): Boolean = confirmIfSignify2Stop(null)
 
@@ -170,7 +206,7 @@ trait AbsService extends AbsSrvce with Ctx.Srvce {
   }
 }
 
-object AbsService {
+object AbsMsgrService {
   class MsgObservable extends Observable[MsgObserver] {
     def sendMessage(msg: Message): Unit = mObservers.synchronized {
       var i = mObservers.size() - 1
@@ -182,17 +218,17 @@ object AbsService {
     }
   }
 
-  class MsgObserver(msger: Messenger, obs: MsgObservable) extends TAG.ClassName {
+  class MsgObserver(msgr: Messenger, obs: MsgObservable) extends TAG.ClassName {
     private val obsRef: WeakReference[MsgObservable] = new WeakReference[MsgObservable](obs)
 
     def onMessage(msg: Message): Unit = {
       try {
-        msger.send(msg)
+        msgr.send(msg)
       } catch {
         case ex: RemoteException => e(ex)
-          if (!msger.getBinder.pingBinder()) {
+          if (!msgr.getBinder.pingBinder()) {
             e("server ping to-client binder failed.")
-            J2S.getRef(obsRef).foreach(_.unregisterObserver(this))
+            getRef(obsRef).foreach(_.unregisterObserver(this))
           }
       }
     }
