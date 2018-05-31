@@ -19,7 +19,7 @@ package hobby.wei.c.core
 import android.content.{ComponentName, ServiceConnection}
 import android.os._
 import hobby.chenai.nakam.basis.TAG
-import hobby.chenai.nakam.lang.J2S.NonNull
+import hobby.chenai.nakam.lang.J2S.{NonNull, Run}
 import hobby.chenai.nakam.lang.TypeBring.AsIs
 import hobby.wei.c.LOG._
 import hobby.wei.c.tool.Magic.retryForceful
@@ -69,22 +69,24 @@ abstract class AbsMsgrActy extends AbsActy with TAG.ClassName {
 
   def isChannelConnected = connected
 
-  def sendMsg2Server(msg: Message): Unit = retryForceful(1000) { _ =>
-    val msgr = sender
-    if (msgr.nonNull) {
-      try {
-        msgr.send(msg)
-        true
-      } catch {
-        case ex: RemoteException => e(ex)
-          if (!msgr.getBinder.pingBinder()) {
-            e("client ping to-server binder failed.")
-            tryOrReBind()
-            true // 中断 retry
-          } else false
-      }
-    } else false
-  }(msgHandler)
+  def sendMsg2Server(msg: Message): Unit = if (!isDestroyed) msgHandler.post({
+    retryForceful(1000) { _ =>
+      val msgr = sender
+      if (msgr.nonNull) {
+        try {
+          msgr.send(msg)
+          true
+        } catch {
+          case ex: RemoteException => e(ex)
+            if (!msgr.getBinder.pingBinder()) {
+              e("client ping to-server binder failed.")
+              tryOrReBind()
+              true // 中断 retry
+            } else false
+        }
+      } else if (isDestroyed) true /*中断*/ else false
+    }(msgHandler)
+  }.run$)
 
   private lazy val serviceConn: ServiceConnection = new ServiceConnection {
     override def onServiceConnected(name: ComponentName, service: IBinder): Unit = {

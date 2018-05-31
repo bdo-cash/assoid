@@ -91,12 +91,12 @@ trait AbsMsgrService extends AbsSrvce with Ctx.Srvce {
     */
   protected def confirmIfCommandConsumed(intent: Intent): Boolean = false
 
-  def sendMsg2Client(msg: Message): Unit = clientHandler.post({
+  def sendMsg2Client(msg: Message): Unit = if (!isDestroyed) clientHandler.post({
     retryForceful(1200) { _ =>
       if (hasClient) {
         mMsgObservable.sendMessage(msg)
         true
-      } else false
+      } else if (isDestroyed) true /*中断*/ else false
     }(clientHandler)
   }.run$)
 
