@@ -80,6 +80,7 @@ trait AbsMsgrService extends AbsSrvce with Ctx.Srvce {
 
   /** 请求调用`startForeground()`。 */
   protected def onStartForeground(): Unit
+
   /** 请求调用`stopForeground()`。 */
   protected def onStopForeground(): Unit = stopForeground(true)
 
@@ -91,14 +92,18 @@ trait AbsMsgrService extends AbsSrvce with Ctx.Srvce {
     */
   protected def confirmIfCommandConsumed(intent: Intent): Boolean = false
 
-  def sendMsg2Client(msg: Message): Unit = if (!isDestroyed) clientHandler.post({
-    retryForceful(1200) { _ =>
-      if (hasClient) {
-        mMsgObservable.sendMessage(msg)
-        true
-      } else if (isDestroyed) true /*中断*/ else false
-    }(clientHandler)
-  }.run$)
+  def sendMsg2Client(msg: Message): Unit = {
+    def shouldFinish = isDestroyed || (mStopRequested && mAllClientDisconnected)
+
+    if (!shouldFinish) clientHandler.post({
+      retryForceful(1200) { _ =>
+        if (hasClient) {
+          mMsgObservable.sendMessage(msg)
+          true
+        } else if (shouldFinish) true /*中断*/ else false
+      }(clientHandler)
+    }.run$)
+  }
 
   /** 在没有client bind的情况下，会停止Service，否则等待最后一个client取消bind的时候会自动断开。 **/
   def requestStopService(): Unit = {
@@ -107,6 +112,8 @@ trait AbsMsgrService extends AbsSrvce with Ctx.Srvce {
   }
 
   def hasClient = !mAllClientDisconnected
+
+  def isStopRequested = mStopRequested
 
   private lazy val mMsgObservable = new MsgObservable
 
@@ -124,9 +131,9 @@ trait AbsMsgrService extends AbsSrvce with Ctx.Srvce {
           mAllClientDisconnected = false
           mMsgObservable.registerObserver(new MsgObserver(msg.replyTo, mMsgObservable))
         }
-      } else {
-        handleClientMsg(msg, clientHandler)
-      }
+      } else if (isStopRequested || isDestroyed) {
+        w("clientHandler.handleMessage | BLOCKED. >>> stopRequested: %s, destroyed: %s.", isStopRequested, isDestroyed)
+      } else handleClientMsg(msg, clientHandler)
     }
   }
 

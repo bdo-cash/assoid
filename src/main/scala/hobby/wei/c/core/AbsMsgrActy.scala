@@ -61,7 +61,9 @@ abstract class AbsMsgrActy extends AbsActy with TAG.ClassName {
   }
 
   private lazy val msgHandler: Handler = new Handler() {
-    override def handleMessage(msg: Message): Unit = handleServerMsg(msg, msgHandler)
+    override def handleMessage(msg: Message): Unit = if (isFinishing || isDestroyed) {
+      w("msgHandler.handleMessage | BLOCKED. >>> finishing: %s, destroyed: %s.", isFinishing, isDestroyed)
+    } else handleServerMsg(msg, msgHandler)
   }
 
   @volatile private var sender: Messenger = _
@@ -69,24 +71,28 @@ abstract class AbsMsgrActy extends AbsActy with TAG.ClassName {
 
   def isChannelConnected = connected
 
-  def sendMsg2Server(msg: Message): Unit = if (!isDestroyed) msgHandler.post({
-    retryForceful(1000) { _ =>
-      val msgr = sender
-      if (msgr.nonNull) {
-        try {
-          msgr.send(msg)
-          true
-        } catch {
-          case ex: RemoteException => e(ex)
-            if (!msgr.getBinder.pingBinder()) {
-              e("client ping to-server binder failed.")
-              tryOrReBind()
-              true // 中断 retry
-            } else false
-        }
-      } else if (isDestroyed) true /*中断*/ else false
-    }(msgHandler)
-  }.run$)
+  def sendMsg2Server(msg: Message): Unit = {
+    def shouldFinish = isFinishing || isDestroyed
+
+    if (!shouldFinish) msgHandler.post({
+      retryForceful(1000) { _ =>
+        val msgr = sender
+        if (msgr.nonNull) {
+          try {
+            msgr.send(msg)
+            true
+          } catch {
+            case ex: RemoteException => e(ex)
+              if (!msgr.getBinder.pingBinder()) {
+                e("client ping to-server binder failed.")
+                tryOrReBind()
+                true // 中断 retry
+              } else false
+          }
+        } else if (shouldFinish) true /*中断*/ else false
+      }(msgHandler)
+    }.run$)
+  }
 
   private lazy val serviceConn: ServiceConnection = new ServiceConnection {
     override def onServiceConnected(name: ComponentName, service: IBinder): Unit = {
