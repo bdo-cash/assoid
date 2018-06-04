@@ -77,7 +77,7 @@ object StartMe {
 
     def bind[S <: Service](ctx: Context, conn: ServiceConnection, clazz: Class[S]): Unit = {
       start(ctx, clazz)
-      i("start::bindService| %s.", clazz.getName.s)
+      i("start::bindService | %s.", clazz.getName.s)
       ctx.bindService(new Intent(ctx, clazz), conn, Context.BIND_AUTO_CREATE)
     }
 

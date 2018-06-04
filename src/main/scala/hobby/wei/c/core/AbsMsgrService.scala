@@ -186,30 +186,26 @@ trait AbsMsgrService extends AbsSrvce with Ctx.Srvce {
 
   private def confirmIfSignify2Stop(intent: Intent): Boolean = {
     if (intent.nonNull) mStopRequested = intent.getBooleanExtra(CMD_EXTRA_STOP_SERVICE, false)
-    if (!isDestroyed && mStopRequested && mAllClientDisconnected) {
-      // 让请求跟client的msg等排队执行
-      clientHandler.post(new Runnable() {
-        override def run(): Unit = {
-          postStopSelf(0)
-        }
-      })
-    }
+    // 让请求跟client的msg等排队执行
+    if (!isDestroyed && mStopRequested) clientHandler.post(postStopSelf(0).run$)
     mStopRequested
   }
 
   private def postStopSelf(delay: Int): Unit = postDelayed(delay) {
-    if (!isDestroyed) onStopWork(mCallStopCount) match {
+    if (!isDestroyed && mStopRequested && mAllClientDisconnected) onStopWork(mCallStopCount) match {
       case -1 => // 可能又重新bind()了
         require(!mStopRequested || !mAllClientDisconnected, "根据当前状态应该关闭。您可以为`onCallStopWork()`返回`>0`的值以延迟该时间后再询问关闭。")
       case 0 => stopSelf() //完全准备好了，该保存的都保存了，那就关闭吧。
-      case time => if (mStopRequested && mAllClientDisconnected) postStopSelf(time)
+      case time => postStopSelf(time)
     }
     mCallStopCount += 1
   }
 
   override def onDestroy(): Unit = {
     super.onDestroy()
-    mHandlerThread.quitSafely()
+    clientHandler.post({
+      mHandlerThread.quitSafely()
+    }.run$)
   }
 }
 
