@@ -120,12 +120,12 @@ abstract class AbsMsgrActy extends AbsActy with TAG.ClassName {
     }
   }
 
-  private def tryOrReBind(): Unit = {
+  protected def tryOrReBind(): Unit = {
     confirmUnbind()
     startService.bind(this, serviceConn, msgrServiceClazz)
   }
 
-  private def confirmUnbind(): Boolean = if (connected) {
+  protected def confirmUnbind(): Boolean = if (connected) {
     connected = false
     e("confirmUnbind | 断开连接 | DONE.")
     onMsgChannelDisconnected()
