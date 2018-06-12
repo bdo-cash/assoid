@@ -32,9 +32,9 @@ libraryDependencies ++= Seq(
   // 如果要用 jitpack 打包的话就加上，打完了再注掉。
   // TODO: 独立使用本库的话，应该启用本依赖。
   "com.github.dedge-space" % "annoguard" % "1.0.3-beta",
-  "com.github.dedge-space" % "annoid" % "f4bce8a5c0",
-  "com.github.dedge-space" % "scala-lang" % "3bb86568c6",
-  "com.github.dedge-space" % "reflow" % "677f80ed3e",
+  "com.github.dedge-space" % "annoid" % "98aadb2022",
+  "com.github.dedge-space" % "scala-lang" % "faccf390d2",
+  "com.github.dedge-space" % "reflow" % "4d21873f6f",
 
   "com.android.support" % "appcompat-v7" % "26.+",
   "com.j256.ormlite" % "ormlite-android" % "[5.0,)",

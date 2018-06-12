@@ -25,15 +25,14 @@ import hobby.chenai.nakam.lang.J2S.{getRef, NonNull, Run}
 import hobby.chenai.nakam.lang.TypeBring.AsIs
 import hobby.wei.c.LOG._
 import hobby.wei.c.core.AbsMsgrService._
-import hobby.wei.c.tool.Magic.retryForceful
-
+import hobby.wei.c.tool.RetryByHandler
 import scala.ref.WeakReference
 
 /**
   * @author Chenai Nakam(chenai.nakam@gmail.com)
   * @version 1.0, 22/05/2018
   */
-trait AbsMsgrService extends AbsSrvce with Ctx.Srvce {
+trait AbsMsgrService extends AbsSrvce with Ctx.Srvce with RetryByHandler {
   @volatile private var mAllClientDisconnected = true
   @volatile private var mStopRequested = false
   private var mCallStartCount, mCallStopCount = 0
@@ -101,9 +100,11 @@ trait AbsMsgrService extends AbsSrvce with Ctx.Srvce {
           mMsgObservable.sendMessage(msg)
           true
         } else if (shouldFinish) true /*中断*/ else false
-      }(clientHandler)
+      }
     }.run$)
   }
+
+  override implicit protected def delayerHandler: Handler = clientHandler
 
   /** 在没有client bind的情况下，会停止Service，否则等待最后一个client取消bind的时候会自动断开。 **/
   def requestStopService(): Unit = {

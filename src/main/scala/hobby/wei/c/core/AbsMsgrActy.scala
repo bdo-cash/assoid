@@ -18,17 +18,16 @@ package hobby.wei.c.core
 
 import android.content.{ComponentName, ServiceConnection}
 import android.os._
-import hobby.chenai.nakam.basis.TAG
 import hobby.chenai.nakam.lang.J2S.{NonNull, Run}
 import hobby.chenai.nakam.lang.TypeBring.AsIs
 import hobby.wei.c.LOG._
-import hobby.wei.c.tool.Magic.retryForceful
+import hobby.wei.c.tool.RetryByHandler
 
 /**
   * @author Chenai Nakam(chenai.nakam@gmail.com)
   * @version 1.0, 26/05/2018
   */
-abstract class AbsMsgrActy extends AbsActy with TAG.ClassName {
+abstract class AbsMsgrActy extends AbsActy with RetryByHandler {
   protected override def onCreate(savedInstanceState: Bundle): Unit = {
     super.onCreate(savedInstanceState)
     tryOrReBind()
@@ -90,9 +89,11 @@ abstract class AbsMsgrActy extends AbsActy with TAG.ClassName {
               } else false
           }
         } else if (shouldFinish) true /*中断*/ else false
-      }(msgHandler)
+      }
     }.run$)
   }
+
+  override implicit protected def delayerHandler: Handler = msgHandler
 
   private lazy val serviceConn: ServiceConnection = new ServiceConnection {
     override def onServiceConnected(name: ComponentName, service: IBinder): Unit = {
