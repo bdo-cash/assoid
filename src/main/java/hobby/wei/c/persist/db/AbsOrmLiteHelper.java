@@ -56,7 +56,7 @@ public abstract class AbsOrmLiteHelper extends OrmLiteSqliteOpenHelper {
         super(context, dbName, null, dbVersion);
     }
 
-    protected abstract IUpgrader getUpgrader();
+    protected abstract IUpgradeInquiry getUpgradeInquiry();
 
     protected abstract Set<Table<?, ?>> getTables();
 
@@ -170,14 +170,14 @@ public abstract class AbsOrmLiteHelper extends OrmLiteSqliteOpenHelper {
                         // newTableSqls不删除，需要在最后再执行一遍创建，因为TableUtils.getCreateTableStatements()返回是是一个list。
                         continue;    // 表结构相同，不用执行升级操作
                     } else {
-                        if (getUpgrader().needSaveOldTableData(oldVersion, name, newTables.get(name))) {
+                        if (getUpgradeInquiry().needSaveOldTableData(oldVersion, name, newTables.get(name))) {
                             // 导数据
                             upgradeTable(database, connSource, newTables.get(name), name, oldSql, createSql);
-                            getUpgrader().onTableUpgraded(name, false);
+                            getUpgradeInquiry().onTableUpgraded(name, false);
                         } else {
                             // 删除旧表
                             deleteTable(database, name);
-                            getUpgrader().onTableUpgraded(name, true);
+                            getUpgradeInquiry().onTableUpgraded(name, true);
                         }
                     }
                 }

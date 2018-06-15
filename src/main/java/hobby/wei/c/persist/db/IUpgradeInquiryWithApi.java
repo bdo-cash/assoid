@@ -21,22 +21,9 @@ import hobby.wei.c.remote.api.Api;
 /**
  * @author Wei Chou(weichou2010@gmail.com)
  */
-public interface IUpgrader {
-    /**
-     * 新旧表名称相同。注意tableName和newTable的className可能不一致，取决于newTable类中annotation设置。
-     */
-    boolean needSaveOldTableData(int oldVersion, String tableName, Class<?> newTable);
-
+public interface IUpgradeInquiryWithApi extends IUpgradeInquiry {
     /**
      * 新旧Api名称相同。apiBaseUrl、apiName和newApi的name是一致的。
      */
     boolean needSaveOldApiData(int oldVersion, String apiBaseUrl, String apiName, Api newApi);
-
-    /**
-     * 表升级完成。注意{@link Table#ApiCache ApiCacheTable}的升级是直接回调本方法，而没有询问。
-     *
-     * @param tableName
-     * @param clear     是否清空了。未清空则是保留了对应字段的数据。
-     */
-    void onTableUpgraded(String tableName, boolean clear);
 }

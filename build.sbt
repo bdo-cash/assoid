@@ -34,7 +34,7 @@ libraryDependencies ++= Seq(
   "com.github.dedge-space" % "annoguard" % "1.0.3-beta",
   "com.github.dedge-space" % "annoid" % "98aadb2022",
   "com.github.dedge-space" % "scala-lang" % "faccf390d2",
-  "com.github.dedge-space" % "reflow" % "4d21873f6f",
+  "com.github.dedge-space" % "reflow" % "b4674157c7",
 
   "com.android.support" % "appcompat-v7" % "26.+",
   "com.j256.ormlite" % "ormlite-android" % "[5.0,)",

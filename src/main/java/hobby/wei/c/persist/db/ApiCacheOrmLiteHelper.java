@@ -50,6 +50,9 @@ public abstract class ApiCacheOrmLiteHelper extends AbsOrmLiteHelper {
         super(context, dbName, dbVersion);
     }
 
+    @Override
+    protected abstract IUpgradeInquiryWithApi getUpgradeInquiry();
+
     protected abstract Set<Api> getApis();
 
     @Override
@@ -72,7 +75,7 @@ public abstract class ApiCacheOrmLiteHelper extends AbsOrmLiteHelper {
         if (oldApiCacheTableSql != null) {
             if (!apiCacheTableSql.equals(oldApiCacheTableSql)) {
                 upgradeTable(database, connSource, sApiCacheTable.clazz, apiCacheTableName, oldApiCacheTableSql, apiCacheTableSql);
-                getUpgrader().onTableUpgraded(apiCacheTableName, false);
+                getUpgradeInquiry().onTableUpgraded(apiCacheTableName, false);
             }
         }
 
@@ -168,7 +171,7 @@ public abstract class ApiCacheOrmLiteHelper extends AbsOrmLiteHelper {
                             L.d(TAG, "[upgradeApiCache] 没有改变：%s.", L.s(category));
                             break;
                         }
-                        saveOldData = getUpgrader().needSaveOldApiData(oldVersion, newApi.baseUrl, newApi.name, newApi);
+                        saveOldData = getUpgradeInquiry().needSaveOldApiData(oldVersion, newApi.baseUrl, newApi.name, newApi);
                         L.w(TAG, "[upgradeApiCache] 是否保存旧数据：%s, %s.", saveOldData, L.s(category));
                         if (!saveOldData) {
                             break;

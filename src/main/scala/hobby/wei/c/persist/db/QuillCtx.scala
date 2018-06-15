@@ -1,17 +1,17 @@
 /*
+ * The MIT License (MIT)
+ *
  * Copyright (C) 2017-present, Chenai Nakam(chenai.nakam@gmail.com)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  */
 
 package hobby.wei.c.persist.db
@@ -33,10 +33,11 @@ trait QuillCtx[HELPER <: AbsOrmLiteHelper] extends %[AbsApp] {
   protected def classOfDbHelper: Class[HELPER]
   protected def databaseName: String
 
-  private def sqliteDbHelper: AbsOrmLiteHelper = OpenHelperManager.getHelper(AbsApp.get, classOfDbHelper)
+  private def referDbHelper(): AbsOrmLiteHelper = OpenHelperManager.getHelper(AbsApp.get, classOfDbHelper)
+  private def releaseDbHelper(): Unit = OpenHelperManager.releaseHelper()
 
   def mapDb[A](f: AbsOrmLiteHelper => A): A = {
-    try f(sqliteDbHelper) finally OpenHelperManager.releaseHelper()
+    try f(referDbHelper()) finally releaseDbHelper()
   }
 
   def mapDb[A](toUi: A => Unit)(f: AbsOrmLiteHelper => A): Unit = {
@@ -47,7 +48,7 @@ trait QuillCtx[HELPER <: AbsOrmLiteHelper] extends %[AbsApp] {
   }
 
   def mapCtx[A](f: SqliteJdbcContext[_] => A): A = {
-    try f(quillCtx) finally OpenHelperManager.releaseHelper()
+    try f(quillCtx) finally releaseDbHelper()
   }
 
   def mapCtx[A](toUi: A => Unit)(f: SqliteJdbcContext[_] => A): Unit = {
@@ -71,14 +72,16 @@ trait QuillCtx[HELPER <: AbsOrmLiteHelper] extends %[AbsApp] {
   def dataSource: javax.sql.DataSource with java.io.Closeable = new QuillDataSource(
     new QuillAndroidDriver {
       override def databaseFactory = new QuillAndroidDatabaseFactory {
-        override def sqliteOpenHelper(path: String, flags: Int) = {
-          sqliteDbHelper.ensuring(_.getDatabaseName == new File(path).getName, s"param{path: $path, flags: $flags}, ${sqliteDbHelper.getDatabaseName}")
+        override def referSqliteOpenHelper(path: String, flags: Int) = {
+          val helper = referDbHelper()
+          helper.ensuring(_.getDatabaseName == new File(path).getName, s"param{path: $path, flags: $flags}, ${helper.getDatabaseName}")
         }
+
+        override def releaseSqliteOpenHelper(): Unit = releaseDbHelper()
       }
-    }, getApp.getDatabasePath(databaseName).getPath) {
+    }, getApp.getDatabasePath(databaseName).getPath) with java.io.Closeable {
     override def close(): Unit = {
-      super.close()
-      OpenHelperManager.releaseHelper() // 数据库关闭操作由它完成。
+      // Nothing to do. 仅为了满足`SqliteJdbcContext`的参数要求。
     }
   }
 
