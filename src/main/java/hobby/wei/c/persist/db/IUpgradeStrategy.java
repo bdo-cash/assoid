@@ -19,7 +19,7 @@ package hobby.wei.c.persist.db;
 /**
  * @author Wei Chou(weichou2010@gmail.com)
  */
-public interface IUpgradeInquiry {
+public interface IUpgradeStrategy {
     /**
      * 新旧表名称相同。注意tableName和newTable的className可能不一致，取决于newTable类中annotation设置。
      */

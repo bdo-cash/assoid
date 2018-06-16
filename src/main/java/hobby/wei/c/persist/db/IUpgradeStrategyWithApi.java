@@ -21,7 +21,7 @@ import hobby.wei.c.remote.api.Api;
 /**
  * @author Wei Chou(weichou2010@gmail.com)
  */
-public interface IUpgradeInquiryWithApi extends IUpgradeInquiry {
+public interface IUpgradeStrategyWithApi extends IUpgradeStrategy {
     /**
      * 新旧Api名称相同。apiBaseUrl、apiName和newApi的name是一致的。
      */
