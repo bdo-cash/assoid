@@ -30,7 +30,8 @@ abstract class QuillAndroidDatabaseFactory extends AndroidDatabaseFactory {
       override def getDriverName: String = QuillAndroidDriver.driverName
 
       override def close(): Unit = {
-        super.close()
+        // 不可以直接关闭
+        // super.close()
         releaseSqliteOpenHelper()
       }
     }

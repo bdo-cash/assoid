@@ -17,8 +17,8 @@
 package hobby.wei.c.persist.db
 
 import java.io.File
-import com.j256.ormlite.android.apptools.OpenHelperManager
 import hobby.chenai.nakam.lang.J2S.Run
+import hobby.chenai.nakam.lang.TypeBring.AsIs
 import hobby.wei.c.core.AbsApp
 import hobby.wei.c.core.Ctx.%
 import hobby.wei.c.reflow.Reflow
@@ -30,11 +30,40 @@ import io.getquill.{CamelCase, SqliteJdbcContext}
   * @version 1.0, 28/12/2017
   */
 trait QuillCtx[HELPER <: AbsOrmLiteHelper] extends %[AbsApp] {
-  protected def classOfDbHelper: Class[HELPER]
-  protected def databaseName: String
+  private var dbOpenHelper: HELPER = _
+  private var referCount = 0
 
-  private def referDbHelper(): AbsOrmLiteHelper = OpenHelperManager.getHelper(AbsApp.get, classOfDbHelper)
-  private def releaseDbHelper(): Unit = OpenHelperManager.releaseHelper()
+  /** 延迟数据库的释放时间，以便引用计数较少地降低到`0`，从而减少触发数据库的真实打开和关闭。 */
+  protected val delayReleaseTime = 90000 // 1.5 min
+
+  protected def databaseName: String
+  protected def newDbOpenHelper(): HELPER
+
+  // 坑爹：这个不支持多个 helper 实例。
+  // OpenHelperManager.getHelper(getApp, classOfDbHelper)
+  private def referDbHelper(): AbsOrmLiteHelper = QuillCtx.this.synchronized {
+    if (referCount == 0) dbOpenHelper = newDbOpenHelper()
+    getApp.mainHandler.removeCallbacks(releaseRun)
+    referCount += 1
+    dbOpenHelper
+  }
+
+  private def releaseDbHelper(): Unit = QuillCtx.this.synchronized {
+    if (referCount == 1) {
+      getApp.mainHandler.postDelayed(releaseRun, delayReleaseTime)
+    } else if (referCount > 1) referCount -= 1
+  }
+
+  private lazy val releaseRun = {
+    // OpenHelperManager.releaseHelper()
+    QuillCtx.this.synchronized {
+      if (referCount == 1) {
+        dbOpenHelper.close()
+        dbOpenHelper = 0.as[HELPER]
+        referCount = 0
+      }
+    }
+  }.run$
 
   def mapDb[A](f: AbsOrmLiteHelper => A): A = {
     try f(referDbHelper()) finally releaseDbHelper()
@@ -48,7 +77,9 @@ trait QuillCtx[HELPER <: AbsOrmLiteHelper] extends %[AbsApp] {
   }
 
   def mapCtx[A](f: SqliteJdbcContext[_] => A): A = {
-    try f(quillCtx) finally releaseDbHelper()
+    try f(quillCtx) finally {
+      // nothing ...
+    }
   }
 
   def mapCtx[A](toUi: A => Unit)(f: SqliteJdbcContext[_] => A): Unit = {
