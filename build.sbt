@@ -25,6 +25,9 @@ offline := true
 // 解决生成文档报错导致 jitpack.io 出错的问题。
 publishArtifact in packageDoc := false
 
+// 如果下载不下来 android support 包再开启。
+//resolvers += Resolver.jcenterRepo
+//resolvers += "google" at "https://maven.google.com"
 // 如果要用 jitpack 打包的话就加上，打完了再注掉。
 resolvers += "jitpack" at "https://jitpack.io"
 
@@ -32,11 +35,12 @@ libraryDependencies ++= Seq(
   // 如果要用 jitpack 打包的话就加上，打完了再注掉。
   // TODO: 独立使用本库的话，应该启用本依赖。
   "com.github.dedge-space" % "annoguard" % "1.0.3-beta",
-  "com.github.dedge-space" % "annoid" % "98aadb2022",
-  "com.github.dedge-space" % "scala-lang" % "faccf390d2",
-  "com.github.dedge-space" % "reflow" % "b4674157c7",
+  "com.github.dedge-space" % "annoid" % "ea9ebd90d9",
+  "com.github.dedge-space" % "scala-lang" % "148431ce18",
+  "com.github.dedge-space" % "reflow" % "f121ed3334",
 
   "com.android.support" % "appcompat-v7" % "26.+",
+  "com.android.support" % "recyclerview-v7" % "26.+",
   "com.j256.ormlite" % "ormlite-android" % "[5.0,)",
 
   "io.getquill" %% "quill-jdbc" % "[2.3.0,)",

@@ -21,7 +21,7 @@ import android.content.Context
 import android.os.{Build, Handler}
 import android.view.Window
 import hobby.chenai.nakam.basis.TAG.ThrowMsg
-import hobby.chenai.nakam.lang.J2S.NonNull
+import hobby.chenai.nakam.lang.J2S.{NonNull, Run}
 import hobby.chenai.nakam.lang.TypeBring.AsIs
 
 /**
@@ -32,16 +32,12 @@ object Ctx {
   trait Abs {
     implicit def activity: AbsActy
     implicit def context: Context
-    implicit def window: Window
+    implicit def window: Window = activity.getWindow
+
     def mainHandler: Handler = AbsApp.get[AbsApp].mainHandler
 
-    def post(f: => Any) = mainHandler.post(new Runnable {
-      override def run(): Unit = f
-    })
-
-    def postDelayed(delayed: Long)(f: => Any) = mainHandler.postDelayed(new Runnable {
-      override def run(): Unit = f
-    }, delayed)
+    def post(f: => Any) = mainHandler.post(f.run$)
+    def postDelayed(delayed: Long)(f: => Any) = mainHandler.postDelayed(f.run$, delayed)
   }
 
   trait %[A <: AbsApp] {
@@ -51,13 +47,11 @@ object Ctx {
   trait Srvce extends AbsSrvce with Abs {
     implicit def activity: AbsActy = ???
     implicit def context: Context = this
-    implicit def window: Window = ???
   }
 
   trait Acty extends AbsActy with Abs {
     override implicit lazy val activity: AbsActy = this
     override implicit def context: Context = this
-    override implicit def window: Window = getWindow
   }
 
   trait Fragmt extends Fragment with Abs {
@@ -66,7 +60,6 @@ object Ctx {
     // 由于 Activity 在 Fragment 的生命周期中，可能会重建。所以不能定义为 val。
     override implicit def activity: AbsActy = getActivity.as[AbsActy].ensuring(_.nonNull, msg)
     override implicit def context: Context = (if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) activity else getContext).ensuring(_.nonNull, msg)
-    override implicit def window: Window = activity.getWindow
   }
 
   trait Dialog extends DialogFragment with Fragmt {

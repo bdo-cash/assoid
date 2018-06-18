@@ -16,13 +16,9 @@
 
 package hobby.wei.c.core
 
-import java.util
-import java.lang.ref.WeakReference
-import java.util.concurrent.atomic.AtomicBoolean
 import android.app.{ActivityManager, Application}
 import android.content.Context
 import android.os.{Bundle, Handler, Looper, Process}
-import android.view.Window
 import hobby.chenai.nakam.basis.TAG
 import hobby.chenai.nakam.lang.J2S.{NonNull, WrapIterator}
 import hobby.chenai.nakam.lang.TypeBring.AsIs
@@ -31,7 +27,9 @@ import hobby.wei.c
 import hobby.wei.c.LOG._
 import hobby.wei.c.core.EventHost.{EventReceiver, PeriodMode}
 import hobby.wei.c.used.UsedStorer
-
+import java.util
+import java.lang.ref.WeakReference
+import java.util.concurrent.atomic.AtomicBoolean
 import scala.collection.JavaConversions.asScalaBuffer
 import scala.language.implicitConversions
 import scala.util.control.Breaks._
@@ -68,14 +66,10 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
 
   /** 获取一个全局的与UI线程相关联的`Handler`。注意：不可在`AbsApp.onCreate()`前调用。 */
   override def mainHandler = getHandler(getMainLooper)
-
   def getHandler(looper: Looper): Handler = sHandlerMem.get(looper).get
 
   implicit def activity: AbsActy = ???
-
   implicit def context: Context = this
-
-  implicit def window: Window = ???
 
   override def onCreate(): Unit = {
     // registerActivityLifecycleCallbacks(mActivityLifecycleCallbacks) // 不太可控
