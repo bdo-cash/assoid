@@ -29,8 +29,8 @@ import hobby.wei.c.data.adapter.{AbsListAdapter, AbsRecyclerAdapter}
   */
 object DataButt {
   trait AdapterV[V <: AdapterView[A], D <: AnyRef, A <: AbsListAdapter[D]] extends Ctx.Abs {
-    protected lazy val listView: V = activity.findViewById(listViewId).asInstanceOf[V]
-    protected lazy val listAdapter: A = {
+    protected lazy val listView: V = onSetupListView()
+    protected final lazy val listAdapter: A = {
       val adapter = newAdapter()
       // 不要重复调用setAdapter(), 否则会滚动到开头，而最好的办法就是在创建的时候set。
       listView.setAdapter(adapter)
@@ -39,9 +39,11 @@ object DataButt {
 
     def updateListData(data: List[D]): Unit = listAdapter.setDataSource(data)
 
+    /** 可重写，也可在类头标注`@ViewListId`注解。也可直接重写`onSetupListView()`以忽略本调用。 */
     protected def listViewId: Int = Injector.listViewID(context, getClass)
 
     protected def newAdapter(): A
+    protected def onSetupListView(): V = activity.findViewById(listViewId).asInstanceOf[V]
   }
 
   /**
@@ -61,8 +63,8 @@ object DataButt {
     * }}}
     */
   trait RecyclerV[V <: RecyclerView, D <: AnyRef, A <: AbsRecyclerAdapter[_ <: RecyclerView.ViewHolder, D]] extends Ctx.Abs {
-    protected lazy val recyclerView: V = activity.findViewById(listViewId).asInstanceOf[V]
-    protected lazy val vhAdapter: A = {
+    protected lazy val recyclerView: V = onSetupRecyclerView()
+    protected final lazy val vhAdapter: A = {
       val adapter = newAdapter()
       recyclerView.setAdapter(adapter)
       adapter
@@ -70,8 +72,10 @@ object DataButt {
 
     def updateListData(data: List[D]): Unit = vhAdapter.setDataSource(data)
 
+    /** 可重写，也可在类头标注`@ViewListId`注解。也可直接重写`onSetupRecyclerView()`以忽略本调用。 */
     protected def listViewId: Int = Injector.listViewID(context, getClass)
 
     protected def newAdapter(): A
+    protected def onSetupRecyclerView(): V = activity.findViewById(listViewId).asInstanceOf[V]
   }
 }
