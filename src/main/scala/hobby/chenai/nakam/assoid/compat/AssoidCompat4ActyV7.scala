@@ -18,7 +18,6 @@ package hobby.chenai.nakam.assoid.compat
 
 import android.support.v7.app.AppCompatActivity
 import android.view.View
-import hobby.chenai.nakam.lang.TypeBring.AsIs
 
 /**
   * {{{TypedFindView.findViewById[V <: View](id: Int): V}}}
@@ -45,5 +44,5 @@ class AssoidCompat4ActyV7 extends AppCompatActivity {
   // 试了很多方法，均无法在方法签名和类型上做手脚，以至于最终发现了下面的这样一个方法，可以欺骗编译器。
 
   // 需要注意的是：为了兼容 super[AppCompatActivity]，本类的定义必须是 class 而非 trait。
-  protected def findViewById[V <: View](id: Int)(implicit v: V = null): V = super[AppCompatActivity].findViewById(id).as[V]
+  protected def findViewById[V <: View](id: Int)(implicit v: V = null): V = super[AppCompatActivity].findViewById(id).asInstanceOf[V]
 }

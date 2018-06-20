@@ -39,8 +39,8 @@ libraryDependencies ++= Seq(
 //  "com.github.dedge-space" % "scala-lang" % "4db02cf2fd",
 //  "com.github.dedge-space" % "reflow" % "7d1eac2937",
 
-  "com.android.support" % "appcompat-v7" % "26.+",
-  "com.android.support" % "recyclerview-v7" % "26.+",
+  "com.android.support" % "appcompat-v7" % "27.1.1",
+  "com.android.support" % "recyclerview-v7" % "27.1.1",
   "com.j256.ormlite" % "ormlite-android" % "[5.0,)",
 
   "io.getquill" %% "quill-jdbc" % "[2.3.0,)",
