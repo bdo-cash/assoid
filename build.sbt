@@ -9,11 +9,11 @@ version := "0.0.1-SNAPSHOT"
 scalaVersion := "2.11.7"
 
 // 等同于两句：targetSdkVersion, compileSdkVersion
-platformTarget in Android := "android-26"
+platformTarget in Android := "android-27"
 
-buildToolsVersion in Android := Some("26.0.1")
+buildToolsVersion in Android := Some("27.0.3")
 
-minSdkVersion in Android := "5"
+minSdkVersion in Android := "11"
 
 //lazy val root = (project in file(".")).dependsOn(project in file("../lang"))
 
