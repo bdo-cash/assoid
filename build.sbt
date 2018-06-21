@@ -13,7 +13,7 @@ platformTarget in Android := "android-27"
 
 buildToolsVersion in Android := Some("27.0.3")
 
-minSdkVersion in Android := "11"
+minSdkVersion in Android := "21"
 
 //lazy val root = (project in file(".")).dependsOn(project in file("../lang"))
 

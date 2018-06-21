@@ -17,13 +17,17 @@
 package hobby.wei.c.persist.db
 
 import java.io.File
+import com.j256.ormlite.android.DatabaseTableConfigUtil
+import com.j256.ormlite.table.DatabaseTableConfig
 import hobby.chenai.nakam.lang.J2S.Run
 import hobby.chenai.nakam.lang.TypeBring.AsIs
 import hobby.wei.c.core.AbsApp
 import hobby.wei.c.core.Ctx.%
 import hobby.wei.c.reflow.Reflow
 import hobby.wei.c.reflow.implicits._
-import io.getquill.{CamelCase, SqliteJdbcContext}
+import io.getquill.{Literal, SqliteJdbcContext}
+
+import scala.collection.JavaConversions.asScalaBuffer
 
 /**
   * @author Chenai Nakam(chenai.nakam@gmail.com)
@@ -76,18 +80,13 @@ trait QuillCtx[HELPER <: AbsOrmLiteHelper] extends %[AbsApp] {
     }(TRANSIENT)
   }
 
-  def mapCtx[A](f: SqliteJdbcContext[_] => A): A = {
-    try f(quillCtx) finally {
-      // nothing ...
-    }
+  def mapCtx[A](q: => A): A = try q finally {
+    // nothing ...
   }
 
-  def mapCtx[A](toUi: A => Unit)(f: SqliteJdbcContext[_] => A): Unit = {
-    Reflow.submit {
-      val value: A = mapCtx(f)
-      getApp.mainHandler.post(toUi(value).run$)
-    }(TRANSIENT)
-  }
+  def mapCtx[A](toUi: A => Unit)(q: => A): Unit = Reflow.submit {
+    getApp.mainHandler.post(toUi(mapCtx(q)).run$)
+  }(TRANSIENT)
 
   /**
     * `DriverManager`已经过时，`DataSource`是连接到数据源的`首选`方法。（见`DriverManager`开头的文档。）
@@ -116,5 +115,21 @@ trait QuillCtx[HELPER <: AbsOrmLiteHelper] extends %[AbsApp] {
     }
   }
 
-  lazy val quillCtx = new SqliteJdbcContext(CamelCase, dataSource)
+  /* 这种方式导致宏编译报错，经查源码，对于 Android Sqlite，
+  `isEntityNamesMustBeUpCase()`总是返回 false，那就直接`Literal`好了。
+  该方法主要是针对一些数据库的 bug 而设计，Sqlite 不存在这个问题。
+  mapDb { h: AbsOrmLiteHelper =>
+    new SqliteJdbcContext(if (h.getConnectionSource.getDatabaseType.
+      isEntityNamesMustBeUpCase) UpperCase else CamelCase, dataSource)
+  }*/
+  lazy val quillCtx = new SqliteJdbcContext(Literal /*保持原样*/ , dataSource)
+
+  abstract class RichTable[T, ID] extends Table[T, ID] {
+    // 使用较频繁
+    lazy val name: String = DatabaseTableConfig.extractTableName(clazz)
+
+    def columns: Seq[String] = mapDb { h: AbsOrmLiteHelper =>
+      DatabaseTableConfigUtil.fromClass(h.getConnectionSource, clazz)
+    }.getFieldConfigs.toSeq.map(_.getColumnName)
+  }
 }
