@@ -34,12 +34,16 @@ publishArtifact in packageDoc := false
 libraryDependencies ++= Seq(
   // 如果要用 jitpack 打包的话就加上，打完了再注掉。
   // TODO: 独立使用本库的话，应该启用本依赖。
-//  "com.github.dedge-space" % "annoguard" % "1.0.3-beta",
-//  "com.github.dedge-space" % "annoid" % "ac8b616eec",
-//  "com.github.dedge-space" % "scala-lang" % "4db02cf2fd",
-//  "com.github.dedge-space" % "reflow" % "7d1eac2937",
+  //  "com.github.dedge-space" % "annoguard" % "1.0.3-beta",
+  //  "com.github.dedge-space" % "annoid" % "ac8b616eec",
+  //  "com.github.dedge-space" % "scala-lang" % "4db02cf2fd",
+  //  "com.github.dedge-space" % "reflow" % "7d1eac2937",
 
-  "com.android.support" % "appcompat-v7" % "27.1.1",
+  "com.android.support" % "appcompat-v7" % "27.1.1" excludeAll (
+    ExclusionRule(organization = "android.arch.core") /*,
+    // `Fragment`里面用到一些组件。
+    ExclusionRule(organization = "android.arch.lifecycle")*/
+    ),
   "com.android.support" % "recyclerview-v7" % "27.1.1",
   "com.j256.ormlite" % "ormlite-android" % "[5.0,)",
 
