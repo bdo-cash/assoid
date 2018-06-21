@@ -199,7 +199,7 @@ public class MultiProcesSharedPreferences implements SharedPreferences {
                     final String key = cursor.getString(0);
                     switch (cursor.getType(1)) {
                         case Cursor.FIELD_TYPE_NULL:
-                            i(TAG, "[getAll]FIELD_TYPE_NULL: %s", null);
+                            i(TAG, "[getAll]FIELD_TYPE_NULL: %s", (Object) null);
                             map.put(key, null);
                             break;
                         case Cursor.FIELD_TYPE_INTEGER:
