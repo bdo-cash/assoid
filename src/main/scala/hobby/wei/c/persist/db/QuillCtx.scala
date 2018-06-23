@@ -25,7 +25,7 @@ import hobby.wei.c.core.AbsApp
 import hobby.wei.c.core.Ctx.%
 import hobby.wei.c.reflow.Reflow
 import hobby.wei.c.reflow.implicits._
-import io.getquill.{Literal, SqliteJdbcContext}
+import io.getquill.{ImplicitQuery, Literal, NamingStrategy, SqliteJdbcContext}
 
 import scala.collection.JavaConversions.asScalaBuffer
 
@@ -122,7 +122,10 @@ trait QuillCtx[HELPER <: AbsOrmLiteHelper] extends %[AbsApp] {
     new SqliteJdbcContext(if (h.getConnectionSource.getDatabaseType.
       isEntityNamesMustBeUpCase) UpperCase else CamelCase, dataSource)
   }*/
-  lazy val quillCtx = new SqliteJdbcContext(Literal /*保持原样*/ , dataSource)
+
+  class QuillDbCtx[N <: NamingStrategy](override val naming: N) extends SqliteJdbcContext(naming, dataSource) with ImplicitQuery
+
+  lazy val quillCtx = new QuillDbCtx(Literal /*保持原样*/)
 
   abstract class RichTable[T, ID] extends Table[T, ID] {
     // 使用较频繁
