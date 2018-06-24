@@ -45,9 +45,9 @@ libraryDependencies ++= Seq(
   "com.android.support" % "recyclerview-v7" % "27.1.1",
   "com.j256.ormlite" % "ormlite-android" % "[5.1,)",
 
-  "io.getquill" %% "quill-jdbc" % "[2.3.0,)",
+  "io.getquill" %% "quill-jdbc" % "[2.5.4,)",
   // 我们不用这个驱动（不过还是得导入，如果不导入的话，会自动导入一个低版本的）。
-  "org.xerial" % "sqlite-jdbc" % "[3.18.0,)",
+  "org.xerial" % "sqlite-jdbc" % "[3.23.1,)",
   // 这是基于 android SQLiteDatabase 开发的一个 jdbc 驱动。
   "com.fortysevendeg" %% "mvessel-android" % "[0.1,)"
 )
