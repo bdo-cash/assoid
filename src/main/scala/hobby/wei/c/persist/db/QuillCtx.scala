@@ -16,7 +16,6 @@
 
 package hobby.wei.c.persist.db
 
-import java.io.File
 import com.j256.ormlite.android.DatabaseTableConfigUtil
 import com.j256.ormlite.table.DatabaseTableConfig
 import hobby.chenai.nakam.lang.J2S.Run
@@ -26,7 +25,7 @@ import hobby.wei.c.core.Ctx.%
 import hobby.wei.c.reflow.Reflow
 import hobby.wei.c.reflow.implicits._
 import io.getquill.{ImplicitQuery, Literal, NamingStrategy, SqliteJdbcContext}
-
+import java.io.File
 import scala.collection.JavaConversions.asScalaBuffer
 
 /**
@@ -41,6 +40,7 @@ trait QuillCtx[HELPER <: AbsOrmLiteHelper] extends %[AbsApp] {
   protected val delayReleaseTime = 90000 // 1.5 min
 
   protected def databaseName: String
+
   protected def newDbOpenHelper(): HELPER
 
   // 坑爹：这个不支持多个 helper 实例。
@@ -129,7 +129,9 @@ trait QuillCtx[HELPER <: AbsOrmLiteHelper] extends %[AbsApp] {
 
   abstract class RichTable[T, ID] extends Table[T, ID] {
     // 使用较频繁
-    lazy val name: String = DatabaseTableConfig.extractTableName(clazz)
+    lazy val name: String = mapDb { h: AbsOrmLiteHelper =>
+      DatabaseTableConfig.extractTableName(h.getConnectionSource.getDatabaseType, clazz)
+    }
 
     def columns: Seq[String] = mapDb { h: AbsOrmLiteHelper =>
       DatabaseTableConfigUtil.fromClass(h.getConnectionSource, clazz)

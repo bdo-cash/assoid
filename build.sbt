@@ -25,9 +25,7 @@ offline := true
 // 解决生成文档报错导致 jitpack.io 出错的问题。
 publishArtifact in packageDoc := false
 
-// 如果下载不下来 android support 包再开启。
-//resolvers += Resolver.jcenterRepo
-//resolvers += "google" at "https://maven.google.com"
+resolvers += "google" at "https://maven.google.com"
 // 如果要用 jitpack 打包的话就加上，打完了再注掉。
 //resolvers += "jitpack" at "https://jitpack.io"
 
@@ -45,7 +43,7 @@ libraryDependencies ++= Seq(
     ExclusionRule(organization = "android.arch.lifecycle")*/
     ),
   "com.android.support" % "recyclerview-v7" % "27.1.1",
-  "com.j256.ormlite" % "ormlite-android" % "[5.0,)",
+  "com.j256.ormlite" % "ormlite-android" % "[5.1,)",
 
   "io.getquill" %% "quill-jdbc" % "[2.3.0,)",
   // 我们不用这个驱动（不过还是得导入，如果不导入的话，会自动导入一个低版本的）。
