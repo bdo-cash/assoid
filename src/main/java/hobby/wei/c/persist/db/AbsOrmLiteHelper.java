@@ -275,7 +275,7 @@ public abstract class AbsOrmLiteHelper extends OrmLiteSqliteOpenHelper {
             L.i(TAG, "[upgradeTable Successful]Table: %s.", L.s(name));
         } catch (Exception e) {
             database.execSQL("DROP TABLE " + name);
-            L.i(TAG, "[upgradeTable Exception][SQL]DROP TABLE %s.", L.s(name));
+            L.i(TAG, e, "[upgradeTable Exception][SQL]DROP TABLE %s.", L.s(name));
         } finally {
             database.endTransaction();
         }

@@ -16,16 +16,17 @@
 
 package hobby.wei.c.persist.db
 
+import java.io.File
 import com.j256.ormlite.android.DatabaseTableConfigUtil
 import com.j256.ormlite.table.DatabaseTableConfig
 import hobby.chenai.nakam.lang.J2S.Run
-import hobby.chenai.nakam.lang.TypeBring.AsIs
 import hobby.wei.c.core.AbsApp
 import hobby.wei.c.core.Ctx.%
 import hobby.wei.c.reflow.Reflow
 import hobby.wei.c.reflow.implicits._
+import hobby.wei.c.util.ReflectUtils
 import io.getquill.{ImplicitQuery, Literal, NamingStrategy, SqliteJdbcContext}
-import java.io.File
+
 import scala.collection.JavaConversions.asScalaBuffer
 
 /**
@@ -63,7 +64,7 @@ trait QuillCtx[HELPER <: AbsOrmLiteHelper] extends %[AbsApp] {
     QuillCtx.this.synchronized {
       if (referCount == 1) {
         dbOpenHelper.close()
-        dbOpenHelper = 0.as[HELPER]
+        dbOpenHelper = null.asInstanceOf[HELPER]
         referCount = 0
       }
     }
@@ -133,8 +134,10 @@ trait QuillCtx[HELPER <: AbsOrmLiteHelper] extends %[AbsApp] {
       DatabaseTableConfig.extractTableName(h.getConnectionSource.getDatabaseType, clazz)
     }
 
-    def columns: Seq[String] = mapDb { h: AbsOrmLiteHelper =>
+    lazy val columns: Seq[String] = mapDb { h: AbsOrmLiteHelper =>
       DatabaseTableConfigUtil.fromClass(h.getConnectionSource, clazz)
     }.getFieldConfigs.toSeq.map(_.getColumnName)
+
+    lazy val fields: Seq[String] = ReflectUtils.getFields(clazz, clazz).map(_.getName)
   }
 }
