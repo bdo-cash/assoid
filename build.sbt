@@ -6,7 +6,7 @@ organization := "hobby.chenai.nakam"
 
 version := "0.0.1-SNAPSHOT"
 
-scalaVersion := "2.11.11"
+scalaVersion := "2.12.6"
 
 // 等同于两句：targetSdkVersion, compileSdkVersion
 platformTarget in Android := "android-27"
@@ -51,6 +51,6 @@ libraryDependencies ++= Seq(
   // "com.fortysevendeg" %% "mvessel-android" % "[0.1,)"
   // 更新上面`mvessel`库的 Scala 编译版本到`2.11.11`。
   // 由于是用`jitpack`打包的，首先需要用这样一行触发打包，然后再注掉仅启用下面一行。
-  // "com.github.dedge-space" %% "mvessel" % "e9ca5a4c1e",
-  "com.github.dedge-space.mvessel" %% "mvessel-android" % "e9ca5a4c1e"
+  "com.github.dedge-space" % "mvessel" % "05a7ae8fa8",
+  "com.github.dedge-space.mvessel" %% "mvessel-android" % "05a7ae8fa8"
 )
