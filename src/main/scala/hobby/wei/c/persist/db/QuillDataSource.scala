@@ -18,7 +18,7 @@ package hobby.wei.c.persist.db
 
 import java.sql.{Connection => SQLConnection}
 import java.util.Properties
-import com.fortysevendeg.mvessel.{BaseDriver, Connection, DataSource}
+import com.fortysevendeg.mvessel.{BaseDriver, DataSource}
 import com.fortysevendeg.mvessel.api.impl.AndroidCursor
 import com.fortysevendeg.mvessel.logging.LogWrapper
 
@@ -30,12 +30,11 @@ class QuillDataSource(driver: BaseDriver[AndroidCursor],
                       dbPath: String,
                       properties: Properties = new Properties,
                       log: LogWrapper = DBLogWrapper)
-  extends DataSource[AndroidCursor](driver: BaseDriver[AndroidCursor], properties: Properties, dbPath: String, log: LogWrapper) {
+  extends DataSource[AndroidCursor](driver, properties, dbPath, log) {
 
-  private[this] val url: String = "jdbc:sqlite:" + dbPath
-
-  @deprecated(message = "用完就关闭了，不应该是单例。")
-  override lazy val connection: Connection[AndroidCursor] = ???
+  // 相关问题已经在`fork`的`mvessel`项目中的父类`DataSource`修复，但本类仍需存在：接入了`DBLogWrapper`。
+  //@deprecated(message = "用完就关闭了，不应该是单例。")
+  //override lazy val connection: Connection[AndroidCursor] = ???
 
   /**
     * 由于调用方通常会直接对`Connection`进行`close()`操作，如：

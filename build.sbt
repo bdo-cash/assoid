@@ -6,7 +6,7 @@ organization := "hobby.chenai.nakam"
 
 version := "0.0.1-SNAPSHOT"
 
-scalaVersion := "2.11.7"
+scalaVersion := "2.11.11"
 
 // 等同于两句：targetSdkVersion, compileSdkVersion
 platformTarget in Android := "android-27"
@@ -26,8 +26,7 @@ offline := true
 publishArtifact in packageDoc := false
 
 resolvers += "google" at "https://maven.google.com"
-// 如果要用 jitpack 打包的话就加上，打完了再注掉。
-//resolvers += "jitpack" at "https://jitpack.io"
+resolvers += "jitpack" at "https://jitpack.io"
 
 libraryDependencies ++= Seq(
   // 如果要用 jitpack 打包的话就加上，打完了再注掉。
@@ -49,5 +48,9 @@ libraryDependencies ++= Seq(
   // 我们不用这个驱动（不过还是得导入，如果不导入的话，会自动导入一个低版本的）。
   "org.xerial" % "sqlite-jdbc" % "[3.23.1,)",
   // 这是基于 android SQLiteDatabase 开发的一个 jdbc 驱动。
-  "com.fortysevendeg" %% "mvessel-android" % "[0.1,)"
+  // "com.fortysevendeg" %% "mvessel-android" % "[0.1,)"
+  // 更新上面`mvessel`库的 Scala 编译版本到`2.11.11`。
+  // 由于是用`jitpack`打包的，首先需要用这样一行触发打包，然后再注掉仅启用下面一行。
+  // "com.github.dedge-space" %% "mvessel" % "e9ca5a4c1e",
+  "com.github.dedge-space.mvessel" %% "mvessel-android" % "e9ca5a4c1e"
 )
