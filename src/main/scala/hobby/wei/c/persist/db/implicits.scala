@@ -26,6 +26,8 @@ import hobby.wei.c.LOG._
 import hobby.wei.c.data.abs.{AbsJson, TypeToken}
 import hobby.wei.c.util.ReflectUtils
 
+import scala.reflect.ClassTag
+
 /**
   * @author Chenai Nakam(chenai.nakam@gmail.com)
   * @version 1.0, 26/06/2018
@@ -60,22 +62,23 @@ object implicits extends TAG.ClassName {
   }
 
   implicit class Entity2Cursor[T <: AnyRef](rows: List[T]) {
-    def asCursor(clazz: Class[T], columns: Array[String]): Cursor = {
+    def asCursor(columns: Array[String])(implicit ctag: ClassTag[T]): Cursor = {
+      val clazz = ctag.runtimeClass
       // val (fields, columns) = fieldsCache.get(clazz).get
       val fields = columns.map { name =>
         val field = ReflectUtils.getField(clazz, name)
         field.setAccessible(true)
         field
       }
-      i("asCursor | name: %s, fields: %s.", clazz.getName.s, columns.mkString$.s)
+      w("asCursor | name: %s, fields: %s.", clazz.getName.s, columns.mkString$.s)
       val cursor = new MatrixCursor(columns, rows.length)
-      rows.foreach { tx =>
+      rows.foreach { o =>
         val values = fields.map { field =>
-          var v = field.get(tx)
+          var v = field.get(o)
           if (v == None) v = null
           v
         }
-        e("asCursor | addRow: %s.", values.mkString$.s)
+        i("asCursor | addRow: %s.", values.mkString$.s)
         cursor.addRow(values)
       }
       cursor
