@@ -135,9 +135,4 @@ trait QuillCtx[HELPER <: AbsOrmLiteHelper] extends %[AbsApp] {
 
     lazy val fields: Seq[String] = ReflectUtils.getFields(clazz, clazz).map(_.getName)
   }*/
-
-  /** 将表字段用明文写出来，避免反射会打乱（字典序）`fields`顺序的问题。最好用宏`macro`来解决，以后再说。 */
-  class TableMeta(final val name: String, final val columns: Seq[String], val result: String*) {
-    require(result.forall(columns.contains))
-  }
 }

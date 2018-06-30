@@ -60,14 +60,22 @@ object implicits extends TAG.ClassName {
   }
 
   implicit class Entity2Cursor[T <: AnyRef](rows: List[T]) {
-    def asCursor(clazz: Class[T]): Cursor = {
-      val (fields, columns) = fieldsCache.get(clazz).get
-      w("asCursor | name: %s, fields: %s.", clazz.getName.s, columns.mkString$.s)
-      fields.foreach(_.setAccessible(true))
+    def asCursor(clazz: Class[T], columns: Array[String]): Cursor = {
+      // val (fields, columns) = fieldsCache.get(clazz).get
+      val fields = columns.map { name =>
+        val field = ReflectUtils.getField(clazz, name)
+        field.setAccessible(true)
+        field
+      }
+      i("asCursor | name: %s, fields: %s.", clazz.getName.s, columns.mkString$.s)
       val cursor = new MatrixCursor(columns, rows.length)
       rows.foreach { tx =>
-        val values = fields.map(_.get(tx))
-        i("asCursor | addRow: %s.", values.mkString$.s)
+        val values = fields.map { field =>
+          var v = field.get(tx)
+          if (v == None) v = null
+          v
+        }
+        e("asCursor | addRow: %s.", values.mkString$.s)
         cursor.addRow(values)
       }
       cursor
@@ -75,13 +83,12 @@ object implicits extends TAG.ClassName {
   }
 
   implicit class Cursor2Entity(cursor: Cursor) {
-    def asEntity[T <: AnyRef](clazz: Class[T])(gen: (Cursor, Array[Int]) => T): List[T] = {
+    def asEntity[T <: AnyRef](columns: Array[String]) /*(clazz: Class[T])*/ (gen: (Cursor, Array[Int]) => T): List[T] = {
       var rows: List[T] = Nil
-      val (_, columns) = fieldsCache.get(clazz).get
-      w("asEntity | name: %s, fields: %s.", clazz.getName.s, columns.mkString$.s)
+      // val (_, columns) = fieldsCache.get(clazz).get
+      // i("asEntity | name: %s, fields: %s.", clazz.getName.s, columns.mkString$.s)
       val indexes: Array[Int] = columns.map(cursor.getColumnIndex)
       while (cursor.moveToNext()) {
-        i("asEntity | gen next.")
         rows ::= gen(cursor, indexes)
       }
       cursor.close()

@@ -6,7 +6,13 @@ organization := "hobby.chenai.nakam"
 
 version := "0.0.1-SNAPSHOT"
 
-scalaVersion := "2.12.6"
+scalaVersion := "2.11.11"
+
+crossScalaVersions := Seq(
+  /*"2.11.7", 多余，不需要两个*/
+  "2.11.11",
+  /*"2.12.2", 有一些编译问题：`the interface is not a direct parent`。*/
+  "2.12.6")
 
 // 等同于两句：targetSdkVersion, compileSdkVersion
 platformTarget in Android := "android-27"
@@ -27,6 +33,7 @@ publishArtifact in packageDoc := false
 
 resolvers += "google" at "https://maven.google.com"
 resolvers += "jitpack" at "https://jitpack.io"
+//resolvers += "sqlite-jdbc-driver-mvessel-android" at "https://oss.sonatype.org/content/repositories/snapshots/"
 
 libraryDependencies ++= Seq(
   // 如果要用 jitpack 打包的话就加上，打完了再注掉。
@@ -51,6 +58,6 @@ libraryDependencies ++= Seq(
   // "com.fortysevendeg" %% "mvessel-android" % "[0.1,)"
   // 更新上面`mvessel`库的 Scala 编译版本到`2.11.11`。
   // 由于是用`jitpack`打包的，首先需要用这样一行触发打包，然后再注掉仅启用下面一行。
-  "com.github.dedge-space" % "mvessel" % "05a7ae8fa8",
-  "com.github.dedge-space.mvessel" %% "mvessel-android" % "05a7ae8fa8"
+  // "com.github.dedge-space" % "mvessel" % "98202190bc",
+  "com.github.dedge-space.mvessel" %% "mvessel-android" % "98202190bc"
 )
