@@ -19,6 +19,7 @@ package hobby.wei.c.core
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.support.v7.app.AppCompatActivity
 import hobby.chenai.nakam.lang.J2S.NonNull
 import hobby.wei.c.Const
 
@@ -26,7 +27,7 @@ import hobby.wei.c.Const
   * @author Wei Chou(weichou2010@gmail.com)
   * @version 1.1, 17/11/2017, 重构旧代码。
   */
-abstract class AbsActy extends Activity {
+abstract class AbsActy extends AppCompatActivity {
   override protected def onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
     super.onActivityResult(requestCode, resultCode, data)
     //退出应用，无论是否退出，都应该首先执行上面的代码，确保数据不丢失
