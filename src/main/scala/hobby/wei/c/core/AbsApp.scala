@@ -16,6 +16,9 @@
 
 package hobby.wei.c.core
 
+import java.util
+import java.lang.ref.WeakReference
+import java.util.concurrent.atomic.AtomicBoolean
 import android.app.{ActivityManager, Application}
 import android.content.Context
 import android.os.{Bundle, Handler, Looper, Process}
@@ -27,10 +30,9 @@ import hobby.wei.c
 import hobby.wei.c.LOG._
 import hobby.wei.c.core.EventHost.{EventReceiver, PeriodMode}
 import hobby.wei.c.used.UsedStorer
-import java.util
-import java.lang.ref.WeakReference
-import java.util.concurrent.atomic.AtomicBoolean
+
 import scala.collection.JavaConversions.asScalaBuffer
+import scala.collection.concurrent.TrieMap
 import scala.language.implicitConversions
 import scala.util.control.Breaks._
 
@@ -54,6 +56,7 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
   private lazy val sEventHost_bundle_activities = "activities"
   private lazy val sEventHost_event4Exit = withPackageNamePrefix("GLOBAL_EVENT_4_EXIT")
   private lazy val sEventHost_event4FinishActivities = withPackageNamePrefix("GLOBAL_EVENT_4_FINISH_ACTIVITIES")
+  private lazy val sSingleInstances = new TrieMap[String, AnyRef]
   private lazy val sHandlerMem = new Memoize[Looper, Handler] with WeakKey /*.Sync*/ with LazyGet {
     override protected val delegate = new Delegate[Looper, Handler] {
       override def load(looper: Looper) = Option(new Handler(looper))
@@ -64,11 +67,19 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
 
   def withPackageNamePrefix(name: String) = getPackageName + "." + name
 
+  def cacheSingleInstance(any: AnyRef): Unit = sSingleInstances.put(any.getClass.getName, any)
+
+  def getSingleInstance[O <: AnyRef](clazz: Class[O]) = sSingleInstances.get(clazz.getName).as[O]
+
+  def removeSingleInstance(clazz: Class[_]): Unit = sSingleInstances.remove(clazz.getName)
+
   /** 获取一个全局的与UI线程相关联的`Handler`。注意：不可在`AbsApp.onCreate()`前调用。 */
   override def mainHandler = getHandler(getMainLooper)
+
   def getHandler(looper: Looper): Handler = sHandlerMem.get(looper).get
 
   implicit def activity: AbsActy = ???
+
   implicit def context: Context = this
 
   override def onCreate(): Unit = {
