@@ -20,6 +20,7 @@ import android.app.{Activity, Fragment, Service}
 import android.content.{Context, Intent}
 import android.content.res.Configuration
 import android.os.{Bundle, IBinder, PersistableBundle}
+import android.support.v4.app.FragmentActivity
 import android.util.AttributeSet
 import android.view.{LayoutInflater, View, ViewGroup}
 import hobby.chenai.nakam.basis.TAG
@@ -88,7 +89,7 @@ object Lifecycle {
       super.onCreate(savedInstanceState)
     }
 
-    override protected def onCreate(savedInstanceState: Bundle, persistentState: PersistableBundle): Unit = {
+    override def onCreate(savedInstanceState: Bundle, persistentState: PersistableBundle): Unit = {
       i("onCreate2")
       super.onCreate(savedInstanceState, persistentState)
     }
@@ -98,14 +99,14 @@ object Lifecycle {
       super.onPostCreate(savedInstanceState)
     }
 
-    override protected def onCreateView(name: String, context: Context, attrs: AttributeSet) = {
+    override def onCreateView(name: String, context: Context, attrs: AttributeSet) = {
       i("onCreateView")
-      super.onCreateView(name, context, attrs)
+      if (this.isInstanceOf[FragmentActivity]) null else super.onCreateView(name, context, attrs)
     }
 
-    override protected def onCreateView(parent: View, name: String, context: Context, attrs: AttributeSet) = {
+    override def onCreateView(parent: View, name: String, context: Context, attrs: AttributeSet) = {
       i("onCreateView2")
-      super.onCreateView(parent, name, context, attrs)
+      if (this.isInstanceOf[FragmentActivity]) null else super.onCreateView(parent, name, context, attrs)
     }
 
     override protected def onActivityResult(requestCode: Int, resultCode: Int, data: Intent): Unit = {
@@ -123,12 +124,12 @@ object Lifecycle {
       super.onSaveInstanceState(outState)
     }
 
-    override protected def onSaveInstanceState(outState: Bundle, outPersistentState: PersistableBundle): Unit = {
+    override def onSaveInstanceState(outState: Bundle, outPersistentState: PersistableBundle): Unit = {
       i("onSaveInstanceState2")
       super.onSaveInstanceState(outState, outPersistentState)
     }
 
-    override def onRestoreInstanceState(savedInstanceState: Bundle): Unit = {
+    override protected def onRestoreInstanceState(savedInstanceState: Bundle): Unit = {
       i("onRestoreInstanceState")
       super.onRestoreInstanceState(savedInstanceState)
     }
@@ -138,7 +139,7 @@ object Lifecycle {
       super.onRestoreInstanceState(savedInstanceState, persistentState)
     }
 
-    override protected def onUserInteraction(): Unit = {
+    override def onUserInteraction(): Unit = {
       i("onUserInteraction")
       super.onUserInteraction()
     }
