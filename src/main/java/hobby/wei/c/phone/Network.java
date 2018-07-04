@@ -153,6 +153,7 @@ public class Network {
         } else {    //除TYPE_WIFI以外
             switch (netInfo.getSubtype()) {
                 case TelephonyManager.NETWORK_TYPE_UNKNOWN:
+                case TelephonyManager.NETWORK_TYPE_GSM:
                     type = Type.NO_NET;
                     break;
                 case TelephonyManager.NETWORK_TYPE_GPRS:
@@ -171,9 +172,12 @@ public class Network {
                 case TelephonyManager.NETWORK_TYPE_EVDO_B:
                 case TelephonyManager.NETWORK_TYPE_EHRPD:
                 case TelephonyManager.NETWORK_TYPE_HSPAP:
+                case TelephonyManager.NETWORK_TYPE_TD_SCDMA:
                     type = Type.G3;
                     break;
                 case TelephonyManager.NETWORK_TYPE_LTE:
+                    //case TelephonyManager.NETWORK_TYPE_LTE_CA: @hide
+                case TelephonyManager.NETWORK_TYPE_IWLAN:
                     type = Type.G4;
                     break;
                 default:
