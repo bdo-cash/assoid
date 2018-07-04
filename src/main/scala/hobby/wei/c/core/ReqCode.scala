@@ -23,5 +23,6 @@ import hobby.chenai.nakam.basis.TAG
   * @version 1.0, 08/12/2017
   */
 trait ReqCode extends TAG.ClassName {
-  protected lazy val REQUEST_CODE = className.toString.hashCode.abs
+  // java.lang.IllegalArgumentException: Can only use lower 16 bits for requestCode.
+  protected lazy val REQUEST_CODE = className.toString.hashCode.abs & 0xffff
 }
