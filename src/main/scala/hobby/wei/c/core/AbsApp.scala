@@ -69,7 +69,7 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
 
   def cacheSingleInstance(any: AnyRef): Unit = sSingleInstances.put(any.getClass.getName, any)
 
-  def getSingleInstance[O <: AnyRef](clazz: Class[O]) = sSingleInstances.get(clazz.getName).as[O]
+  def getSingleInstance[O <: AnyRef](clazz: Class[O]): O = sSingleInstances.get(clazz.getName).orNull.as[O]
 
   def removeSingleInstance(clazz: Class[_]): Unit = sSingleInstances.remove(clazz.getName)
 
