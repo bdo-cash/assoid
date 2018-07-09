@@ -38,10 +38,10 @@ resolvers += "jitpack" at "https://jitpack.io"
 libraryDependencies ++= Seq(
   // 如果要用 jitpack 打包的话就加上，打完了再注掉。
   // TODO: 独立使用本库的话，应该启用本依赖。
-//  "com.github.dedge-space" % "annoguard" % "1.0.3-beta",
-//  "com.github.dedge-space" % "annoid" % "f92e672590",
-//  "com.github.dedge-space" % "scala-lang" % "247a5b318d",
-//  "com.github.dedge-space" % "reflow" % "f5409190b1",
+  "com.github.dedge-space" % "annoguard" % "1.0.3-beta",
+  "com.github.dedge-space" % "annoid" % "f92e672590",
+  "com.github.dedge-space" % "scala-lang" % "247a5b318d",
+  "com.github.dedge-space" % "reflow" % "f5409190b1",
 
   "com.android.support" % "appcompat-v7" % "27.1.1" excludeAll (
     ExclusionRule(organization = "android.arch.core") /*,
@@ -58,6 +58,6 @@ libraryDependencies ++= Seq(
   // "com.fortysevendeg" %% "mvessel-android" % "[0.1,)"
   // 更新上面`mvessel`库的 Scala 编译版本到`2.11.11`。
   // 由于是用`jitpack`打包的，首先需要用这样一行触发打包，然后再注掉仅启用下面一行。
-  // "com.github.dedge-space" % "mvessel" % "98202190bc",
-  "com.github.dedge-space.mvessel" %% "mvessel-android" % "98202190bc"
+  // "com.github.dedge-space" % "mvessel" % "09434ed18e",
+  "com.github.dedge-space.mvessel" %% "mvessel-android" % "09434ed18e"
 )
