@@ -38,10 +38,10 @@ resolvers += "jitpack" at "https://jitpack.io"
 libraryDependencies ++= Seq(
   // 如果要用 jitpack 打包的话就加上，打完了再注掉。
   // TODO: 独立使用本库的话，应该启用本依赖。
-  //  "com.github.dedge-space" % "annoguard" % "1.0.3-beta",
-  //  "com.github.dedge-space" % "annoid" % "ac8b616eec",
-  //  "com.github.dedge-space" % "scala-lang" % "4db02cf2fd",
-  //  "com.github.dedge-space" % "reflow" % "7d1eac2937",
+  "com.github.dedge-space" % "annoguard" % "1.0.3-beta",
+  "com.github.dedge-space" % "annoid" % "f92e672590",
+  "com.github.dedge-space" % "scala-lang" % "247a5b318d",
+  "com.github.dedge-space" % "reflow" % "f5409190b1",
 
   "com.android.support" % "appcompat-v7" % "27.1.1" excludeAll (
     ExclusionRule(organization = "android.arch.core") /*,
