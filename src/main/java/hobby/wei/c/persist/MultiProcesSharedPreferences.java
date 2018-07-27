@@ -16,6 +16,7 @@
 
 package hobby.wei.c.persist;
 
+import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -41,10 +42,13 @@ import static hobby.wei.c.L.i;
 import static hobby.wei.c.L.s;
 
 /**
- * @author Wei Chou(weichou2010@gmail.com) 2015/9/2
+ * @author Wei Chou(weichou2010@gmail.com)
+ * @version 0.1, 02/09/2015;
+ * 1.0, 27/07/2018，增加监听以清除缓存。
  */
 public class MultiProcesSharedPreferences implements SharedPreferences {
-    private static final TAG.LogTag TAG = new TAG.LogTag(MultiProcesSharedPreferences.class.getName());
+    private static final TAG.LogTag sTAG = new TAG.LogTag(MultiProcesSharedPreferences.class.getName());
+    private final TAG.LogTag TAG = hobby.chenai.nakam.basis.TAG.ClassName$.MODULE$.apply(this);
 
     private static final Map<String, WeakReference<MultiProcesSharedPreferences>> sName2MpspMap = new HashMap<>();
     private final MyObservable mObservable = new MyObservable();
@@ -58,7 +62,7 @@ public class MultiProcesSharedPreferences implements SharedPreferences {
         WeakReference<MultiProcesSharedPreferences> ref = sName2MpspMap.get(nameLC);
         MultiProcesSharedPreferences mpsp = ref == null ? null : ref.get();
         if (mpsp == null) {
-            d(TAG, "[getInstance]hit = false, name: %s", s(name));
+            d(sTAG, "[getInstance]hit = false, name: %s", s(name));
             synchronized (MultiProcesSharedPreferences.class) {
                 ref = sName2MpspMap.get(nameLC);
                 mpsp = ref == null ? null : ref.get();
@@ -74,8 +78,16 @@ public class MultiProcesSharedPreferences implements SharedPreferences {
     private MultiProcesSharedPreferences(Context context, String name) {
         mContext = context.getApplicationContext();
         mName = name;
-        mContentObserver = new MyContentObserver(this, new Handler(mContext.getMainLooper()));
+        mContentObserver = new MyContentObserver(this, null);
         mCache = new Cache();
+        // 解决[在多进程中]当某进程对某key更新时，其它进程由于`mCache`而无法获得更新的问题。
+        registerOnSharedPreferenceChangeListener(new OnSharedPreferenceChangeListener() {
+            @Override
+            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+                d(TAG, "[onShrdPrfrceChge]key: %s", s(key));
+                mCache.remove(key);
+            }
+        });
     }
 
     @Override
@@ -189,6 +201,7 @@ public class MultiProcesSharedPreferences implements SharedPreferences {
         return defValues;
     }
 
+    @SuppressLint("NewApi")
     @Override
     public Map<String, ?> getAll() {
         final Map<String, Object> map = new HashMap<String, Object>();
@@ -215,7 +228,7 @@ public class MultiProcesSharedPreferences implements SharedPreferences {
                             map.put(key, cursor.getString(1));
                             break;
                         case Cursor.FIELD_TYPE_BLOB:
-                            i(TAG, "[getAll]FIELD_TYPE_BLOB: %s", cursor.getBlob(1));
+                            i(TAG, "[getAll]FIELD_TYPE_BLOB: %s", (Object) cursor.getBlob(1));
                             final byte[] blob = cursor.getBlob(1);
                             if (blob.length == 1) {    //用来表示boolean
                                 map.put(key, parseBoolean(blob));
@@ -384,7 +397,7 @@ public class MultiProcesSharedPreferences implements SharedPreferences {
             final boolean bbool = sendBooleans(true);
             final boolean bstring = sendStrings(true);
             final boolean bstrset = sendStringSets(true);
-            d(TAG, "[commit]success: %s", bclear && bint && bfloat && blong && bbool && bstring && bstrset);
+            d(mSPref.TAG, "[commit]success: %s", bclear && bint && bfloat && blong && bbool && bstring && bstrset);
             return bclear && bint && bfloat && blong && bbool && bstring && bstrset;
         }
 
@@ -408,7 +421,7 @@ public class MultiProcesSharedPreferences implements SharedPreferences {
                 final Uri uri = SharedPreferencesProvider.getUri4Clear(mSPref.mName);
                 success &= 0 < contentResolver.update(uri, contentValues, commit ? SharedPreferencesProvider.COMMIT :
                         SharedPreferencesProvider.APPLY, null);
-                d(TAG, "[sendClearOrRemove]CLEAR, success: %s", success);
+                d(mSPref.TAG, "[sendClearOrRemove]CLEAR, success: %s", success);
             } else if (mRmvSet != null) {
                 final Uri uri = SharedPreferencesProvider.getUri4Remove(mSPref.mName);
                 for (String key : mRmvSet) {
@@ -417,7 +430,7 @@ public class MultiProcesSharedPreferences implements SharedPreferences {
                     contentValues.put(key, (String) null);
                     success &= 0 < contentResolver.update(uri, contentValues, commit ? SharedPreferencesProvider.COMMIT :
                             SharedPreferencesProvider.APPLY, null);
-                    d(TAG, "[sendClearOrRemove]REMOVE, success: %s", success);
+                    d(mSPref.TAG, "[sendClearOrRemove]REMOVE, success: %s", success);
                 }
             }
             return success;
@@ -431,13 +444,14 @@ public class MultiProcesSharedPreferences implements SharedPreferences {
                 final Uri uri = SharedPreferencesProvider.getUri4PutInt(mSPref.mName);
                 final ContentValues contentValues = new ContentValues();
                 for (Map.Entry<String, Integer> entry : mS2IMap.entrySet()) {
-                    mSPref.mCache.putInt(entry.getKey(), entry.getValue());
                     contentValues.clear();
                     contentValues.put(entry.getKey(), entry.getValue());
-                    //不要if(), 否则后面的update不执行
+                    //不要if(), 否则后面的update不执行。
                     success &= 0 < contentResolver.update(uri, contentValues, commit ? SharedPreferencesProvider.COMMIT :
                             SharedPreferencesProvider.APPLY, null);
-                    d(TAG, "[sendInts]success: %s", success);
+                    d(mSPref.TAG, "[sendInts]success: %s, key: %s.", success, s(entry.getKey()));
+                    // 放到最后。由于在初始化时注册了监听，会清除对应key的缓存，若放在前面，事实上无效。
+                    mSPref.mCache.putInt(entry.getKey(), entry.getValue());
                 }
             }
             return success;
@@ -450,12 +464,13 @@ public class MultiProcesSharedPreferences implements SharedPreferences {
                 final Uri uri = SharedPreferencesProvider.getUri4PutFloat(mSPref.mName);
                 final ContentValues contentValues = new ContentValues();
                 for (Map.Entry<String, Float> entry : mS2FMap.entrySet()) {
-                    mSPref.mCache.putFloat(entry.getKey(), entry.getValue());
                     contentValues.clear();
                     contentValues.put(entry.getKey(), entry.getValue());
                     success &= 0 < contentResolver.update(uri, contentValues, commit ? SharedPreferencesProvider.COMMIT :
                             SharedPreferencesProvider.APPLY, null);
-                    d(TAG, "[sendFloats]success: %s", success);
+                    d(mSPref.TAG, "[sendFloats]success: %s, key: %s.", success, s(entry.getKey()));
+                    // 放到最后。由于在初始化时注册了监听，会清除对应key的缓存，若放在前面，事实上无效。
+                    mSPref.mCache.putFloat(entry.getKey(), entry.getValue());
                 }
             }
             return success;
@@ -468,12 +483,13 @@ public class MultiProcesSharedPreferences implements SharedPreferences {
                 final Uri uri = SharedPreferencesProvider.getUri4PutLong(mSPref.mName);
                 final ContentValues contentValues = new ContentValues();
                 for (Map.Entry<String, Long> entry : mS2LMap.entrySet()) {
-                    mSPref.mCache.putLong(entry.getKey(), entry.getValue());
                     contentValues.clear();
                     contentValues.put(entry.getKey(), entry.getValue());
                     success &= 0 < contentResolver.update(uri, contentValues, commit ? SharedPreferencesProvider.COMMIT :
                             SharedPreferencesProvider.APPLY, null);
-                    d(TAG, "[sendLongs]success: %s", success);
+                    d(mSPref.TAG, "[sendLongs]success: %s, key: %s.", success, s(entry.getKey()));
+                    // 放到最后。由于在初始化时注册了监听，会清除对应key的缓存，若放在前面，事实上无效。
+                    mSPref.mCache.putLong(entry.getKey(), entry.getValue());
                 }
             }
             return success;
@@ -486,12 +502,13 @@ public class MultiProcesSharedPreferences implements SharedPreferences {
                 final Uri uri = SharedPreferencesProvider.getUri4PutBoolean(mSPref.mName);
                 final ContentValues contentValues = new ContentValues();
                 for (Map.Entry<String, Boolean> entry : mS2BMap.entrySet()) {
-                    mSPref.mCache.putBoolean(entry.getKey(), entry.getValue());
                     contentValues.clear();
                     contentValues.put(entry.getKey(), entry.getValue());
                     success &= 0 < contentResolver.update(uri, contentValues, commit ? SharedPreferencesProvider.COMMIT :
                             SharedPreferencesProvider.APPLY, null);
-                    d(TAG, "[sendBooleans]success: %s", success);
+                    d(mSPref.TAG, "[sendBooleans]success: %s, key: %s.", success, s(entry.getKey()));
+                    // 放到最后。由于在初始化时注册了监听，会清除对应key的缓存，若放在前面，事实上无效。
+                    mSPref.mCache.putBoolean(entry.getKey(), entry.getValue());
                 }
             }
             return success;
@@ -504,12 +521,13 @@ public class MultiProcesSharedPreferences implements SharedPreferences {
                 final Uri uri = SharedPreferencesProvider.getUri4PutString(mSPref.mName);
                 final ContentValues contentValues = new ContentValues();
                 for (Map.Entry<String, String> entry : mS2SMap.entrySet()) {
-                    mSPref.mCache.putString(entry.getKey(), entry.getValue());
                     contentValues.clear();
                     contentValues.put(entry.getKey(), entry.getValue());
                     success &= 0 < contentResolver.update(uri, contentValues, commit ? SharedPreferencesProvider.COMMIT :
                             SharedPreferencesProvider.APPLY, null);
-                    d(TAG, "[sendStrings]success: %s", success);
+                    d(mSPref.TAG, "[sendStrings]success: %s, key: %s.", success, s(entry.getKey()));
+                    // 放到最后。由于在初始化时注册了监听，会清除对应key的缓存，若放在前面，事实上无效。
+                    mSPref.mCache.putString(entry.getKey(), entry.getValue());
                 }
             }
             return success;
@@ -522,7 +540,6 @@ public class MultiProcesSharedPreferences implements SharedPreferences {
                 final Uri uri = SharedPreferencesProvider.getUri4PutStringSet(mSPref.mName);
                 final ContentValues contentValues = new ContentValues();
                 for (Map.Entry<String, Set<String>> entry : mS2EMap.entrySet()) {
-                    mSPref.mCache.putStringSet(entry.getKey(), entry.getValue());
                     contentValues.clear();
                     final String key = entry.getKey();
                     int count = 0;
@@ -531,7 +548,9 @@ public class MultiProcesSharedPreferences implements SharedPreferences {
                     }
                     success &= 0 < contentResolver.update(uri, contentValues, commit ? SharedPreferencesProvider.COMMIT :
                             SharedPreferencesProvider.APPLY, null);
-                    d(TAG, "[sendStringSets]success: %s", success);
+                    d(mSPref.TAG, "[sendStringSets]success: %s, key: %s.", success, s(entry.getKey()));
+                    // 放到最后。由于在初始化时注册了监听，会清除对应key的缓存，若放在前面，事实上无效。
+                    mSPref.mCache.putStringSet(entry.getKey(), entry.getValue());
                 }
             }
             return success;
@@ -576,7 +595,7 @@ public class MultiProcesSharedPreferences implements SharedPreferences {
 
         @Override
         public Editor putString(String key, String value) {
-            d(TAG, "[Cache.putString]key: %s, value: %s", s(key), s(value));
+            d(sTAG, "[Cache.putString]key: %s, value: %s", s(key), s(value));
             if (mS2SMap == null) mS2SMap = new LruCache<>(5);
             mS2SMap.put(key, value);
             return this;
@@ -664,8 +683,10 @@ public class MultiProcesSharedPreferences implements SharedPreferences {
         }
 
         public void notifyChanged(SharedPreferences spref, String key) {
+            // 必须先通知第一个（初始化的时候注册的），以便清除缓存。
+            mObservers.get(0).onSharedPreferenceChanged(spref, key);
             synchronized (mObservers) {
-                for (int i = mObservers.size() - 1; i >= 0; i--) {
+                for (int i = mObservers.size() - 1; i >/*=*/ 0; i--) {
                     mObservers.get(i).onSharedPreferenceChanged(spref, key);
                 }
             }
@@ -681,9 +702,9 @@ public class MultiProcesSharedPreferences implements SharedPreferences {
         }
 
         public void onChange(boolean selfChange, Uri uri) {
-            d(TAG, "[onChange]selfChange: %s, uri: %s", selfChange, uri);
+            d(sTAG, "[onChange]selfChange: %s, uri: %s", selfChange, uri);
             final String[] name$key = SharedPreferencesProvider.parseNotifyNameAndKey(uri);
-            d(TAG, "[onChange]name: %s, key: %s", s(name$key[0]), s(name$key[1]));
+            d(sTAG, "[onChange]name: %s, key: %s", s(name$key[0]), s(name$key[1]));
             final MultiProcesSharedPreferences spref = mSPrefRef.get();
             if (spref != null) {
                 final String key = name$key[1];
