@@ -4,7 +4,7 @@ name := baseDirectory.value.getName // 意为android assists
 
 organization := "hobby.chenai.nakam"
 
-version := "0.0.1-SNAPSHOT"
+version := "0.1.0-SNAPSHOT"
 
 scalaVersion := "2.11.11"
 
@@ -39,9 +39,9 @@ libraryDependencies ++= Seq(
   // 如果要用 jitpack 打包的话就加上，打完了再注掉。
   // TODO: 独立使用本库的话，应该启用本依赖。
   "com.github.dedge-space" % "annoguard" % "1.0.3-beta",
-  "com.github.dedge-space" % "annoid" % "249c39abe7",
-  "com.github.dedge-space" % "scala-lang" % "6077e4a865",
-  "com.github.dedge-space" % "reflow" % "f23703d92d",
+  "com.github.dedge-space" % "annoid" % "993253b451",
+  "com.github.dedge-space" % "scala-lang" % "ccaa2cb00f",
+  "com.github.dedge-space" % "reflow" % "6d4cc15f94",
 
   "com.android.support" % "appcompat-v7" % "27.1.1" excludeAll (
     ExclusionRule(organization = "android.arch.core") /*,
