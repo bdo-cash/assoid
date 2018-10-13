@@ -29,6 +29,7 @@ import hobby.wei.c.anno.proguard.KeepVp$e;
  * 网络Api接口数据缓存通用数据库表。通常将一次调用Api取得的数据缓存为一条记录。
  *
  * @author Wei Chou(weichou2010@gmail.com)
+ * @version 1.0, xx/xx/2013
  */
 @Keep$
 @KeepVp$e

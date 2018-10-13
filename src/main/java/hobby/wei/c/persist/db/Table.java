@@ -24,6 +24,7 @@ import java.sql.SQLException;
 
 /**
  * @author Wei Chou(weichou2010@gmail.com)
+ * @version 1.0, xx/xx/2013
  */
 public abstract class Table<T, ID> {
     public static final String TAG = "Table<T, ID>";
@@ -41,5 +42,10 @@ public abstract class Table<T, ID> {
 
     public final Dao<T, ID> getDao(OrmLiteSqliteOpenHelper helper) throws SQLException {
         return helper.getDao(clazz);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof Table && ((Table<?, ?>) o).clazz == clazz;
     }
 }

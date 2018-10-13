@@ -18,6 +18,7 @@ package hobby.wei.c.persist.db;
 
 /**
  * @author Wei Chou(weichou2010@gmail.com)
+ * @version 1.0, xx/xx/2013
  */
 public interface IUpgradeStrategy {
     /**

@@ -20,6 +20,7 @@ import hobby.wei.c.remote.api.Api;
 
 /**
  * @author Wei Chou(weichou2010@gmail.com)
+ * @version 1.0, xx/xx/2013
  */
 public interface IUpgradeStrategyWithApi extends IUpgradeStrategy {
     /**
