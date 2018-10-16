@@ -43,6 +43,12 @@ libraryDependencies ++= Seq(
   "com.github.dedge-space" % "scala-lang" % "ccaa2cb00f",
   "com.github.dedge-space" % "reflow" % "6d4cc15f94",
 
+  "com.squareup.okhttp3" % "okhttp" % "3.11.0",
+
+  // 使用 sbt Nb 的库。
+  "org.scala-sbt" % "io" % "0.13.16",
+  // "org.scala-sbt" % "api" % "0.13.16",
+
   "com.android.support" % "appcompat-v7" % "27.1.1" excludeAll (
     ExclusionRule(organization = "android.arch.core") /*,
     // `Fragment`里面用到一些组件。
@@ -59,5 +65,11 @@ libraryDependencies ++= Seq(
   // 更新上面`mvessel`库的 Scala 编译版本到`2.11.11`。
   // 由于是用`jitpack`打包的，首先需要用这样一行触发打包，然后再注掉仅启用下面一行。
   // "com.github.dedge-space" % "mvessel" % "09434ed18e",
-  "com.github.dedge-space.mvessel" %% "mvessel-android" % "09434ed18e"
+  "com.github.dedge-space.mvessel" %% "mvessel-android" % "09434ed18e",
+
+  // 由于一个奇葩的编译异常：
+  // ... Class javax.annotation.Nullable not found - continuing with a stub.
+  // [error]       protected val client: OkHttpClient
+  // 实际上这里根本没有写任何与`javax.annotation.Nullable`相关的内容。
+  "com.google.code.findbugs" % "jsr305" % "3.0.+"
 )
