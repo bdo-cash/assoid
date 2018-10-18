@@ -4,7 +4,7 @@ name := baseDirectory.value.getName // 意为android assists
 
 organization := "hobby.chenai.nakam"
 
-version := "0.1.1-SNAPSHOT"
+version := "0.1.2-SNAPSHOT"
 
 scalaVersion := "2.11.11"
 
@@ -41,7 +41,7 @@ libraryDependencies ++= Seq(
   "com.github.dedge-space" % "annoguard" % "1.0.3-beta",
   "com.github.dedge-space" % "annoid" % "993253b451",
   "com.github.dedge-space" % "scala-lang" % "ccaa2cb00f",
-  "com.github.dedge-space" % "reflow" % "6d4cc15f94",
+  "com.github.dedge-space" % "reflow" % "dc5b40e255",
 
   "com.squareup.okhttp3" % "okhttp" % "3.11.0",
 
