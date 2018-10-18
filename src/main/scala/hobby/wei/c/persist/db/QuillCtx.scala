@@ -95,7 +95,7 @@ trait QuillCtx[HELPER <: AbsOrmLiteHelper] extends %[AbsApp] {
     * DriverManager.getConnection("jdbc:sqlite:" + database.getPath)
     * }}}
     */
-  def dataSource: javax.sql.DataSource with java.io.Closeable = new QuillDataSource(
+  def dataSource: javax.sql.DataSource with java.io.Closeable = new QuillAndroidDataSource(
     new QuillAndroidDriver {
       override def databaseFactory = new QuillAndroidDatabaseFactory {
         override def referSqliteOpenHelper(path: String, flags: Int) = {

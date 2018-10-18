@@ -26,19 +26,19 @@ import hobby.wei.c.anno.proguard.Keep$
   * Copy 自`AndroidDriver`，目的是为了重写里面的`AndroidDatabaseFactory`和`LogWrapper`。
   *
   * @author Chenai Nakam(chenai.nakam@gmail.com)
-  * @version 1.0, 29/12/2017
+  * @version 1.0, 29/12/2017;
+  *          1.1, 18/10/2018, 切换到`QuillAndroidConnection`，修复无法启用事务（transaction）的问题。
   */
 abstract class QuillAndroidDriver extends AndroidDriver {
   override def connect(connectionUrl: String, properties: Properties): Connection[AndroidCursor] =
     WrapSQLException(parseConnectionString(connectionUrl), s"Can't parse $connectionUrl") { values =>
       import com.fortysevendeg.mvessel.Connection._
-      new Connection(
+      new QuillAndroidConnection(
         databaseWrapperFactory = databaseFactory,
         databaseName = values.name,
         timeout = readTimeOut(values.params) getOrElse defaultTimeout,
         retryInterval = readRetry(values.params) getOrElse defaultRetryInterval,
-        flags = readFlags(properties),
-        logWrapper = DBLogWrapper)
+        flags = readFlags(properties))
     }
 
   def databaseFactory: QuillAndroidDatabaseFactory

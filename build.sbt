@@ -64,8 +64,8 @@ libraryDependencies ++= Seq(
   // "com.fortysevendeg" %% "mvessel-android" % "[0.1,)"
   // 更新上面`mvessel`库的 Scala 编译版本到`2.11.11`。
   // 由于是用`jitpack`打包的，首先需要用这样一行触发打包，然后再注掉仅启用下面一行。
-  // "com.github.dedge-space" % "mvessel" % "09434ed18e",
-  "com.github.dedge-space.mvessel" %% "mvessel-android" % "09434ed18e",
+  // "com.github.dedge-space" % "mvessel" % "d91e517998",
+  "com.github.dedge-space.mvessel" %% "mvessel-android" % "d91e517998",
 
   // 由于一个奇葩的编译异常：
   // ... Class javax.annotation.Nullable not found - continuing with a stub.

@@ -22,7 +22,8 @@ import com.fortysevendeg.mvessel.api.impl.{AndroidCursor, AndroidDatabase, Andro
 
 /**
   * @author Chenai Nakam(chenai.nakam@gmail.com)
-  * @version 1.0, 29/12/2017
+  * @version 1.0, 29/12/2017;
+  *          1.1, 18/10/2018, 更新注释（`close()`方法）。
   */
 abstract class QuillAndroidDatabaseFactory extends AndroidDatabaseFactory {
   override def openDatabase(path: String, flags: Int): DatabaseProxy[AndroidCursor] =
@@ -30,7 +31,11 @@ abstract class QuillAndroidDatabaseFactory extends AndroidDatabaseFactory {
       override def getDriverName: String = QuillAndroidDriver.driverName
 
       override def close(): Unit = {
-        // 不可以直接关闭
+        // 不可以直接关闭。这里`super.close()`直接调用了`SQLiteDatabase.close()`。
+        // ----------
+        // 虽然`SQLiteDatabase`有引用计数机制，每次`close()`时会`releaseReference()`，
+        // 但每次`getWritableDatabase()`却没有`acquireReference()`
+        // ----------
         // super.close()
         releaseSqliteOpenHelper()
       }

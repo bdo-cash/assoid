@@ -26,10 +26,10 @@ import com.fortysevendeg.mvessel.logging.LogWrapper
   * @author Chenai Nakam(chenai.nakam@gmail.com)
   * @version 1.0, 30/12/2017
   */
-class QuillDataSource(driver: BaseDriver[AndroidCursor],
-                      dbPath: String,
-                      properties: Properties = new Properties,
-                      log: LogWrapper = DBLogWrapper)
+class QuillAndroidDataSource(driver: BaseDriver[AndroidCursor],
+                             dbPath: String,
+                             properties: Properties = new Properties,
+                             log: LogWrapper = DBLogWrapper)
   extends DataSource[AndroidCursor](driver, properties, dbPath, log) {
 
   // 相关问题已经在`fork`的`mvessel`项目中的父类`DataSource`修复，但本类仍需存在：接入了`DBLogWrapper`。
