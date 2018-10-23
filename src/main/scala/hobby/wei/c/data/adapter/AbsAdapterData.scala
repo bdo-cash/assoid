@@ -28,7 +28,7 @@ trait AbsAdapterData[T <: AnyRef] {
   private lazy val mInflater = LayoutInflater.from(context)
   private var mData: List[T] = Nil
 
-  protected def initData(data: List[T]): Unit = if (data.nonNull && data.nonEmpty) mData == data
+  protected def initData(data: List[T]): Unit = if (data.nonNull && data.nonEmpty) mData = data
 
   protected def context: Context
 
