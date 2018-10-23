@@ -17,7 +17,7 @@
 package hobby.wei.c.core
 
 import android.support.v7.widget.RecyclerView
-import android.widget.AdapterView
+import android.widget.{Adapter, AdapterView}
 import hobby.wei.c.anno.inject.Injector
 import hobby.wei.c.data.adapter.{AbsListAdapter, AbsRecyclerAdapter}
 
@@ -28,7 +28,7 @@ import hobby.wei.c.data.adapter.{AbsListAdapter, AbsRecyclerAdapter}
   * @version 1.0, 16/06/2018
   */
 object DataButt {
-  trait AdapterV[V <: AdapterView[A], D <: AnyRef, A <: AbsListAdapter[D]] extends Ctx.Abs {
+  trait AdapterV[V <: AdapterView[_ >: AbsListAdapter[D] <: Adapter], D <: AnyRef, A <: AbsListAdapter[D]] extends Ctx.Abs {
     protected lazy val listView: V = onSetupListView()
     protected final lazy val listAdapter: A = {
       val adapter = newAdapter()
