@@ -68,6 +68,8 @@ trait AbsAdapterData[T <: AnyRef] {
 
   def getData: List[T] = mData
 
+  def getCount: Int = getItemCount
+
   def getItemCount = mData.size
 
   def getItem(position: Int): T = mData(position)
