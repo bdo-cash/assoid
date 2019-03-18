@@ -46,8 +46,8 @@ libraryDependencies ++= Seq(
   "com.squareup.okhttp3" % "okhttp" % "3.11.0",
 
   // 使用 sbt Nb 的库。
-  "org.scala-sbt" % "io" % "0.13.16",
-  // "org.scala-sbt" % "api" % "0.13.16",
+  "org.scala-sbt" % "io" % "0.13.18",
+  // "org.scala-sbt" % "api" % "0.13.18",
 
   "com.android.support" % "appcompat-v7" % "27.1.1" excludeAll (
     ExclusionRule(organization = "android.arch.core") /*,
