@@ -30,7 +30,7 @@ import hobby.wei.c.tool.RetryByHandler
 abstract class AbsMsgrActy extends AbsActy with RetryByHandler {
   protected override def onCreate(savedInstanceState: Bundle): Unit = {
     super.onCreate(savedInstanceState)
-    tryOrReBind()
+    tryOrRebind()
   }
 
   protected override def onDestroy(): Unit = {
@@ -84,7 +84,7 @@ abstract class AbsMsgrActy extends AbsActy with RetryByHandler {
             case ex: RemoteException => e(ex)
               if (!msgr.getBinder.pingBinder()) {
                 e("client ping to-server binder failed.")
-                tryOrReBind()
+                tryOrRebind()
                 true // 中断 retry
               } else false
           }
@@ -108,20 +108,20 @@ abstract class AbsMsgrActy extends AbsActy with RetryByHandler {
         }
       } else {
         e("onServiceConnected | bindService 失败")
-        tryOrReBind()
+        tryOrRebind()
       }
     }
 
     override def onServiceDisconnected(name: ComponentName): Unit = {
       e("onServiceDisconnected | 断开连接 -->")
-      if (confirmUnbind()) tryOrReBind()
+      if (confirmUnbind()) tryOrRebind()
       else {
         // 说明是 force unbind, 正常。
       }
     }
   }
 
-  protected def tryOrReBind(): Unit = {
+  protected def tryOrRebind(): Unit = {
     confirmUnbind()
     startService.bind(this, serviceConn, msgrServiceClazz)
   }
