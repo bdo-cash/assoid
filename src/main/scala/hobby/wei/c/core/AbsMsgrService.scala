@@ -80,7 +80,7 @@ trait AbsMsgrService extends AbsSrvce with Ctx.Srvce with RetryByHandler {
   /** 请求调用`startForeground()`。 */
   protected def onStartForeground(): Unit
 
-  /** 请求调用`stopForeground()`。 */
+  /** 请求调用`stopForeground()`（注意：不是终止服务，而是仅仅把前台服务切换到后台。终止服务只能`stopSelf()`）。 */
   protected def onStopForeground(): Unit = stopForeground(true)
 
   /**
