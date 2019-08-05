@@ -213,7 +213,7 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
     name
   }
 
-  lazy val myProcessName = getProcessName(Process.myPid())
+  lazy val myProcessName: Option[String] = getProcessName(Process.myPid())
 
   def isMyProcessOf(name: String): Boolean = myProcessName.exists(_.endsWith(name))
 
