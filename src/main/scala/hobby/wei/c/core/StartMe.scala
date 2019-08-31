@@ -22,23 +22,24 @@ import android.os._
 import hobby.chenai.nakam.basis.TAG
 import hobby.chenai.nakam.lang.TypeBring.AsIs
 import hobby.wei.c.LOG._
+import hobby.wei.c.core.StartMe.MsgrSrvce.Const
 
 /**
   * @author Chenai Nakam(chenai.nakam@gmail.com)
   * @version 1.0, 17/11/2017
   */
 object StartMe {
-  trait Srvce extends TAG.ClassName {
-    /** 必须与重写的`AbsService.MSG_REPLY_TO`一致。 */
-    protected val MSG_REPLY_TO: Int
+  object MsgrSrvce {
+    trait Const {
+      protected val MSG_REPLY_TO: Int //= 999999999
 
-    /** 必须与重写的`AbsService.CMD_EXTRA_STOP_SERVICE`一致。 */
-    protected val CMD_EXTRA_STOP_SERVICE: String
-    /** 必须与重写的`AbsService.CMD_EXTRA_START_FOREGROUND`一致。 */
-    protected val CMD_EXTRA_START_FOREGROUND: String
-    /** 必须与重写的`AbsService.CMD_EXTRA_STOP_FOREGROUND`一致。 */
-    protected val CMD_EXTRA_STOP_FOREGROUND: String
+      protected val CMD_EXTRA_STOP_SERVICE: String //= getApp.withPackageNamePrefix("CMD_EXTRA_STOP_SERVICE")
+      protected val CMD_EXTRA_START_FOREGROUND: String
+      protected val CMD_EXTRA_STOP_FOREGROUND: String
+    }
+  }
 
+  trait MsgrSrvce extends Const with TAG.ClassName {
     def start[S <: Service](ctx: Context, clazz: Class[S]): Unit = ctx.startService(new Intent(ctx, clazz))
 
     def startFg[S <: Service](ctx: Context, clazz: Class[S]): Unit = {

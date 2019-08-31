@@ -25,6 +25,7 @@ import hobby.chenai.nakam.lang.J2S.{getRef, NonNull, Run}
 import hobby.chenai.nakam.lang.TypeBring.AsIs
 import hobby.wei.c.LOG._
 import hobby.wei.c.core.AbsMsgrService._
+import hobby.wei.c.core.StartMe.MsgrSrvce.Const
 import hobby.wei.c.tool.RetryByHandler
 import scala.ref.WeakReference
 
@@ -32,16 +33,10 @@ import scala.ref.WeakReference
   * @author Chenai Nakam(chenai.nakam@gmail.com)
   * @version 1.0, 22/05/2018
   */
-trait AbsMsgrService extends AbsSrvce with Ctx.Srvce with RetryByHandler {
+trait AbsMsgrService extends AbsSrvce with Const with Ctx.Srvce with RetryByHandler {
   @volatile private var mAllClientDisconnected = true
   @volatile private var mStopRequested = false
   private var mCallStartCount, mCallStopCount = 0
-
-  protected val MSG_REPLY_TO: Int
-
-  protected val CMD_EXTRA_STOP_SERVICE: String
-  protected val CMD_EXTRA_START_FOREGROUND: String
-  protected val CMD_EXTRA_STOP_FOREGROUND: String
 
   /**
     * 子类重写本方法以处理`Client`端发过来的消息。
@@ -101,7 +96,7 @@ trait AbsMsgrService extends AbsSrvce with Ctx.Srvce with RetryByHandler {
           true
         } else if (shouldFinish) true /*中断*/ else false
       }
-    }.run$)
+      }.run$)
   }
 
   override implicit protected def delayerHandler: Handler = clientHandler
@@ -206,7 +201,7 @@ trait AbsMsgrService extends AbsSrvce with Ctx.Srvce with RetryByHandler {
     super.onDestroy()
     clientHandler.post({
       mHandlerThread.quitSafely()
-    }.run$)
+      }.run$)
   }
 }
 

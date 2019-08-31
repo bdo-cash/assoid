@@ -38,7 +38,7 @@ abstract class AbsMsgrActy extends AbsActy with RetryByHandler {
     super.onDestroy()
   }
 
-  protected def startService: StartMe.Srvce
+  protected def startService: StartMe.MsgrSrvce
 
   protected def msgrServiceClazz: Class[_ <: AbsMsgrService]
 
