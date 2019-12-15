@@ -19,6 +19,7 @@ package hobby.wei.c.core
 import android.app.{DialogFragment, Fragment}
 import android.content.Context
 import android.os.{Build, Handler}
+import android.support.v4.app
 import android.view.Window
 import hobby.chenai.nakam.basis.TAG.ThrowMsg
 import hobby.chenai.nakam.lang.J2S.{NonNull, Run}
@@ -62,7 +63,19 @@ object Ctx {
     override implicit def context: Context = (if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) activity else getContext).ensuring(_.nonNull, msg)
   }
 
+  trait FragmtV4 extends app.Fragment with Abs {
+    private lazy val msg = "调用时机是不是不对？".tag
+
+    // 由于 Activity 在 Fragment 的生命周期中，可能会重建。所以不能定义为 val。
+    override implicit def activity: AbsActy = getActivity.as[AbsActy].ensuring(_.nonNull, msg)
+    override implicit def context: Context = (if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) activity else getContext).ensuring(_.nonNull, msg)
+  }
+
   trait Dialog extends DialogFragment with Fragmt {
+    override implicit def window: Window = getDialog.getWindow
+  }
+
+  trait DialogV4 extends app.DialogFragment with FragmtV4 {
     override implicit def window: Window = getDialog.getWindow
   }
 }
