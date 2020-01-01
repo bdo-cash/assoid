@@ -18,7 +18,7 @@ package hobby.wei.c.core
 
 import android.app.{DialogFragment, Fragment}
 import android.content.Context
-import android.os.{Build, Handler}
+import android.os.{Build, Handler, Looper, MessageQueue}
 import android.support.v4.app
 import android.view.Window
 import hobby.chenai.nakam.basis.TAG.ThrowMsg
@@ -36,9 +36,21 @@ object Ctx {
     implicit def window: Window = activity.getWindow
 
     def mainHandler: Handler = AbsApp.get[AbsApp].mainHandler
+    def runOnUiThread(f: => Any): Unit = activity.runOnUiThread(f.run$)
 
     def post(f: => Any) = mainHandler.post(f.run$)
     def postDelayed(delayed: Long)(f: => Any) = mainHandler.postDelayed(f.run$, delayed)
+    def postOnIdle(times: Int = -1)(action: => Any) {
+      // mainHandler.getLooper.getQueue // requires API level 23
+      runOnUiThread(Looper.myQueue().addIdleHandler(new MessageQueue.IdleHandler {
+        private var t = 0
+        override def queueIdle() = {
+          action
+          t += 1
+          t < times
+        }
+      }))
+    }
   }
 
   trait %[A <: AbsApp] {
