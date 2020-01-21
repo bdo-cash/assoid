@@ -38,10 +38,10 @@ resolvers += "jitpack" at "https://jitpack.io"
 libraryDependencies ++= Seq(
   // 如果要用 jitpack 打包的话就加上，打完了再注掉。
   // TODO: 独立使用本库的话，应该启用本依赖。
-  "com.github.dedge-space" % "annoguard" % "1.0.3-beta",
-  "com.github.dedge-space" % "annoid" % "9bd9367ad7",
-  "com.github.dedge-space" % "scala-lang" % "70aec87f34",
-  "com.github.dedge-space" % "reflow" % "1d43b8c61f",
+//  "com.github.dedge-space" % "annoguard" % "1.0.3-beta",
+//  "com.github.dedge-space" % "annoid" % "9bd9367ad7",
+//  "com.github.dedge-space" % "scala-lang" % "70aec87f34",
+//  "com.github.dedge-space" % "reflow" % "1d43b8c61f",
 
   "com.squareup.okhttp3" % "okhttp" % "[3.11.0,)",
 
