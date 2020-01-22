@@ -40,6 +40,9 @@ object Ctx {
 
     def post(f: => Any) = mainHandler.post(f.run$)
     def postDelayed(delayed: Long)(f: => Any) = mainHandler.postDelayed(f.run$, delayed)
+    /**
+      * 注意只能在`Activity`进程中调用。
+      */
     def postOnIdle(times: Int = -1)(action: => Any) {
       // mainHandler.getLooper.getQueue // requires API level 23
       runOnUiThread(Looper.myQueue().addIdleHandler(new MessageQueue.IdleHandler {

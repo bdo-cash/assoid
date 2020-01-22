@@ -19,7 +19,8 @@ package hobby.wei.c.core
 import android.content.Context
 import android.os.Looper
 import android.widget.Toast
-import hobby.chenai.nakam.lang.J2S.{NonNull, Run}
+import hobby.chenai.nakam.lang.J2S.Run
+import hobby.chenai.nakam.lang.TypeBring.AsIs
 import hobby.wei.c.core.Ctx.%
 
 /**
@@ -27,12 +28,15 @@ import hobby.wei.c.core.Ctx.%
   * @version 1.0, 20/06/2018
   */
 object toast extends %[AbsApp] {
-  def apply(s: CharSequence, lang: Boolean = false, gravity: Int = -1, xOffset: Int = 0, yOffset: Int = 0)(implicit context: Context): Unit = {
+  def apply(s: CharSequence, long: Boolean = false, gravity: Int = -1, xOffset: Int = 0, yOffset: Int = 0)(implicit ctx: Context): Unit = {
     val runnable = {
-      val toast = Toast.makeText(context, s, if (lang) Toast.LENGTH_LONG else Toast.LENGTH_SHORT)
+      val toast = Toast.makeText(ctx, s, if (long) Toast.LENGTH_LONG else Toast.LENGTH_SHORT)
       if (gravity != -1) toast.setGravity(gravity, xOffset, yOffset)
       toast.show()
-    }.run$
-    if (Looper.myLooper.isNull) getApp.mainHandler.post(runnable) else runnable.run()
+      }.run$
+
+    if (Looper.getMainLooper.getThread == Thread.currentThread) runnable.run()
+    else if (ctx.isInstanceOf[AbsActy]) ctx.as[AbsActy].runOnUiThread(runnable)
+    else getApp.mainHandler.post(runnable)
   }
 }
