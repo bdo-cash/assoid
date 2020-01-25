@@ -45,7 +45,11 @@ object StartMe {
     def startFg[S <: Service](ctx: Context, clazz: Class[S]): Unit = {
       val intent = new Intent(ctx, clazz)
       intent.putExtra(CMD_EXTRA_START_FOREGROUND, true)
-      ctx.startService(intent)
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        ctx.startForegroundService(intent)
+      } else {
+        ctx.startService(intent)
+      }
     }
 
     def stopFg[S <: Service](ctx: Context, clazz: Class[S]): Unit = {
