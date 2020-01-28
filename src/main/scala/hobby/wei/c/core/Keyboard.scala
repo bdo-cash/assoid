@@ -16,7 +16,7 @@
 
 package hobby.wei.c.core
 
-import android.app.{DialogFragment, Fragment}
+import androidx.fragment.app.{DialogFragment, Fragment}
 import android.content.Context
 import android.os.Bundle
 import android.view.{View, ViewGroup}

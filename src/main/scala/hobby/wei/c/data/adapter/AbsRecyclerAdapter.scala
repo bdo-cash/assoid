@@ -17,7 +17,7 @@
 package hobby.wei.c.data.adapter
 
 import android.content.Context
-import android.support.v7.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView
 
 /**
   * @author Chenai Nakam(chenai.nakam@gmail.com)

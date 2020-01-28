@@ -17,10 +17,11 @@
 package hobby.wei.c.core
 
 import java.util
-import android.app.{Fragment, Service}
+import android.app.Service
+import androidx.fragment.app.Fragment
 import android.content.{BroadcastReceiver, Context, Intent, IntentFilter}
 import android.os.Bundle
-import android.support.v4.content.LocalBroadcastManager
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import hobby.chenai.nakam.lang.J2S.{NonNull, WrapIterator}
 import hobby.wei.c.core.EventHost.{EventReceiver, EventSession, PeriodMode}
 import hobby.wei.c.core.EventHost.PeriodMode.PeriodMode

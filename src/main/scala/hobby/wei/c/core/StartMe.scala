@@ -16,6 +16,7 @@
 
 package hobby.wei.c.core
 
+import androidx.appcompat.app.AppCompatActivity
 import android.app.{Activity, Service}
 import android.content.{Context, Intent, ServiceConnection}
 import android.os._
@@ -142,8 +143,8 @@ object StartMe {
   }
 
   trait Dialog {
-    def show[P <: AbsDialogFragment with TAG.ClassName](acty: Activity, panel: P): Unit = {
-      panel.show(acty.getFragmentManager, panel.className.toString, true)
+    def show[P <: AbsDialogFragment with TAG.ClassName](acty: AppCompatActivity, panel: P): Unit = {
+      panel.show(acty.getSupportFragmentManager, panel.className.toString, true)
     }
   }
 }

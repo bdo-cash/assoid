@@ -16,7 +16,7 @@
 
 package hobby.wei.c.core
 
-import android.support.v7.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView
 import android.widget.{Adapter, AdapterView}
 import hobby.wei.c.anno.inject.Injector
 import hobby.wei.c.data.adapter.{AbsListAdapter, AbsRecyclerAdapter}

@@ -16,11 +16,12 @@
 
 package hobby.wei.c.core
 
-import android.app.{Activity, Fragment, Service}
+import android.app.{Activity, Service}
 import android.content.{Context, Intent}
 import android.content.res.Configuration
 import android.os.{Bundle, IBinder, PersistableBundle}
-import android.support.v4.app.FragmentActivity
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import android.util.AttributeSet
 import android.view.{LayoutInflater, View, ViewGroup}
 import hobby.chenai.nakam.basis.TAG

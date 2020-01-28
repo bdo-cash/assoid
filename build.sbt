@@ -4,7 +4,7 @@ name := baseDirectory.value.getName // 意为android assists
 
 organization := "hobby.chenai.nakam"
 
-version := "0.1.2-SNAPSHOT"
+version := "0.2.1-SNAPSHOT"
 
 scalaVersion := "2.11.11"
 
@@ -15,16 +15,16 @@ crossScalaVersions := Seq(
   "2.12.6")
 
 // 等同于两句：targetSdkVersion, compileSdkVersion
-platformTarget in Android := "android-28"
+platformTarget in Android := "android-29"
 
-buildToolsVersion in Android := Some("28.0.3")
+buildToolsVersion in Android := Some("29.0.2")
 
 minSdkVersion in Android := "21"
 
 //lazy val root = (project in file(".")).dependsOn(project in file("../lang"))
 
 // plugin.sbt 里面的设置已注释掉，官方文档没有那一句，从 Scaloid 里面拿来的。
-proguardVersion := "5.2.1" // 必须高于 5.1，见 https://github.com/scala-android/sbt-android。
+proguardVersion := "[5.2.1,)" // 必须高于 5.1，见 https://github.com/scala-android/sbt-android。
 
 offline := true
 
@@ -38,10 +38,10 @@ resolvers += "jitpack" at "https://jitpack.io"
 libraryDependencies ++= Seq(
   // 如果要用 jitpack 打包的话就加上，打完了再注掉。
   // TODO: 独立使用本库的话，应该启用本依赖。
-//  "com.github.dedge-space" % "annoguard" % "1.0.3-beta",
-//  "com.github.dedge-space" % "annoid" % "9bd9367ad7",
-//  "com.github.dedge-space" % "scala-lang" % "70aec87f34",
-//  "com.github.dedge-space" % "reflow" % "1d43b8c61f",
+  "com.github.dedge-space" % "annoguard" % "1.0.3-beta",
+  "com.github.dedge-space" % "annoid" % "a2029c8610",
+  "com.github.dedge-space" % "scala-lang" % "70aec87f34",
+  "com.github.dedge-space" % "reflow" % "1d43b8c61f",
 
   "com.squareup.okhttp3" % "okhttp" % "[3.11.0,)",
 
@@ -49,12 +49,14 @@ libraryDependencies ++= Seq(
   "org.scala-sbt" % "io" % "0.13.18",
   // "org.scala-sbt" % "api" % "0.13.18",
 
-  "com.android.support" % "appcompat-v7" % "27.1.1" excludeAll (
-    ExclusionRule(organization = "android.arch.core") /*,
+  "androidx.localbroadcastmanager" % "localbroadcastmanager" % "[1.0.0,)",
+  "androidx.appcompat" % "appcompat" % "[1.0.0,)" excludeAll(
+    ExclusionRule(organization = "android.arch.core"), // 旧代码遗留
+    ExclusionRule(organization = "androidx.versionedparcelable") /*,
     // `Fragment`里面用到一些组件。
     ExclusionRule(organization = "android.arch.lifecycle")*/
-    ),
-  "com.android.support" % "recyclerview-v7" % "27.1.1",
+  ),
+  "androidx.recyclerview" % "recyclerview" % "[1.0.0,)",
   "com.j256.ormlite" % "ormlite-android" % "[5.1,)",
 
   "io.getquill" %% "quill-jdbc" % "[2.5.4,)",
