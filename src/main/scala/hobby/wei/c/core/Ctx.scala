@@ -65,7 +65,7 @@ object Ctx {
   }
 
   trait Acty extends AbsActy with Abs {
-    override implicit lazy val activity: AbsActy = this
+    override implicit def activity: AbsActy = this
     override implicit def context: Context = this
   }
 

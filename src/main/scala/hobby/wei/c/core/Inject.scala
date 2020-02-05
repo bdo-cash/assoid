@@ -16,9 +16,9 @@
 
 package hobby.wei.c.core
 
-import android.app.Fragment
 import android.os.Bundle
 import android.view.{LayoutInflater, ViewGroup}
+import androidx.fragment.app.Fragment
 import hobby.wei.c.anno.inject.Injector
 
 /**

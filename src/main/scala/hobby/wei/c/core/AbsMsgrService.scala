@@ -16,10 +16,12 @@
 
 package hobby.wei.c.core
 
-import android.os
 import android.content.Intent
 import android.database.Observable
+import android.os
 import android.os.{HandlerThread, Messenger, _}
+import androidx.core.app.ServiceCompat
+import androidx.core.app.ServiceCompat.StopForegroundFlags
 import hobby.chenai.nakam.basis.TAG
 import hobby.chenai.nakam.lang.J2S.{getRef, NonNull, Run}
 import hobby.chenai.nakam.lang.TypeBring.AsIs
@@ -27,6 +29,7 @@ import hobby.wei.c.LOG._
 import hobby.wei.c.core.AbsMsgrService._
 import hobby.wei.c.core.StartMe.MsgrSrvce.Const
 import hobby.wei.c.tool.RetryByHandler
+
 import scala.ref.WeakReference
 
 /**
@@ -77,6 +80,9 @@ trait AbsMsgrService extends AbsSrvce with Const with Ctx.Srvce with RetryByHand
 
   /** 请求调用`stopForeground()`（注意：不是终止服务，而是仅仅把前台服务切换到后台。终止服务只能`stopSelf()`）。 */
   protected def onStopForeground(): Unit = stopForeground(true)
+
+  final def stopForegroundCompat(@StopForegroundFlags flags: Int): Unit = ServiceCompat.stopForeground(
+    this, flags)
 
   /**
     * 子类重写该方法以消化特定命令。

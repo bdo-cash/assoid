@@ -18,9 +18,9 @@ package hobby.wei.c.core
 
 import java.util
 import android.app.Service
-import androidx.fragment.app.Fragment
 import android.content.{BroadcastReceiver, Context, Intent, IntentFilter}
 import android.os.Bundle
+import androidx.fragment.app.Fragment
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import hobby.chenai.nakam.lang.J2S.{NonNull, WrapIterator}
 import hobby.wei.c.core.EventHost.{EventReceiver, EventSession, PeriodMode}
@@ -204,7 +204,7 @@ class EventDelegator(context: => Context)(implicit host: EventHost) {
   }
 
   /**
-    * {{{android.app.Fragment#onActivityCreated(Bundle)}}}会用到：旋转屏幕的时候，Activity会重建，但是Fragment不会。
+    * {{{androidx.fragment.app.Fragment#onActivityCreated(Bundle)}}}会用到：旋转屏幕的时候，Activity会重建，但是Fragment不会。
     */
   private[core] def onActivityCreated(): Unit = {
     unregisterReceiver(PeriodMode.PAUSE_RESUME)
