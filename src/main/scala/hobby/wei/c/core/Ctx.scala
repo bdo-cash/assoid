@@ -16,10 +16,10 @@
 
 package hobby.wei.c.core
 
-import androidx.fragment.app.{DialogFragment, Fragment}
 import android.content.Context
 import android.os.{Build, Handler, Looper, MessageQueue}
 import android.view.Window
+import androidx.fragment.app.Fragment
 import hobby.chenai.nakam.basis.TAG.ThrowMsg
 import hobby.chenai.nakam.lang.J2S.{NonNull, Run}
 import hobby.chenai.nakam.lang.TypeBring.AsIs
@@ -77,7 +77,7 @@ object Ctx {
     override implicit def context: Context = (if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) activity else getContext).ensuring(_.nonNull, msg)
   }
 
-  trait Dialog extends DialogFragment with Fragmt {
+  trait Dialog extends AbsDialogFragment with Fragmt {
     override implicit def window: Window = getDialog.getWindow
   }
 }

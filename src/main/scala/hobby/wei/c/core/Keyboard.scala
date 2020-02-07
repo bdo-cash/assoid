@@ -16,7 +16,6 @@
 
 package hobby.wei.c.core
 
-import androidx.fragment.app.{DialogFragment, Fragment}
 import android.content.Context
 import android.os.Bundle
 import android.view.{View, ViewGroup}
@@ -32,7 +31,7 @@ import hobby.chenai.nakam.lang.TypeBring.AsIs
   * @version 1.0, 17/11/2017
   */
 object Keyboard {
-  trait Acty extends AbsActy with Keyboard with Ctx.Acty {
+  trait Acty extends Ctx.Acty with Keyboard {
     override def setContentView(layoutResID: Int): Unit = {
       super.setContentView(layoutResID)
       initClickBlankAreaHandler(getWindow.getDecorView.as[ViewGroup].getChildAt(0))
@@ -49,14 +48,14 @@ object Keyboard {
     }
   }
 
-  trait Fragmt extends Fragment with Keyboard with Ctx.Fragmt {
+  trait Fragmt extends Ctx.Fragmt with Keyboard {
     override def onViewCreated(view: View, savedInstanceState: Bundle): Unit = {
       super.onViewCreated(view, savedInstanceState)
       initClickBlankAreaHandler(view)
     }
   }
 
-  trait Dialog extends DialogFragment with Fragmt with Ctx.Dialog
+  trait Dialog extends Ctx.Dialog with Fragmt
 }
 
 trait Keyboard extends Ctx.Abs {

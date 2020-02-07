@@ -16,14 +16,13 @@
 
 package hobby.wei.c.core
 
-import android.app.{Activity, Service}
-import android.content.{Context, Intent}
+import android.app.Activity
+import android.content.{Context, DialogInterface, Intent}
 import android.content.res.Configuration
 import android.os.{Bundle, IBinder, PersistableBundle}
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
 import android.util.AttributeSet
 import android.view.{LayoutInflater, View, ViewGroup}
+import androidx.fragment.app.Fragment
 import hobby.chenai.nakam.basis.TAG
 import hobby.wei.c.LOG._
 
@@ -31,262 +30,282 @@ import hobby.wei.c.LOG._
   * @author Chenai Nakam(chenai.nakam@gmail.com)
   * @version 1.0, 25/12/2017
   */
-object Lifecycle {
-  trait Srvce extends Service with TAG.ClassName {
+object LifecycleLog {
+  trait Srvce extends Ctx.Srvce with TAG.ClassName {
     override def onBind(intent: Intent): IBinder = {
-      i("onBind")
-      ???
+      i("LifecycleLog | onBind")
+      null // super 是个`abstract`方法
     }
 
     override def onRebind(intent: Intent): Unit = {
-      i("onRebind")
+      i("LifecycleLog | onRebind")
       super.onRebind(intent)
     }
 
     override def onUnbind(intent: Intent) = {
-      i("onUnbind")
+      i("LifecycleLog | onUnbind")
       super.onUnbind(intent)
     }
 
     override def onStartCommand(intent: Intent, flags: Int, startId: Int) = {
-      i("onStartCommand")
+      i("LifecycleLog | onStartCommand")
       super.onStartCommand(intent, flags, startId)
     }
 
     override def onTaskRemoved(rootIntent: Intent): Unit = {
-      i("onTaskRemoved")
+      i("LifecycleLog | onTaskRemoved")
       super.onTaskRemoved(rootIntent)
     }
 
     override def onCreate(): Unit = {
-      i("onCreate")
+      i("LifecycleLog | onCreate")
       super.onCreate()
     }
 
     override def onLowMemory(): Unit = {
-      i("onLowMemory")
+      i("LifecycleLog | onLowMemory")
       super.onLowMemory()
     }
 
     override def onTrimMemory(level: Int): Unit = {
-      i("onTrimMemory")
+      i("LifecycleLog | onTrimMemory")
       super.onTrimMemory(level)
     }
 
     override def onDestroy(): Unit = {
-      i("onDestroy")
+      i("LifecycleLog | onDestroy")
       super.onDestroy()
     }
 
     override def onConfigurationChanged(newConfig: Configuration): Unit = {
-      i("onConfigurationChanged")
+      i("LifecycleLog | onConfigurationChanged")
       super.onConfigurationChanged(newConfig)
     }
   }
 
-  trait Acty extends AbsActy with TAG.ClassName {
+  trait Acty extends Ctx.Acty with TAG.ClassName {
     override protected def onCreate(savedInstanceState: Bundle): Unit = {
-      i("onCreate")
+      i("LifecycleLog | onCreate")
       super.onCreate(savedInstanceState)
     }
 
     override def onCreate(savedInstanceState: Bundle, persistentState: PersistableBundle): Unit = {
-      i("onCreate2")
+      i("LifecycleLog | onCreate2")
       super.onCreate(savedInstanceState, persistentState)
     }
 
     override protected def onPostCreate(savedInstanceState: Bundle): Unit = {
-      i("onPostCreate")
+      i("LifecycleLog | onPostCreate")
       super.onPostCreate(savedInstanceState)
     }
 
     override def onCreateView(name: String, context: Context, attrs: AttributeSet) = {
-      i("onCreateView")
-      if (this.isInstanceOf[FragmentActivity]) null else super.onCreateView(name, context, attrs)
+      i("LifecycleLog | onCreateView")
+      super.onCreateView(name, context, attrs)
     }
 
     override def onCreateView(parent: View, name: String, context: Context, attrs: AttributeSet) = {
-      i("onCreateView2")
-      if (this.isInstanceOf[FragmentActivity]) null else super.onCreateView(parent, name, context, attrs)
+      i("LifecycleLog | onCreateView2")
+      super.onCreateView(parent, name, context, attrs)
     }
 
     override protected def onActivityResult(requestCode: Int, resultCode: Int, data: Intent): Unit = {
-      i("onActivityResult")
+      i("LifecycleLog | onActivityResult")
       super.onActivityResult(requestCode, resultCode, data)
     }
 
     override def onRequestPermissionsResult(requestCode: Int, permissions: Array[String], grantResults: Array[Int]): Unit = {
-      i("onRequestPermissionsResult")
+      i("LifecycleLog | onRequestPermissionsResult")
       super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
     override protected def onSaveInstanceState(outState: Bundle): Unit = {
-      i("onSaveInstanceState")
+      i("LifecycleLog | onSaveInstanceState")
       super.onSaveInstanceState(outState)
     }
 
     override def onSaveInstanceState(outState: Bundle, outPersistentState: PersistableBundle): Unit = {
-      i("onSaveInstanceState2")
+      i("LifecycleLog | onSaveInstanceState2")
       super.onSaveInstanceState(outState, outPersistentState)
     }
 
     override protected def onRestoreInstanceState(savedInstanceState: Bundle): Unit = {
-      i("onRestoreInstanceState")
+      i("LifecycleLog | onRestoreInstanceState")
       super.onRestoreInstanceState(savedInstanceState)
     }
 
     override def onRestoreInstanceState(savedInstanceState: Bundle, persistentState: PersistableBundle): Unit = {
-      i("onRestoreInstanceState2")
+      i("LifecycleLog | onRestoreInstanceState2")
       super.onRestoreInstanceState(savedInstanceState, persistentState)
     }
 
     override def onUserInteraction(): Unit = {
-      i("onUserInteraction")
+      i("LifecycleLog | onUserInteraction")
       super.onUserInteraction()
     }
 
     override protected def onUserLeaveHint(): Unit = {
-      i("onUserLeaveHint")
+      i("LifecycleLog | onUserLeaveHint")
       super.onUserLeaveHint()
     }
 
     override protected def onRestart(): Unit = {
-      i("onRestart")
+      i("LifecycleLog | onRestart")
       super.onRestart()
     }
 
     override protected def onStart(): Unit = {
-      i("onStart")
+      i("LifecycleLog | onStart")
       super.onStart()
     }
 
     override protected def onResume(): Unit = {
-      i("onResume")
+      i("LifecycleLog | onResume")
       super.onResume()
     }
 
     override protected def onPostResume(): Unit = {
-      i("onPostResume")
+      i("LifecycleLog | onPostResume")
       super.onPostResume()
     }
 
     override protected def onPause(): Unit = {
-      i("onPause")
+      i("LifecycleLog | onPause")
       super.onPause()
     }
 
     override protected def onStop(): Unit = {
-      i("onStop")
+      i("LifecycleLog | onStop")
       super.onStop()
     }
 
     override protected def onDestroy(): Unit = {
-      i("onDestroy")
+      i("LifecycleLog | onDestroy")
       super.onDestroy()
     }
 
     override protected def onDestroyToExit(): Unit = {
-      i("onDestroyToExit")
+      i("LifecycleLog | onDestroyToExit")
       super.onDestroyToExit()
     }
 
     override def onBackPressed(): Unit = {
-      i("onBackPressed")
+      i("LifecycleLog | onBackPressed")
       super.onBackPressed()
     }
   }
 
-  trait Fragmt extends Fragment with TAG.ClassName {
+  trait Fragmt extends Ctx.Fragmt with TAG.ClassName {
     override def onAttach(activity: Activity): Unit = {
-      i("onAttach")
+      i("LifecycleLog | onAttach(activity)")
       super.onAttach(activity)
     }
 
     override def onAttach(context: Context): Unit = {
-      i("onAttach2")
+      i("LifecycleLog | onAttach(context)")
       super.onAttach(context)
     }
 
     override def onAttachFragment(childFragment: Fragment): Unit = {
-      i("onAttachFragment")
+      i("LifecycleLog | onAttachFragment")
       super.onAttachFragment(childFragment)
     }
 
     override def onActivityCreated(savedInstanceState: Bundle): Unit = {
-      i("onActivityCreated")
+      i("LifecycleLog | onActivityCreated")
       super.onActivityCreated(savedInstanceState)
     }
 
     override def onActivityResult(requestCode: Int, resultCode: Int, data: Intent): Unit = {
-      i("onActivityResult")
+      i("LifecycleLog | onActivityResult")
       super.onActivityResult(requestCode, resultCode, data)
     }
 
     override def onRequestPermissionsResult(requestCode: Int, permissions: Array[String], grantResults: Array[Int]): Unit = {
-      i("onRequestPermissionsResult")
+      i("LifecycleLog | onRequestPermissionsResult")
       super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
     override def onSaveInstanceState(outState: Bundle): Unit = {
-      i("onSaveInstanceState")
+      i("LifecycleLog | onSaveInstanceState")
       super.onSaveInstanceState(outState)
     }
 
     override def onViewStateRestored(savedInstanceState: Bundle): Unit = {
-      i("onViewStateRestored")
+      i("LifecycleLog | onViewStateRestored")
       super.onViewStateRestored(savedInstanceState)
     }
 
     override def onCreate(savedInstanceState: Bundle): Unit = {
-      i("onCreate")
+      i("LifecycleLog | onCreate")
       super.onCreate(savedInstanceState)
     }
 
     override def onCreateView(inflater: LayoutInflater, container: ViewGroup, savedInstanceState: Bundle) = {
-      i("onCreateView")
+      i("LifecycleLog | onCreateView")
       super.onCreateView(inflater, container, savedInstanceState)
     }
 
     override def onViewCreated(view: View, savedInstanceState: Bundle): Unit = {
-      i("onViewCreated")
+      i("LifecycleLog | onViewCreated")
       super.onViewCreated(view, savedInstanceState)
     }
 
     override def onStart(): Unit = {
-      i("onStart")
+      i("LifecycleLog | onStart")
       super.onStart()
     }
 
     override def onResume(): Unit = {
-      i("onResume")
+      i("LifecycleLog | onResume")
       super.onResume()
     }
 
     override def onPause(): Unit = {
-      i("onPause")
+      i("LifecycleLog | onPause")
       super.onPause()
     }
 
     override def onStop(): Unit = {
-      i("onStop")
+      i("LifecycleLog | onStop")
       super.onStop()
     }
 
     override def onDestroyView(): Unit = {
-      i("onDestroyView")
+      i("LifecycleLog | onDestroyView")
       super.onDestroyView()
     }
 
     override def onDestroy(): Unit = {
-      i("onDestroy")
+      i("LifecycleLog | onDestroy")
       super.onDestroy()
     }
 
     override def onDetach(): Unit = {
-      i("onDetach")
+      i("LifecycleLog | onDetach")
       super.onDetach()
     }
   }
 
-  trait Dialog extends AbsDialogFragment with Fragmt
+  trait Dialog extends Ctx.Dialog with Fragmt {
+    override def onCreateDialog(savedInstanceState: Bundle) = {
+      i("LifecycleLog | onCreateDialog")
+      super.onCreateDialog(savedInstanceState)
+    }
+
+    override def onShow(dialog: DialogInterface): Unit = {
+      i("LifecycleLog | onShow")
+      super.onShow(dialog)
+    }
+
+    override def onCancel(dialog: DialogInterface): Unit = {
+      i("LifecycleLog | onCancel")
+      super.onCancel(dialog)
+    }
+
+    override def onDismiss(dialog: DialogInterface): Unit = {
+      i("LifecycleLog | onDismiss")
+      super.onDismiss(dialog)
+    }
+  }
 }
