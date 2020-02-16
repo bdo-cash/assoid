@@ -100,9 +100,9 @@ object EventHost {
   private lazy val eventHostName = classOf[EventHost].getSimpleName
 
   // 必须也是个定值，因为消息的发送接收往往在不同的EventHost对象之间。
-  private def bundleExtraName = AbsApp.get[AbsApp].withPackageNamePrefix(eventHostName)
+  private def bundleExtraName = AbsApp.get.withPackageNamePrefix(eventHostName)
 
-  private def actionName(name: String) = AbsApp.get[AbsApp].withPackageNamePrefix(name)
+  private def actionName(name: String) = AbsApp.get.withPackageNamePrefix(name)
 
   def sendLocalEvent(context: Context, eventName: String, data: Bundle)(implicit host: EventHost): Unit = {
     val intent = new Intent(actionName(eventName))
