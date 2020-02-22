@@ -58,7 +58,7 @@ object Keyboard {
   trait Dialog extends Ctx.Dialog with Fragmt
 }
 
-trait Keyboard extends Ctx.Abs {
+trait Keyboard extends Ctx.AbsUi {
   protected def getClickHideInputMethodViewIds: Array[Int] = null
 
   private[Keyboard] def initClickBlankAreaHandler(rootView: View): Unit = {
@@ -79,13 +79,14 @@ trait Keyboard extends Ctx.Abs {
 
   protected def autoShowInputMethod(editText: EditText): Unit = {
     editText.setOnFocusChangeListener(new OnFocusChangeListener {
-      override def onFocusChange(v: View, hasFocus: Boolean): Unit = mainHandler.postDelayed(new Runnable {
-        override def run(): Unit = if (hasFocus) {
+      override def onFocusChange(v: View, hasFocus: Boolean): Unit = postOnIdle() {
+        if (hasFocus) {
           showInputMethod(editText)
           editText.setSelection(editText.getText.length)
         }
-      }, 300)
+      }
     })
+    editText.requestFocus()
   }
 
   protected def showInputMethod(focusView: View = if (window.nonNull) window.getCurrentFocus else null): Unit = {

@@ -16,10 +16,10 @@
 
 package hobby.wei.c.core
 
-import androidx.appcompat.app.AppCompatActivity
 import android.app.{Activity, Service}
 import android.content.{Context, Intent, ServiceConnection}
 import android.os._
+import androidx.fragment.app.FragmentActivity
 import hobby.chenai.nakam.basis.TAG
 import hobby.chenai.nakam.lang.TypeBring.AsIs
 import hobby.wei.c.LOG._
@@ -143,7 +143,7 @@ object StartMe {
   }
 
   trait Dialog {
-    def show[P <: AbsDialogFragment with TAG.ClassName](acty: AppCompatActivity, panel: P): Unit = {
+    def show[P <: AbsDialogFragment with TAG.ClassName](acty: FragmentActivity, panel: P): Unit = {
       panel.show(acty.getSupportFragmentManager, panel.className.toString, true)
     }
   }

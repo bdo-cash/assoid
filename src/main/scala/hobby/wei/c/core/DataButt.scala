@@ -16,8 +16,8 @@
 
 package hobby.wei.c.core
 
-import androidx.recyclerview.widget.RecyclerView
 import android.widget.{Adapter, AdapterView}
+import androidx.recyclerview.widget.RecyclerView
 import hobby.wei.c.anno.inject.Injector
 import hobby.wei.c.data.adapter.{AbsListAdapter, AbsRecyclerAdapter}
 
@@ -43,7 +43,7 @@ object DataButt {
     protected def listViewId: Int = Injector.listViewID(context, getClass)
 
     protected def newAdapter(): A
-    protected def onSetupListView(): V = activity.findViewById(listViewId).asInstanceOf[V]
+    protected def onSetupListView(): V // = activity.findViewById(listViewId).asInstanceOf[V]
   }
 
   /**
@@ -76,6 +76,11 @@ object DataButt {
     protected def listViewId: Int = Injector.listViewID(context, getClass)
 
     protected def newAdapter(): A
-    protected def onSetupRecyclerView(): V = activity.findViewById(listViewId).asInstanceOf[V]
+    protected def onSetupRecyclerView(): V
+    /* = {
+          val v = activity.findViewById(listViewId).asInstanceOf[V]
+          v.setLayoutManager(new LinearLayoutManager(implicitly))
+          v
+        }*/
   }
 }

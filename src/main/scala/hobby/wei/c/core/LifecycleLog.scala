@@ -139,6 +139,21 @@ object LifecycleLog {
       super.onRestoreInstanceState(savedInstanceState, persistentState)
     }
 
+    override def onConfigurationChanged(newConfig: Configuration): Unit = {
+      i("LifecycleLog | onConfigurationChanged")
+      super.onConfigurationChanged(newConfig)
+    }
+
+    override def onMultiWindowModeChanged(isInMultiWindowMode: Boolean, newConfig: Configuration): Unit = {
+      i("LifecycleLog | onMultiWindowModeChanged")
+      super.onMultiWindowModeChanged(isInMultiWindowMode, newConfig)
+    }
+
+    override def onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean, newConfig: Configuration): Unit = {
+      i("LifecycleLog | onPictureInPictureModeChanged")
+      super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
+    }
+
     override def onUserInteraction(): Unit = {
       i("LifecycleLog | onUserInteraction")
       super.onUserInteraction()

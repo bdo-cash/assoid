@@ -30,7 +30,7 @@ import scala.collection.mutable
   */
 @SuppressLint(Array("NewApi"))
 object PermissionReq {
-  private[PermissionReq] trait Abs extends Ctx.Abs with ReqCode {
+  private[PermissionReq] trait Abs extends Ctx.AbsUi with ReqCode {
     private val permissionsDenied = mutable.HashSet[(String, Boolean)]()
     private var needShowRationale = List[String]()
 

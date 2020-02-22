@@ -16,8 +16,8 @@
 
 package hobby.wei.c.core
 
-import java.util
 import java.lang.ref.WeakReference
+import java.util
 import java.util.concurrent.atomic.AtomicBoolean
 import android.app.{ActivityManager, Application}
 import android.content.Context
@@ -77,8 +77,6 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
   override def mainHandler = getHandler(getMainLooper)
 
   def getHandler(looper: Looper): Handler = sHandlerMem.get(looper).get
-
-  implicit def activity: AbsActy = ???
 
   implicit def context: Context = this
 
