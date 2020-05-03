@@ -4,7 +4,7 @@ name := baseDirectory.value.getName // 意为android assists
 
 organization := "hobby.chenai.nakam"
 
-version := "0.3.0-SNAPSHOT"
+version := "0.3.2-SNAPSHOT"
 
 scalaVersion := "2.11.11"
 
@@ -49,6 +49,7 @@ libraryDependencies ++= Seq(
   "org.scala-sbt" % "io" % "0.13.18",
   // "org.scala-sbt" % "api" % "0.13.18",
 
+  "androidx.constraintlayout" % "constraintlayout" % "1.1.3",
   "androidx.localbroadcastmanager" % "localbroadcastmanager" % "[1.0.0,)",
   "androidx.appcompat" % "appcompat" % "[1.0.0,)" excludeAll(
     ExclusionRule(organization = "android.arch.core"), // 旧代码遗留

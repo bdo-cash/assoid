@@ -76,7 +76,7 @@ trait IgnoreBatteryOptReq extends Ctx.Abs with TAG.ClassName {
       mWakeLock.acquire()
       if (ignoreBatteryOpt) {
         ensureIgnoringBatteryOptimizations(powerManager) {
-          context.startActivity(intent4ReqIgnoringBatteryOpt)
+          context.startActivity(intent4ReqIgnoringBatteryOpt.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
         }
       }
     } catch {
@@ -118,7 +118,7 @@ trait IgnoreBatteryOptReq extends Ctx.Abs with TAG.ClassName {
   final def intent4ReqIgnoringBatteryOpt = new Intent(
     Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
     .setData(Uri.parse(s"package:${context.getPackageName}"))
-  // 因为可能使用`startActivityForResult()`，所以不要下面这一句。从`Service`里面启动也不会有问题。
+  // 因为可能使用`startActivityForResult()`，所以不要下面这一句。从`Service`里面启动也不会有问题（Android 10 有问题）。
   // .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
   private var mWakeLock: PowerManager#WakeLock = _

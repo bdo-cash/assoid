@@ -35,7 +35,7 @@ object toast extends %[AbsApp] {
       toast.show()
       }.run$
 
-    if (Looper.getMainLooper.getThread == Thread.currentThread) runnable.run()
+    if (Looper.getMainLooper.isCurrentThread) runnable.run()
     else if (ctx.isInstanceOf[AbsActy]) ctx.as[AbsActy].runOnUiThread(runnable)
     else getApp.mainHandler.post(runnable)
   }

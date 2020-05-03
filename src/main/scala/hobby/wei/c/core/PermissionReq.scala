@@ -37,7 +37,9 @@ object PermissionReq {
     /**
       * 要申请的一些权限。 `_1`表示权限名称，见{{{
       * android.Manifest.permission.XXX
-      * }}}，`_2`表示如果用户取消授权，是否忽略（即：是否认为全部通过）。
+      * }}}，`_2`表示如果用户拒绝该权限，是否忽略（即：是否认为全部通过）：
+      * `true`不忽略（若用户点击拒绝，则[[requirePermissions()]]返回`false`），
+      * `false`忽略（若用户点击拒绝，[[requirePermissions()]]依然返回`true`）。
       */
     protected val permissions: Seq[(String, Boolean)]
 

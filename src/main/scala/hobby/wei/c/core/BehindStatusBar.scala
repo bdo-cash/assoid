@@ -25,7 +25,7 @@ import android.view.{View, ViewGroup, WindowManager}
   * @version 1.0, 07/02/2020
   */
 trait BehindStatusBar extends Ctx.Acty {
-  protected def setContentViewBehindStatusBar(layout: ViewGroup) {
+  protected def setContentViewBehindStatusBar(layout: ViewGroup, statusBarContrastEnforced: Boolean = false) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
       window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
       window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
@@ -33,7 +33,7 @@ trait BehindStatusBar extends Ctx.Acty {
         View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
       )
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        window.setStatusBarContrastEnforced(true)
+        window.setStatusBarContrastEnforced(statusBarContrastEnforced)
       }
       layout.setFitsSystemWindows(false)
       changeStatusBarColor(statusBarColor)

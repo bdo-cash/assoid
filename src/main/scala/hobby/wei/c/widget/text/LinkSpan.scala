@@ -30,7 +30,7 @@ import hobby.chenai.nakam.lang.J2S.NonNull
   */
 class LinkSpan(linkColor: ColorStateList, url: String) extends ClickableSpan with SpanLinkable {
   //[.]点字符放在括号里只能匹配其本身，等同于\\.，若单独放在外面则匹配除\n之外所有字符
-  private val mUrlRegex = "^(http://).+"
+  private val mUrlRegex = "^(http[s]?://)\\S+\\.\\S+"
 
   override protected val mLinkColor = linkColor
 

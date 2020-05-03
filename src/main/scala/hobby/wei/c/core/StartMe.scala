@@ -19,7 +19,7 @@ package hobby.wei.c.core
 import android.app.{Activity, Service}
 import android.content.{Context, Intent, ServiceConnection}
 import android.os._
-import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.{Fragment, FragmentActivity}
 import hobby.chenai.nakam.basis.TAG
 import hobby.chenai.nakam.lang.TypeBring.AsIs
 import hobby.wei.c.LOG._
@@ -133,13 +133,27 @@ object StartMe {
         else context.as[Activity].startActivityForResult(intent, requestCode, options)
       } else {
         if (!context.isInstanceOf[Activity]) intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        context.startActivity(intent)
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN)
+          context.startActivity(intent)
+        else context.startActivity(intent, options)
       }
     }
   }
 
   trait Fragmt {
-    // nothing...
+    def startMe(fragmt: Fragment, intent: Intent, options: Bundle): Unit = startMe(fragmt, intent, false, 0, options)
+
+    def startMe(fragmt: Fragment, intent: Intent, forResult: Boolean = false, requestCode: Int = 0, options: Bundle = null): Unit = {
+      if (forResult) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN)
+          fragmt.startActivityForResult(intent, requestCode)
+        else fragmt.startActivityForResult(intent, requestCode, options)
+      } else {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN)
+          fragmt.startActivity(intent)
+        else fragmt.startActivity(intent, options)
+      }
+    }
   }
 
   trait Dialog {

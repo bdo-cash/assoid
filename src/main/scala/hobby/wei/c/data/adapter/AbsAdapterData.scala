@@ -28,13 +28,13 @@ trait AbsAdapterData[T <: AnyRef] {
   private lazy val mInflater = LayoutInflater.from(context)
   private var mData: List[T] = Nil
 
-  protected def initData(data: List[T]): Unit = if (data.nonNull && data.nonEmpty) mData = data
+  protected def initData(data: List[T]): Unit = if (data.nonNull) mData = data
 
   protected def context: Context
 
   protected def onDataSourceChanged(): Unit
 
-  protected def onDataItemChanged(positionStart: Int, itemCount: Int): Unit
+  protected def onDataItemRangeInserted(positionStart: Int, itemCount: Int): Unit
 
   protected def onDataItemRangeRemoved(positionStart: Int, itemCount: Int): Unit
 
@@ -53,7 +53,7 @@ trait AbsAdapterData[T <: AnyRef] {
       val (left, right) = mData.splitAt(start) // 这一句还是会有多余的运算，所以前面加了`if`分支。
       mData = left ::: items.toList ::: right
     }
-    onDataItemChanged(start, mData.size - start)
+    onDataItemRangeInserted(start, items.size)
   }
 
   def removeData(positionStart: Int, itemCount: Int = 1): Unit = {

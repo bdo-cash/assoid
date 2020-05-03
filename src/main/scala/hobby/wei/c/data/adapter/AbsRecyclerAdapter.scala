@@ -29,7 +29,7 @@ abstract class AbsRecyclerAdapter[VH <: RecyclerView.ViewHolder, T <: AnyRef](ov
 
   override protected def onDataSourceChanged(): Unit = notifyDataSetChanged()
 
-  override protected def onDataItemChanged(positionStart: Int, itemCount: Int): Unit = notifyItemChanged(positionStart, itemCount)
+  override protected def onDataItemRangeInserted(positionStart: Int, itemCount: Int): Unit = notifyItemRangeInserted(positionStart, itemCount)
 
   override protected def onDataItemRangeRemoved(positionStart: Int, itemCount: Int): Unit = notifyItemRangeRemoved(positionStart, itemCount)
 

@@ -5,4 +5,6 @@
     ]]></string>
     <!--API level 24+ 可以用这种方式：-->
     <!--<i><span style="color:#ff00ddff;">双</span></i>击<i><span style="color:#ff0099cc;">返回</span>键</i>可退出应用-->
+
+    <string name="follow_system">跟随系统</string>
 </resources>

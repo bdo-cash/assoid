@@ -3,10 +3,11 @@
     package="hobby.chenai.nakam.assoid">
 
     <application>
+        <!-- android:exported 当前`provider`是否可以被其它`App`使用。-->
         <provider
             android:name="hobby.wei.c.persist.SharedPreferencesProvider"
             android:authorities="\$\{applicationId\}.MPSPREF"
-            android:exported="true"
+            android:exported="false"
             android:multiprocess="false"
             android:process=":spref" />
     </application>

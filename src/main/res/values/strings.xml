@@ -7,4 +7,6 @@
     ]]></string>
     <!--API level 24+ 可以用这种方式：-->
     <!--<i><span style="color:#ff00ddff;">Double</span></i> click <i><span style="color:#ff0099cc;">BACK</span> key</i> to exit-->
+
+    <string name="follow_system">Follow System</string>
 </resources>
