@@ -4,7 +4,7 @@ name := baseDirectory.value.getName // 意为android assists
 
 organization := "hobby.chenai.nakam"
 
-version := "0.3.2-SNAPSHOT"
+version := "0.3.3-SNAPSHOT"
 
 scalaVersion := "2.11.11"
 
@@ -17,9 +17,9 @@ crossScalaVersions := Seq(
 // 等同于两句：targetSdkVersion, compileSdkVersion
 platformTarget in Android := "android-29"
 
-buildToolsVersion in Android := Some("29.0.2")
+buildToolsVersion in Android := Some("29.0.3")
 
-minSdkVersion in Android := "23"
+minSdkVersion in Android := "24"
 
 //lazy val root = (project in file(".")).dependsOn(project in file("../lang"))
 
@@ -39,9 +39,9 @@ libraryDependencies ++= Seq(
   // 如果要用 jitpack 打包的话就加上，打完了再注掉。
   // TODO: 独立使用本库的话，应该启用本依赖。
   "com.github.dedge-space" % "annoguard" % "1.0.3-beta",
-  "com.github.dedge-space" % "annoid" % "f2f136ee93",
-  "com.github.dedge-space" % "scala-lang" % "0f2c30633e",
-  "com.github.dedge-space" % "reflow" % "b326dc5a14",
+  "com.github.dedge-space" % "annoid" % "e555e0632d",
+  "com.github.dedge-space" % "scala-lang" % "727912b657",
+  "com.github.dedge-space" % "reflow" % "fef97d250d",
 
   "com.squareup.okhttp3" % "okhttp" % "[3.11.0,)",
 
@@ -50,13 +50,9 @@ libraryDependencies ++= Seq(
   // "org.scala-sbt" % "api" % "0.13.18",
 
   "androidx.constraintlayout" % "constraintlayout" % "1.1.3",
+  // 在主工程中加入 `transitiveAndroidLibs in Android := true` 可以解决`Error: more than one xxx "xxx"`的问题。
   "androidx.localbroadcastmanager" % "localbroadcastmanager" % "[1.0.0,)",
-  "androidx.appcompat" % "appcompat" % "[1.0.0,)" excludeAll(
-    ExclusionRule(organization = "android.arch.core"), // 旧代码遗留
-    ExclusionRule(organization = "androidx.versionedparcelable") /*,
-    // `Fragment`里面用到一些组件。
-    ExclusionRule(organization = "android.arch.lifecycle")*/
-  ),
+  "androidx.appcompat" % "appcompat" % "[1.1.0,)",
   "androidx.recyclerview" % "recyclerview" % "[1.0.0,)",
   "com.j256.ormlite" % "ormlite-android" % "[5.1,)",
 

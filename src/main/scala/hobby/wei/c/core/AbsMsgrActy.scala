@@ -66,6 +66,7 @@ abstract class AbsMsgrActy extends AbsActy with RetryByHandler {
   }
 
   @volatile private var sender: Messenger = _
+  @volatile private var replyTo: Messenger = _
   @volatile private var connected: Boolean = false
 
   def isChannelConnected = connected
@@ -99,7 +100,9 @@ abstract class AbsMsgrActy extends AbsActy with RetryByHandler {
     override def onServiceConnected(name: ComponentName, service: IBinder): Unit = {
       assert(!connected, "测试 onServiceConnected 会不会重复多次")
       sender = startService.binder2Sender(service)
-      if (startService.replyToClient(sender, msgHandler)) {
+      val msgr = startService.replyToClient(sender, msgHandler)
+      if (msgr.isDefined) {
+        replyTo = msgr.get
         e("onServiceConnected | 正常建立连接 -->")
         if (!connected) {
           connected = true
@@ -130,8 +133,10 @@ abstract class AbsMsgrActy extends AbsActy with RetryByHandler {
     connected = false
     e("confirmUnbind | 断开连接 | DONE.")
     onMsgChannelDisconnected()
-    sender = null
+    startService.unReplyToClient(sender, replyTo)
     startService.unbind(this, serviceConn)
+    sender = null
+    replyTo = null
     true
   } else false
 }

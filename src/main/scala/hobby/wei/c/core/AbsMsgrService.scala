@@ -30,6 +30,7 @@ import hobby.wei.c.core.AbsMsgrService._
 import hobby.wei.c.core.StartMe.MsgrSrvce.Const
 import hobby.wei.c.tool.RetryByHandler
 
+import scala.collection.convert.WrapAsScala.asScalaBuffer
 import scala.ref.WeakReference
 
 /**
@@ -102,7 +103,7 @@ trait AbsMsgrService extends AbsSrvce with Const with Ctx.Srvce with RetryByHand
           true
         } else if (shouldFinish) true /*中断*/ else false
       }
-      }.run$)
+    }.run$)
   }
 
   override implicit protected def delayerHandler: Handler = clientHandler
@@ -132,6 +133,10 @@ trait AbsMsgrService extends AbsSrvce with Const with Ctx.Srvce with RetryByHand
         if (msg.replyTo.nonNull) {
           mAllClientDisconnected = false
           mMsgObservable.registerObserver(new MsgObserver(msg.replyTo, mMsgObservable))
+        }
+      } else if (msg.what == MSG_UN_REPLY) {
+        if (msg.replyTo.nonNull) {
+          mMsgObservable.unregister(msg.replyTo)
         }
       } else if (isStopRequested || isDestroyed) {
         w("clientHandler.handleMessage | BLOCKED. >>> stopRequested: %s, destroyed: %s.", isStopRequested, isDestroyed)
@@ -207,7 +212,7 @@ trait AbsMsgrService extends AbsSrvce with Const with Ctx.Srvce with RetryByHand
     super.onDestroy()
     clientHandler.post({
       mHandlerThread.quitSafely()
-      }.run$)
+    }.run$)
   }
 }
 
@@ -221,9 +226,17 @@ object AbsMsgrService {
         i -= 1
       }
     }
+
+    def unregister(msgr: Messenger) {
+      val msgObs = mObservers.toSeq.filter(_.msgr == msgr)
+      if (msgObs.nonEmpty) mObservers.synchronized {
+        val i = mObservers.indexOf(msgObs.head)
+        if (i >= 0) unregisterObserver(msgObs.head)
+      }
+    }
   }
 
-  class MsgObserver(msgr: Messenger, obs: MsgObservable) extends TAG.ClassName {
+  class MsgObserver(val msgr: Messenger, obs: MsgObservable) extends TAG.ClassName {
     private val obsRef: WeakReference[MsgObservable] = new WeakReference[MsgObservable](obs)
 
     def onMessage(msg: Message): Unit = {

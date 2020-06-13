@@ -33,6 +33,7 @@ object StartMe {
   object MsgrSrvce {
     trait Const {
       protected val MSG_REPLY_TO: Int //= 999999999
+      protected val MSG_UN_REPLY: Int
 
       protected val CMD_EXTRA_STOP_SERVICE: String //= getApp.withPackageNamePrefix("CMD_EXTRA_STOP_SERVICE")
       protected val CMD_EXTRA_START_FOREGROUND: String
@@ -108,16 +109,27 @@ object StartMe {
       * @param handler `Client`用来处理`Service`发来的`Message`的`Handler`。
       * @return 建立信使是否成功。
       */
-    def replyToClient(sender: Messenger, handler: Handler): Boolean = {
+    def replyToClient(sender: Messenger, handler: Handler): Option[Messenger] = {
       val msg = Message.obtain()
       msg.what = MSG_REPLY_TO
       msg.replyTo = new Messenger(handler)
       try {
         sender.send(msg)
-        true
+        Option(msg.replyTo)
       } catch {
         case ex: RemoteException => e(ex)
-          false
+          None
+      }
+    }
+
+    def unReplyToClient(sender: Messenger, replyTo: Messenger) {
+      val msg = Message.obtain()
+      msg.what = MSG_UN_REPLY
+      msg.replyTo = replyTo
+      try {
+        sender.send(msg)
+      } catch {
+        case ex: RemoteException => e(ex)
       }
     }
   }
