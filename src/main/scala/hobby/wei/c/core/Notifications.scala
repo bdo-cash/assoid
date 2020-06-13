@@ -16,11 +16,9 @@
 
 package hobby.wei.c.core
 
-import android.app.{Notification, NotificationChannel, NotificationManager, PendingIntent}
-import android.graphics.Bitmap
+import android.app.{NotificationChannel, NotificationManager}
 import android.os.Build
 import androidx.core.app.{NotificationCompat, NotificationManagerCompat}
-import hobby.wei.c.core.Ctx.%
 import hobby.wei.c.core.Notifications._
 
 import scala.collection.JavaConverters.seqAsJavaListConverter
@@ -29,18 +27,13 @@ import scala.collection.JavaConverters.seqAsJavaListConverter
   * @author Chenai Nakam(chenai.nakam@gmail.com)
   * @version 1.0, 02/05/2020
   */
-trait Notifications extends Ctx.Abs with %[AbsApp] {
-  def smallIcon: Int
-  def contentTitle: String
-  def buildContentIntent(): PendingIntent
+trait Notifications extends Ctx.Abs {
+  def getApp: AbsApp
   def lightColor: Int
-  def smallIconForeground: Int = smallIcon
-  def contentTitleForeground: String = contentTitle
-  def contentTextForeground: String
-  def foregroundChannelName: String
+  def buildPublicVersion(builder: NotificationCompat.Builder): NotificationCompat.Builder
+  val isLockScreenPrivate = true
 
-  protected def buildNotification(nameSender: String, senderBmp: Option[Bitmap], contentText: CharSequence,
-                                  numMgs: Int, tpe: EffectType): Notification = {
+  protected def obtainNotificationBuilder(tpe: EffectType): NotificationCompat.Builder = {
     val builder = new NotificationCompat.Builder(context, tpe match {
       case Mute => channelIDMute
       case Sound => channelIDSound
@@ -48,11 +41,11 @@ trait Notifications extends Ctx.Abs with %[AbsApp] {
       case SoundVibra => channelIDSoundVibra
       case Disabled => ??? // Won't come to this case.
     })
-      .setSmallIcon(smallIcon)
-      .setContentTitle(contentTitle)
-      .setContentIntent(buildContentIntent())
-      .setContentText(contentText)
-      .setAutoCancel(false).setShowWhen(true).setOngoing(true)
+      //      .setSmallIcon(smallIcon)
+      //      .setContentTitle(contentTitle)
+      //      .setContentIntent(buildContentIntent())
+      //      .setContentText(contentText)
+      //      .setAutoCancel(false).setShowWhen(true).setOngoing(true)
       // 在 Android 8.0（API 级别 26）及更高版本上，通知的重要性由通知目标发布渠道的 importance 决定。用户可以在系统设置中
       // 更改通知渠道的重要性（图 12）。在 Android 7.1（API 级别 25）及更低版本上，各通知的重要性由通知的 priority 决定。
       .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -63,22 +56,22 @@ trait Notifications extends Ctx.Abs with %[AbsApp] {
     //                .setContentIcon(R.drawable.icon_logo)
     //                .setCustomSizePreset(Notification.WearableExtender.SIZE_MEDIUM)
     //        )
-    if (!nameSender.isEmpty) {
-      //            builder.setStyle(
-      //                NotificationCompat.MessagingStyle(
-      //                    Person.Builder()
-      //                        .setName(nameSender).setImportant(true)
-      //                        .build()
-      //                )
-      //                    .addMessage("text 1", System.currentTimeMillis(), Person.Builder().build())
-      //                    .addMessage("text 2", System.currentTimeMillis(), Person.Builder().build())
-      //            )
-    }
-    senderBmp.fold() {
-      builder.setLargeIcon
-    }
+    //    if (!nameSender.isEmpty) {
+    //            builder.setStyle(
+    //                NotificationCompat.MessagingStyle(
+    //                    Person.Builder()
+    //                        .setName(nameSender).setImportant(true)
+    //                        .build()
+    //                )
+    //                    .addMessage("text 1", System.currentTimeMillis(), Person.Builder().build())
+    //                    .addMessage("text 2", System.currentTimeMillis(), Person.Builder().build())
+    //            )
+    //    }
+    //    senderBmp.fold() {
+    //      builder.setLargeIcon
+    //    }
     builder //.setNumber(numMgs)
-      .setTicker(contentText)
+      //      .setTicker(contentText)
       .setLights(lightColor, 1000, 3000)
     tpe match {
       case Mute => builder.setDefaults(0)
@@ -89,22 +82,17 @@ trait Notifications extends Ctx.Abs with %[AbsApp] {
     if (isLockScreenPrivate) {
       builder.setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
       // https://developer.android.com/training/notify-user/build-notification?hl=zh_cn#lockscreenNotification
-      val spare = new NotificationCompat.Builder(context, channelIDSound)
-        .setContentText(contentText)
-        .build()
-      builder.setPublicVersion(spare)
+      builder.setPublicVersion(buildPublicVersion(new NotificationCompat.Builder(context, channelIDSound)).build())
     }
-    builder.build()
+    builder
   }
 
-  private val isLockScreenPrivate = true
-  private val notificationID = 88888888
   private val vibrationPattern = Array[Long](0, 30, 100, 30)
-  private val channelIDMute = getApp.withPackageNamePrefix("d_chat_notify_mute")
-  private val channelIDSound = getApp.withPackageNamePrefix("d_chat_notify_sound")
-  private val channelIDVibra = getApp.withPackageNamePrefix("d_chat_notify_vibration")
-  private val channelIDSoundVibra = getApp.withPackageNamePrefix("d_chat_notify_sound_vibration")
-  private val channelIDForeground = getApp.withPackageNamePrefix("d_chat_background_service")
+  private val channelIDMute = getApp.withPackageNamePrefix("notify_mute")
+  private val channelIDSound = getApp.withPackageNamePrefix("notify_sound")
+  private val channelIDVibra = getApp.withPackageNamePrefix("notify_vibration")
+  private val channelIDSoundVibra = getApp.withPackageNamePrefix("notify_sound_vibration")
+  private val channelIDForeground = getApp.withPackageNamePrefix("foreground_service")
   protected lazy val notifyMgr = {
     val mgr = NotificationManagerCompat.from(context)
     mgr.createNotificationChannels(
@@ -161,25 +149,24 @@ trait Notifications extends Ctx.Abs with %[AbsApp] {
     } else null
   }
 
-  protected def buildForegroundNotification(): Notification = {
+  protected def obtainFGroundNotificationBuilder(): NotificationCompat.Builder = {
     new NotificationCompat.Builder(context, channelIDForeground)
-      .setSmallIcon(smallIconForeground)
-      .setContentTitle(contentTitleForeground)
-      .setContentIntent(buildContentIntent())
-      .setContentText(contentTextForeground)
+      //      .setSmallIcon(smallIconForeground)
+      //      .setContentTitle(contentTitleForeground)
+      //      .setContentIntent(buildContentIntent())
+      //      .setContentText(contentTextForeground)
       .setAutoCancel(false)
       .setShowWhen(false)
       .setPriority(NotificationCompat.PRIORITY_MAX)
       // Must be set here, only in the channel, does not work. But the phone must be set to slide unlock at least.
       .setVisibility(NotificationCompat.VISIBILITY_SECRET)
-      .build()
   }
 
   private def buildForegroundChannel(): NotificationChannel = {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
       val channel = new NotificationChannel(
         channelIDForeground,
-        foregroundChannelName,
+        "Foreground Service",
         NotificationManager.IMPORTANCE_NONE
       )
       channel.setShowBadge(false) // 禁用通知圆点
