@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- fix lib's bug:
+     target/android/intermediates/res/values/values.xml:605: error: Found tag id where item is expected -->
+    <item name="view_tree_lifecycle_owner" type="id" />
+    <item name="view_tree_saved_state_registry_owner" type="id" />
+    <item name="view_tree_view_model_store_owner" type="id" />
+</resources>

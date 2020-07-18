@@ -17,7 +17,7 @@ crossScalaVersions := Seq(
 // 等同于两句：targetSdkVersion, compileSdkVersion
 platformTarget in Android := "android-29"
 
-buildToolsVersion in Android := Some("29.0.3")
+buildToolsVersion in Android := Some("30.0.1")
 
 minSdkVersion in Android := "24"
 
