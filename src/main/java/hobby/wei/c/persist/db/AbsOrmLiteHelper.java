@@ -264,9 +264,10 @@ public abstract class AbsOrmLiteHelper extends OrmLiteSqliteOpenHelper {
         database.beginTransaction();
         try {
             // 导入有效数据
-            database.execSQL("CREATE TEMPORARY TABLE " + name_backup + "(" + fstr + ")");
-            database.execSQL("INSERT INTO " + name_backup + " SELECT " + fstr + " FROM " + name);
-            database.execSQL("DROP TABLE " + name);
+//            database.execSQL("CREATE TEMPORARY TABLE " + name_backup + "(" + fstr + ")");
+//            database.execSQL("INSERT INTO " + name_backup + " SELECT " + fstr + " FROM " + name);
+//            database.execSQL("DROP TABLE " + name);
+            database.execSQL("ALTER TABLE " + name + " RENAME TO " + name_backup);
             TableUtils.createTable(connSource, tableClazz);
             database.execSQL("INSERT INTO " + name + "(" + fstr + ")" + " SELECT " + fstr + " FROM " + name_backup);
             database.execSQL("DROP TABLE " + name_backup);
