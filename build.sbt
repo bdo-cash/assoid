@@ -6,18 +6,18 @@ organization := "hobby.chenai.nakam"
 
 version := "0.3.3-SNAPSHOT"
 
-scalaVersion := "2.11.11"
+scalaVersion := "2.11.12"
 
 crossScalaVersions := Seq(
   /*"2.11.7", 多余，不需要两个*/
-  "2.11.11",
+  "2.11.12",
   /*"2.12.2", 有一些编译问题：`the interface is not a direct parent`。*/
-  "2.12.6")
+  "2.12.12")
 
 // 等同于两句：targetSdkVersion, compileSdkVersion
-platformTarget in Android := "android-29"
+platformTarget in Android := "android-30"
 
-buildToolsVersion in Android := Some("30.0.1")
+buildToolsVersion in Android := Some("30.0.2")
 
 minSdkVersion in Android := "24"
 
@@ -39,9 +39,9 @@ libraryDependencies ++= Seq(
   // 如果要用 jitpack 打包的话就加上，打完了再注掉。
   // TODO: 独立使用本库的话，应该启用本依赖。
   "com.github.dedge-space" % "annoguard" % "1.0.3-beta",
-  "com.github.dedge-space" % "annoid" % "42933239bf",
-  "com.github.dedge-space" % "scala-lang" % "727912b657",
-  "com.github.dedge-space" % "reflow" % "511279b7b1",
+  "com.github.dedge-space" % "annoid" % "df577cc713",
+  "com.github.dedge-space" % "scala-lang" % "6e95678f48",
+  "com.github.dedge-space" % "reflow" % "d0efdb4616",
 
   "com.squareup.okhttp3" % "okhttp" % "[3.11.0,)",
 
