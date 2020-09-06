@@ -42,14 +42,21 @@ object NetAces {
     }
 
     object Client extends AbsClient {
-      protected lazy val client = new OkHttpClient
+      private lazy val builder = new OkHttpClient.Builder()
+      protected lazy val client = builder.build()
 
-      object Cached extends AbsClient {
-        protected lazy val client = Client().newBuilder.cache(
+      def withInterceptor(interceptor: Interceptor): Client.type = {
+        builder.addInterceptor(interceptor)
+        this
+      }
+
+      def withCached(maxCacheSize: Int = 10 * 1024 * 1024 /*10 MB*/): Client.type = {
+        builder.cache(
           new Cache(FStoreLoc.SURVIVE.getCacheDir(AbsApp.get,
             FStoreLoc.DirLevel.PRIVATE) / classOf[Cache].getName.toLowerCase,
-            10 * 1024 * 1024 /*10 MB*/)
-        ).build
+            maxCacheSize)
+        )
+        this
       }
     }
 
