@@ -32,10 +32,10 @@ import sbt.Path._
 object NetAces {
   object Http {
     private[Http] trait AbsClient {
-      protected val client: OkHttpClient
-      def apply() = client
+      protected def client: OkHttpClient
 
       @throws[IOException]
+      @throws[CodeNotSucceedException]
       def sync(request: Request): Response = client.newCall(request).execute().asChecked
 
       def async(request: Request, checked: CallbackChecked): Unit = client.newCall(request).enqueue(checked)
@@ -43,10 +43,15 @@ object NetAces {
 
     object Client extends AbsClient {
       private lazy val builder = new OkHttpClient.Builder()
-      protected lazy val client = builder.build()
+      @volatile private var _client: OkHttpClient = _
+      override def client = {
+        if (_client == null) _client = builder.build()
+        _client
+      }
 
-      def withInterceptor(interceptor: Interceptor): Client.type = {
-        builder.addInterceptor(interceptor)
+      def withBuilder(wizh: OkHttpClient.Builder => OkHttpClient.Builder): Client.type = {
+        wizh(builder)
+        _client = null
         this
       }
 
@@ -65,26 +70,28 @@ object NetAces {
         val resp =
           try response.asChecked
           catch {
-            case e: IOException =>
-              onFailure(call, e)
+            case e: CodeNotSucceedException =>
+              onResponseNotSucceed(call, e)
               null
           }
-        if (resp.nonNull) onResponseOk(call, resp)
+        if (resp.nonNull) onResponseSucceed(call, resp)
       }
 
-      def onResponseOk(call: Call, response: Response): Unit
+      def onResponseNotSucceed(call: Call, code: CodeNotSucceedException)
+      def onResponseSucceed(call: Call, response: Response): Unit
     }
 
     implicit class CheckSuccess(response: Response) extends TAG.ClassName {
-      @throws[IOException]
+      @throws[CodeNotSucceedException]
       def asChecked: Response = {
         if (!response.isSuccessful) {
-          val resp = response.toString
-          LOG.e(resp)
-          throw new IOException(resp)
+          LOG.e(response.toString)
+          throw new CodeNotSucceedException(response.code(), response.message(), response)
         }
         response
       }
     }
   }
+
+  class CodeNotSucceedException(val code: Int, val message: String, val response: Response) extends IOException(s"code: $code, message: $message.")
 }

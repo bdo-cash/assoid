@@ -43,7 +43,7 @@ libraryDependencies ++= Seq(
   "com.github.dedge-space" % "scala-lang" % "6e95678f48",
   "com.github.dedge-space" % "reflow" % "d0efdb4616",
 
-  "com.squareup.okhttp3" % "okhttp" % "[3.11.0,)",
+  "com.squareup.okhttp3" % "okhttp" % "4.8.0",
 
   // 使用 sbt Nb 的库。
   "org.scala-sbt" % "io" % "0.13.18",
