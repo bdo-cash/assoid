@@ -29,8 +29,11 @@ import scala.collection.JavaConverters.seqAsJavaListConverter
   */
 trait Notifications extends Ctx.Abs {
   def getApp: AbsApp
+
   def lightColor: Int
+
   def buildPublicVersion(builder: NotificationCompat.Builder): NotificationCompat.Builder
+
   val isLockScreenPrivate = true
 
   protected def obtainNotificationBuilder(tpe: EffectType): NotificationCompat.Builder = {
@@ -134,7 +137,7 @@ trait Notifications extends Ctx.Abs {
       channel.enableLights(true)
       channel.setLightColor(lightColor)
       channel.setLockscreenVisibility(if (isLockScreenPrivate) NotificationCompat.VISIBILITY_PRIVATE else NotificationCompat.VISIBILITY_SECRET)
-      tpe match {
+      (tpe: @unchecked) match {
         case Mute => channel.enableVibration(false)
         case Sound => channel.enableVibration(false)
         case Vibration =>
@@ -175,13 +178,14 @@ trait Notifications extends Ctx.Abs {
     } else null
   }
 }
+
 object Notifications {
   sealed class EffectType(val value: Int)
-  object Mute extends EffectType(1)
-  object Sound extends EffectType(2)
-  object Vibration extends EffectType(3)
-  object SoundVibra extends EffectType(4)
-  object Disabled extends EffectType(0)
+  case object Mute extends EffectType(1)
+  case object Sound extends EffectType(2)
+  case object Vibration extends EffectType(3)
+  case object SoundVibra extends EffectType(4)
+  case object Disabled extends EffectType(0)
 
   object EffectType {
     def apply(value: Int): EffectType = value match {
