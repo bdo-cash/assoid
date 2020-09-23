@@ -32,17 +32,19 @@ trait Notifications extends Ctx.Abs {
 
   def lightColor: Int
 
-  def buildPublicVersion(builder: NotificationCompat.Builder): NotificationCompat.Builder
+  def onBuildPublicVersion(builder: NotificationCompat.Builder): NotificationCompat.Builder
 
   val isLockScreenPrivate = true
 
   protected def obtainNotificationBuilder(tpe: EffectType): NotificationCompat.Builder = {
-    val builder = new NotificationCompat.Builder(context, tpe match {
+    // force load `NotificationManager`
+    notifyMgr.areNotificationsEnabled()
+    val builder = new NotificationCompat.Builder(context, (tpe: @unchecked) match {
       case Mute => channelIDMute
       case Sound => channelIDSound
       case Vibration => channelIDVibra
       case SoundVibra => channelIDSoundVibra
-      case Disabled => ??? // Won't come to this case.
+      case Disabled => throw new IllegalStateException("The args `Disabled` should NEVER be called on this method.") // Won't come to this case.
     })
       //      .setSmallIcon(smallIcon)
       //      .setContentTitle(contentTitle)
@@ -76,7 +78,7 @@ trait Notifications extends Ctx.Abs {
     builder //.setNumber(numMgs)
       //      .setTicker(contentText)
       .setLights(lightColor, 1000, 3000)
-    tpe match {
+    (tpe: @unchecked) match {
       case Mute => builder.setDefaults(0)
       case Sound => builder.setVibrate(Array(0)).setDefaults(NotificationCompat.DEFAULT_SOUND)
       case Vibration => builder.setVibrate(vibrationPattern).setDefaults(0)
@@ -85,7 +87,14 @@ trait Notifications extends Ctx.Abs {
     if (isLockScreenPrivate) {
       builder.setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
       // https://developer.android.com/training/notify-user/build-notification?hl=zh_cn#lockscreenNotification
-      builder.setPublicVersion(buildPublicVersion(new NotificationCompat.Builder(context, channelIDSound)).build())
+      builder.setPublicVersion(
+        onBuildPublicVersion(new NotificationCompat.Builder(context, (tpe: @unchecked) match {
+          case Mute => channelIDMute
+          case Sound => channelIDSound
+          case Vibration => channelIDVibra
+          case SoundVibra => channelIDSoundVibra
+        })).build()
+      )
     }
     builder
   }
@@ -96,6 +105,9 @@ trait Notifications extends Ctx.Abs {
   private val channelIDVibra = getApp.withPackageNamePrefix("notify_vibration")
   private val channelIDSoundVibra = getApp.withPackageNamePrefix("notify_sound_vibration")
   private val channelIDForeground = getApp.withPackageNamePrefix("foreground_service")
+
+  // 轻易不要调这一句。否则，如果进程不`kill`，后面再`createNotificationChannel(channelID)`也不起作用。
+  // notifyMgr.deleteNotificationChannel(channelID)
   protected lazy val notifyMgr = {
     val mgr = NotificationManagerCompat.from(context)
     mgr.createNotificationChannels(
@@ -113,13 +125,13 @@ trait Notifications extends Ctx.Abs {
   private def buildChannel(tpe: EffectType): NotificationChannel = {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
       val channel = new NotificationChannel(
-        tpe match {
+        (tpe: @unchecked) match {
           case Mute => channelIDMute
           case Sound => channelIDSound
           case Vibration => channelIDVibra
           case SoundVibra => channelIDSoundVibra
           case Disabled => ??? // Won't come to this case.
-        }, tpe match {
+        }, (tpe: @unchecked) match {
           case Mute => "Mute"
           case Sound => "Sound"
           case Vibration => "Vibration"
@@ -153,6 +165,8 @@ trait Notifications extends Ctx.Abs {
   }
 
   protected def obtainFGroundNotificationBuilder(): NotificationCompat.Builder = {
+    // force load `NotificationManager`
+    notifyMgr.areNotificationsEnabled()
     new NotificationCompat.Builder(context, channelIDForeground)
       //      .setSmallIcon(smallIconForeground)
       //      .setContentTitle(contentTitleForeground)
@@ -180,11 +194,17 @@ trait Notifications extends Ctx.Abs {
 }
 
 object Notifications {
+
   sealed class EffectType(val value: Int)
+
   case object Mute extends EffectType(1)
+
   case object Sound extends EffectType(2)
+
   case object Vibration extends EffectType(3)
+
   case object SoundVibra extends EffectType(4)
+
   case object Disabled extends EffectType(0)
 
   object EffectType {
@@ -197,4 +217,5 @@ object Notifications {
       case _ => Vibration
     }
   }
+
 }

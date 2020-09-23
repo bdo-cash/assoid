@@ -29,15 +29,30 @@ import hobby.chenai.nakam.lang.TypeBring.AsIs
   * @version 1.0, 18/11/2017
   */
 object Ctx {
+
   trait Abs {
     implicit def context: Context
 
     def mainHandler: Handler = AbsApp.get[AbsApp].mainHandler
 
     def post(f: => Any) = mainHandler.post(f.run$)
+
     def postDelayed(delayed: Long)(f: => Any) = mainHandler.postDelayed(f.run$, delayed)
+  }
+
+  trait AbsUi extends Abs {
+    implicit def activity: AbsActy
+    implicit def context: Context
+    implicit def window: Window = activity.getWindow
+
+    def runOnUiThread(f: => Any): Unit = activity.runOnUiThread(f.run$)
+
     /**
-      * 注意只能在`Activity`进程中调用。
+      * 在`消息循环`（`UI`线程）空闲时执行`action`操作`times`次。<br>
+      * 注意：只能在`Activity`进程中调用。
+      *
+      * @param times  要重复执行`[[action]]`的次数（但无论是几，至少执行一次）。
+      * @param action 要在空闲时执行操作。
       */
     def postOnIdle(times: Int = -1)(action: => Any) {
       mainHandler.getLooper.getQueue.addIdleHandler(new MessageQueue.IdleHandler {
@@ -49,14 +64,6 @@ object Ctx {
         }
       })
     }
-  }
-
-  trait AbsUi extends Abs {
-    implicit def activity: AbsActy
-    implicit def context: Context
-    implicit def window: Window = activity.getWindow
-
-    def runOnUiThread(f: => Any): Unit = activity.runOnUiThread(f.run$)
   }
 
   trait %[A <: AbsApp] {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-present, Chenai Nakam(chenai.nakam@gmail.com)
+ * Copyright (C) 2020-present, Chenai Nakam(chenai.nakam@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,62 +19,54 @@ package hobby.wei.c.core
 import android.content.{ComponentName, ServiceConnection}
 import android.os._
 import hobby.chenai.nakam.lang.J2S.{NonNull, Run}
-import hobby.chenai.nakam.lang.TypeBring.AsIs
-import hobby.wei.c.LOG._
 import hobby.wei.c.tool.RetryByHandler
+import hobby.wei.c.LOG._
 
 /**
   * @author Chenai Nakam(chenai.nakam@gmail.com)
-  * @version 1.0, 26/05/2018
+  * @version 1.0, 23/09/2020, 从`AbsMsgrActy`重构过来。
   */
-abstract class AbsMsgrActy extends AbsActy with RetryByHandler {
-  protected override def onCreate(savedInstanceState: Bundle): Unit = {
-    super.onCreate(savedInstanceState)
-    tryOrRebind()
-  }
-
-  protected override def onDestroy(): Unit = {
-    confirmUnbind()
-    super.onDestroy()
-  }
-
-  protected def startService: StartMe.MsgrSrvce
+trait AbsMsgrClient extends Ctx.Abs with RetryByHandler {
+  protected def serviceStarter: StartMe.MsgrSrvce
 
   protected def msgrServiceClazz: Class[_ <: AbsMsgrService]
+
+  /** Maybe returning `isFinishing || isDestroyed`. */
+  protected def isThisClientClosed: Boolean
 
   protected def onMsgChannelConnected(): Unit = {
     val msg = new Message
     msg.what = 1234567
     val b = new Bundle
     b.putString("msg_key", ">>> 这是一个测试`请求`消息 >>>。")
-    msg.obj = b
+    msg.setData(b)
     sendMsg2Server(msg)
   }
 
   protected def onMsgChannelDisconnected(): Unit = {}
 
-  protected def handleServerMsg(msg: Message, handler: Handler): Unit = msg.what match {
+  protected def handleServerMsg(msg: Message, handler: Handler): Boolean = msg.what match {
     case 7654321 =>
-      i("handleServerMsg | msg > what: %s, content: %s.", msg.what, msg.obj.as[Bundle].getString("msg_key").s)
-    case _ =>
+      d("handleServerMsg | msg > what: %s, content: %s.", msg.what, msg.getData.getString("msg_key").s)
+      true
+    case _ => false
   }
 
   private lazy val msgHandler: Handler = new Handler() {
-    override def handleMessage(msg: Message): Unit = if (isFinishing || isDestroyed) {
-      w("msgHandler.handleMessage | BLOCKED. >>> finishing: %s, destroyed: %s.", isFinishing, isDestroyed)
+    override def handleMessage(msg: Message): Unit = if (isThisClientClosed) {
+      w("msgHandler.handleMessage | BLOCKED. >>> isThisClientClosed: %s.", isThisClientClosed)
     } else handleServerMsg(msg, msgHandler)
   }
 
   @volatile private var sender: Messenger = _
   @volatile private var replyTo: Messenger = _
   @volatile private var connected: Boolean = false
+  @volatile private var temporarily: Boolean = false
 
-  def isChannelConnected = connected
+  def isChannelConnected = connected && !temporarily
 
   def sendMsg2Server(msg: Message): Unit = {
-    def shouldFinish = isFinishing || isDestroyed
-
-    if (!shouldFinish) msgHandler.post({
+    if (!isThisClientClosed) msgHandler.post({
       retryForceful(1000) { _ =>
         val msgr = sender
         if (msgr.nonNull) {
@@ -89,7 +81,8 @@ abstract class AbsMsgrActy extends AbsActy with RetryByHandler {
                 true // 中断 retry
               } else false
           }
-        } else if (shouldFinish) true /*中断*/ else false
+        } else if (isThisClientClosed) true /*中断*/
+        else false
       }
     }.run$)
   }
@@ -98,15 +91,15 @@ abstract class AbsMsgrActy extends AbsActy with RetryByHandler {
 
   private lazy val serviceConn: ServiceConnection = new ServiceConnection {
     override def onServiceConnected(name: ComponentName, service: IBinder): Unit = {
-      assert(!connected, "测试 onServiceConnected 会不会重复多次")
-      sender = startService.binder2Sender(service)
-      val msgr = startService.replyToClient(sender, msgHandler)
+      sender = serviceStarter.binder2Sender(service)
+      val msgr = serviceStarter.replyToClient(sender, msgHandler)
       if (msgr.isDefined) {
         replyTo = msgr.get
-        e("onServiceConnected | 正常建立连接 -->")
+        d("onServiceConnected | 正常建立连接 -->")
         if (!connected) {
           connected = true
-          e("onServiceConnected | 正常建立连接 | DONE.")
+          temporarily = false
+          d("onServiceConnected | 正常建立连接 | DONE.")
           onMsgChannelConnected()
         }
       } else {
@@ -117,26 +110,45 @@ abstract class AbsMsgrActy extends AbsActy with RetryByHandler {
 
     override def onServiceDisconnected(name: ComponentName): Unit = {
       e("onServiceDisconnected | 断开连接 -->")
+      // 其实不需要手动断开再重连，会自动重新调用`onServiceConnected()`。
+      // 由`crash`导致，for example。
+      // if (confirmUnbind()) tryOrRebind()
+      // else {
+      //   // 说明是 force unbind, 正常。
+      // }
+      temporarilyDisconnected()
+    }
+
+    override def onBindingDied(name: ComponentName): Unit = {
+      super.onBindingDied(name)
+      e("onBindingDied | 断开连接 -->")
       if (confirmUnbind()) tryOrRebind()
       else {
         // 说明是 force unbind, 正常。
       }
     }
+
+    override def onNullBinding(name: ComponentName): Unit = super.onNullBinding(name)
   }
 
   protected def tryOrRebind(): Unit = {
     confirmUnbind()
-    startService.bind(this, serviceConn, msgrServiceClazz)
+    serviceStarter.bind(context, serviceConn, msgrServiceClazz)
+  }
+
+  private def temporarilyDisconnected(): Unit = {
+    temporarily = true
+    sender = null
   }
 
   protected def confirmUnbind(): Boolean = if (connected) {
     connected = false
-    e("confirmUnbind | 断开连接 | DONE.")
-    onMsgChannelDisconnected()
-    startService.unReplyToClient(sender, replyTo)
-    startService.unbind(this, serviceConn)
+    w("confirmUnbind | 断开连接 | DONE.")
+    serviceStarter.unReplyToClient(sender, replyTo)
+    serviceStarter.unbind(context, serviceConn)
     sender = null
     replyTo = null
+    onMsgChannelDisconnected()
     true
   } else false
 }
