@@ -43,7 +43,11 @@ trait AbsMsgrClient extends Ctx.Abs with RetryByHandler {
     sendMsg2Server(msg)
   }
 
+  /** 断开与`Service`的连接时，触发该回调。 */
   protected def onMsgChannelDisconnected(): Unit = {}
+
+  /** 该回调表示[临时]断开了与`Service`的连接（可能是`Service`异常崩溃之类的原因引起，会再次自动重启`Service`并重连）。 */
+  protected def onDisconnectTemporarily(): Unit = {}
 
   protected def handleServerMsg(msg: Message, handler: Handler): Boolean = msg.what match {
     case 7654321 =>
@@ -109,14 +113,14 @@ trait AbsMsgrClient extends Ctx.Abs with RetryByHandler {
     }
 
     override def onServiceDisconnected(name: ComponentName): Unit = {
-      e("onServiceDisconnected | 断开连接 -->")
-      // 其实不需要手动断开再重连，会自动重新调用`onServiceConnected()`。
+      e("onServiceDisconnected | 临时断开连接 -->")
+      // 这里不需要手动断开再重连，会自动重新回调`onServiceConnected()`。
       // 由`crash`导致，for example。
       // if (confirmUnbind()) tryOrRebind()
       // else {
       //   // 说明是 force unbind, 正常。
       // }
-      temporarilyDisconnected()
+      disconnectTemporarily()
     }
 
     override def onBindingDied(name: ComponentName): Unit = {
@@ -136,9 +140,10 @@ trait AbsMsgrClient extends Ctx.Abs with RetryByHandler {
     serviceStarter.bind(context, serviceConn, msgrServiceClazz)
   }
 
-  private def temporarilyDisconnected(): Unit = {
+  private def disconnectTemporarily(): Unit = {
     temporarily = true
     sender = null
+    onDisconnectTemporarily()
   }
 
   protected def confirmUnbind(): Boolean = if (connected) {
