@@ -37,8 +37,7 @@ trait Notifications extends Ctx.Abs {
   val isLockScreenPrivate = true
 
   protected def obtainNotificationBuilder(tpe: EffectType): NotificationCompat.Builder = {
-    // force load `NotificationManager`
-    notifyMgr.areNotificationsEnabled()
+    ensureNotifyMgrInited()
     val builder = new NotificationCompat.Builder(context, (tpe: @unchecked) match {
       case Mute => channelIDMute
       case Sound => channelIDSound
@@ -98,6 +97,23 @@ trait Notifications extends Ctx.Abs {
     }
     builder
   }
+
+  protected def obtainFGroundNotificationBuilder(): NotificationCompat.Builder = {
+    ensureNotifyMgrInited()
+    new NotificationCompat.Builder(context, channelIDForeground)
+      //      .setSmallIcon(smallIconForeground)
+      //      .setContentTitle(contentTitleForeground)
+      //      .setContentIntent(buildContentIntent())
+      //      .setContentText(contentTextForeground)
+      .setAutoCancel(false)
+      .setShowWhen(false)
+      .setPriority(NotificationCompat.PRIORITY_MAX)
+      // Must be set here, only in the channel, does not work. But the phone must be set to slide unlock at least.
+      .setVisibility(NotificationCompat.VISIBILITY_SECRET)
+  }
+
+  private def ensureNotifyMgrInited(): Unit =
+    notifyMgr.areNotificationsEnabled() // Perform an arbitrary method.
 
   private val vibrationPattern = Array[Long](0, 30, 100, 30)
   private val channelIDMute = getApp.withPackageNamePrefix("notify_mute")
@@ -164,21 +180,6 @@ trait Notifications extends Ctx.Abs {
     } else null
   }
 
-  protected def obtainFGroundNotificationBuilder(): NotificationCompat.Builder = {
-    // force load `NotificationManager`
-    notifyMgr.areNotificationsEnabled()
-    new NotificationCompat.Builder(context, channelIDForeground)
-      //      .setSmallIcon(smallIconForeground)
-      //      .setContentTitle(contentTitleForeground)
-      //      .setContentIntent(buildContentIntent())
-      //      .setContentText(contentTextForeground)
-      .setAutoCancel(false)
-      .setShowWhen(false)
-      .setPriority(NotificationCompat.PRIORITY_MAX)
-      // Must be set here, only in the channel, does not work. But the phone must be set to slide unlock at least.
-      .setVisibility(NotificationCompat.VISIBILITY_SECRET)
-  }
-
   private def buildForegroundChannel(): NotificationChannel = {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
       val channel = new NotificationChannel(
@@ -195,7 +196,7 @@ trait Notifications extends Ctx.Abs {
 
 object Notifications {
 
-  sealed class EffectType(val value: Int)
+  sealed class EffectType private[Notifications](val value: Int)
 
   case object Mute extends EffectType(1)
 
