@@ -1,3 +1,4 @@
+// format: off
 enablePlugins(AndroidLib)
 
 name := baseDirectory.value.getName // 意为android assists
@@ -12,7 +13,8 @@ crossScalaVersions := Seq(
   /*"2.11.7", 多余，不需要两个*/
   "2.11.12",
   /*"2.12.2", 有一些编译问题：`the interface is not a direct parent`。*/
-  "2.12.12")
+  "2.12.12"
+)
 
 // 等同于两句：targetSdkVersion, compileSdkVersion
 platformTarget in Android := "android-30"
@@ -41,7 +43,7 @@ libraryDependencies ++= Seq(
   "com.github.dedge-space" % "annoguard" % "1.0.3-beta",
   "com.github.dedge-space" % "annoid" % "df577cc713",
   "com.github.dedge-space" % "scala-lang" % "6e95678f48",
-  "com.github.dedge-space" % "reflow" % "d0efdb4616",
+  "com.github.dedge-space" % "reflow" % "19c9a9db6e",
 
   "com.squareup.okhttp3" % "okhttp" % "4.8.0",
 
