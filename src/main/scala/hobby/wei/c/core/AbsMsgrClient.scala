@@ -149,7 +149,9 @@ trait AbsMsgrClient extends Ctx.Abs with RetryByHandler {
   protected def confirmUnbind(): Boolean = if (connected) {
     connected = false
     w("confirmUnbind | 断开连接 | DONE.")
-    serviceStarter.unReplyToClient(sender, replyTo)
+    if (sender.nonNull && replyTo.nonNull) {
+      serviceStarter.unReplyToClient(sender, replyTo)
+    }
     serviceStarter.unbind(context, serviceConn)
     sender = null
     replyTo = null
