@@ -74,3 +74,11 @@ libraryDependencies ++= Seq(
   // 实际上这里根本没有写任何与`javax.annotation.Nullable`相关的内容。
   "com.google.code.findbugs" % "jsr305" % "3.0.+"
 )
+
+// TODO: 打算用 Slick for Sqlite 替换掉 Quill.
+libraryDependencies ++= Seq(
+  "com.typesafe.slick" %% "slick" % "3.3.2",
+  "org.slf4j" % "slf4j-nop" % "1.6.4",
+  //"com.typesafe.slick" %% "slick-hikaricp" % "3.3.2",
+  "org.sqldroid" % "sqldroid" % "[1.0.3,)"
+)
