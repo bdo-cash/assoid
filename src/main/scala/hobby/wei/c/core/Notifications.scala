@@ -38,13 +38,16 @@ trait Notifications extends Ctx.Abs {
 
   protected def obtainNotificationBuilder(tpe: EffectType): NotificationCompat.Builder = {
     ensureNotifyMgrInited()
-    val builder = new NotificationCompat.Builder(context, (tpe: @unchecked) match {
-      case Mute => channelIDMute
-      case Sound => channelIDSound
-      case Vibration => channelIDVibra
-      case SoundVibra => channelIDSoundVibra
-      case Disabled => throw new IllegalStateException("The args `Disabled` should NEVER be called on this method.") // Won't come to this case.
-    })
+    val builder = new NotificationCompat.Builder(
+      context,
+      (tpe: @unchecked) match {
+        case Mute       => channelIDMute
+        case Sound      => channelIDSound
+        case Vibration  => channelIDVibra
+        case SoundVibra => channelIDSoundVibra
+        case Disabled   => throw new IllegalStateException("The args `Disabled` should NEVER be called on this method.") // Won't come to this case.
+      }
+    )
       //      .setSmallIcon(smallIcon)
       //      .setContentTitle(contentTitle)
       //      .setContentIntent(buildContentIntent())
@@ -75,24 +78,27 @@ trait Notifications extends Ctx.Abs {
     //      builder.setLargeIcon
     //    }
     builder //.setNumber(numMgs)
-      //      .setTicker(contentText)
-      .setLights(lightColor, 1000, 3000)
+//      .setTicker(contentText)
+      .setLights(lightColor, 1000, 3000) // Although set on `channels` already, but only color, not others.
     (tpe: @unchecked) match {
-      case Mute => builder.setDefaults(0)
-      case Sound => builder.setVibrate(Array(0)).setDefaults(NotificationCompat.DEFAULT_SOUND)
-      case Vibration => builder.setVibrate(vibrationPattern).setDefaults(0)
+      case Mute       => builder.setDefaults(0)
+      case Sound      => builder.setVibrate(Array(0)).setDefaults(NotificationCompat.DEFAULT_SOUND)
+      case Vibration  => builder.setVibrate(vibrationPattern).setDefaults(0)
       case SoundVibra => builder.setVibrate(vibrationPattern).setDefaults(NotificationCompat.DEFAULT_SOUND)
     }
     if (isLockScreenPrivate) {
       builder.setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
       // https://developer.android.com/training/notify-user/build-notification?hl=zh_cn#lockscreenNotification
       builder.setPublicVersion(
-        onBuildPublicVersion(new NotificationCompat.Builder(context, (tpe: @unchecked) match {
-          case Mute => channelIDMute
-          case Sound => channelIDSound
-          case Vibration => channelIDVibra
-          case SoundVibra => channelIDSoundVibra
-        })).build()
+        onBuildPublicVersion(new NotificationCompat.Builder(
+          context,
+          (tpe: @unchecked) match {
+            case Mute       => channelIDMute
+            case Sound      => channelIDSound
+            case Vibration  => channelIDVibra
+            case SoundVibra => channelIDSoundVibra
+          }
+        )).build()
       )
     }
     builder
@@ -101,10 +107,10 @@ trait Notifications extends Ctx.Abs {
   protected def obtainFGroundNotificationBuilder(): NotificationCompat.Builder = {
     ensureNotifyMgrInited()
     new NotificationCompat.Builder(context, channelIDForeground)
-      //      .setSmallIcon(smallIconForeground)
-      //      .setContentTitle(contentTitleForeground)
-      //      .setContentIntent(buildContentIntent())
-      //      .setContentText(contentTextForeground)
+//      .setSmallIcon(smallIconForeground)
+//      .setContentTitle(contentTitleForeground)
+//      .setContentIntent(buildContentIntent())
+//      .setContentText(contentTextForeground)
       .setAutoCancel(false)
       .setShowWhen(false)
       .setPriority(NotificationCompat.PRIORITY_MAX)
@@ -112,13 +118,12 @@ trait Notifications extends Ctx.Abs {
       .setVisibility(NotificationCompat.VISIBILITY_SECRET)
   }
 
-  private def ensureNotifyMgrInited(): Unit =
-    notifyMgr.areNotificationsEnabled() // Perform an arbitrary method.
+  private def ensureNotifyMgrInited(): Unit = notifyMgr.areNotificationsEnabled() // Perform an arbitrary method.
 
-  private val vibrationPattern = Array[Long](0, 30, 100, 30)
-  private val channelIDMute = getApp.withPackageNamePrefix("notify_mute")
-  private val channelIDSound = getApp.withPackageNamePrefix("notify_sound")
-  private val channelIDVibra = getApp.withPackageNamePrefix("notify_vibration")
+  private val vibrationPattern    = Array[Long](0, 30, 100, 30)
+  private val channelIDMute       = getApp.withPackageNamePrefix("notify_mute")
+  private val channelIDSound      = getApp.withPackageNamePrefix("notify_sound")
+  private val channelIDVibra      = getApp.withPackageNamePrefix("notify_vibration")
   private val channelIDSoundVibra = getApp.withPackageNamePrefix("notify_sound_vibration")
   private val channelIDForeground = getApp.withPackageNamePrefix("foreground_service")
 
@@ -142,23 +147,24 @@ trait Notifications extends Ctx.Abs {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
       val channel = new NotificationChannel(
         (tpe: @unchecked) match {
-          case Mute => channelIDMute
-          case Sound => channelIDSound
-          case Vibration => channelIDVibra
+          case Mute       => channelIDMute
+          case Sound      => channelIDSound
+          case Vibration  => channelIDVibra
           case SoundVibra => channelIDSoundVibra
-          case Disabled => ??? // Won't come to this case.
-        }, (tpe: @unchecked) match {
-          case Mute => "Mute"
-          case Sound => "Sound"
-          case Vibration => "Vibration"
+          case Disabled   => ??? // Won't come to this case.
+        },
+        (tpe: @unchecked) match {
+          case Mute       => "Mute"
+          case Sound      => "Sound"
+          case Vibration  => "Vibration"
           case SoundVibra => "Sound Vibration"
-          case Disabled => ??? // Won't come to this case.
+          case Disabled   => ??? // Won't come to this case.
         },
         // 如果是 IMPORTANCE_LOW，就会像 toast 一样弹出到屏幕顶部。
         // `紧急/HIGH`才能发出声音。
         tpe match {
           case Mute => NotificationManager.IMPORTANCE_LOW
-          case _ => NotificationManager.IMPORTANCE_HIGH
+          case _    => NotificationManager.IMPORTANCE_HIGH
         }
       )
       channel.setShowBadge(true) // 是否显示通知圆点（App 图标右上角的圆点。如果支持的话）
@@ -166,7 +172,7 @@ trait Notifications extends Ctx.Abs {
       channel.setLightColor(lightColor)
       channel.setLockscreenVisibility(if (isLockScreenPrivate) NotificationCompat.VISIBILITY_PRIVATE else NotificationCompat.VISIBILITY_SECRET)
       (tpe: @unchecked) match {
-        case Mute => channel.enableVibration(false)
+        case Mute  => channel.enableVibration(false)
         case Sound => channel.enableVibration(false)
         case Vibration =>
           channel.enableVibration(true)
@@ -195,27 +201,23 @@ trait Notifications extends Ctx.Abs {
 }
 
 object Notifications {
+  sealed class EffectType private[Notifications] (val value: Int)
 
-  sealed class EffectType private[Notifications](val value: Int)
-
-  case object Mute extends EffectType(1)
-
-  case object Sound extends EffectType(2)
-
-  case object Vibration extends EffectType(3)
-
+  case object Mute       extends EffectType(1)
+  case object Sound      extends EffectType(2)
+  case object Vibration  extends EffectType(3)
   case object SoundVibra extends EffectType(4)
-
-  case object Disabled extends EffectType(0)
+  case object Disabled   extends EffectType(0)
 
   object EffectType {
+
     def apply(value: Int): EffectType = value match {
-      case Disabled.value => Disabled
-      case Mute.value => Mute
-      case Sound.value => Sound
-      case Vibration.value => Vibration
+      case Disabled.value   => Disabled
+      case Mute.value       => Mute
+      case Sound.value      => Sound
+      case Vibration.value  => Vibration
       case SoundVibra.value => SoundVibra
-      case _ => Vibration
+      case _                => Vibration
     }
   }
 
