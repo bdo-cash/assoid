@@ -5,7 +5,7 @@ name := baseDirectory.value.getName // 意为android assists
 
 organization := "hobby.chenai.nakam"
 
-version := "0.3.3-SNAPSHOT"
+version := "1.2.0"
 
 scalaVersion := "2.11.12"
 
@@ -21,7 +21,7 @@ platformTarget in Android := "android-30"
 
 buildToolsVersion in Android := Some("30.0.2")
 
-minSdkVersion in Android := "24"
+minSdkVersion in Android := "26"
 
 //lazy val root = (project in file(".")).dependsOn(project in file("../lang"))
 
@@ -45,28 +45,17 @@ libraryDependencies ++= Seq(
   "com.github.dedge-space" % "scala-lang" % "054cda9f89",
   "com.github.dedge-space" % "reflow" % "b9a625fbac",
 
-  "com.squareup.okhttp3" % "okhttp" % "4.8.0",
+  "com.squareup.okhttp3" % "okhttp" % "[4.8.0,)",
 
   // 使用 sbt Nb 的库。
   "org.scala-sbt" % "io" % "0.13.18",
   // "org.scala-sbt" % "api" % "0.13.18",
 
-  "androidx.constraintlayout" % "constraintlayout" % "1.1.3",
   // 在主工程中加入 `transitiveAndroidLibs in Android := true` 可以解决`Error: more than one xxx "xxx"`的问题。
   "androidx.localbroadcastmanager" % "localbroadcastmanager" % "[1.0.0,)",
   "androidx.appcompat" % "appcompat" % "[1.1.0,)",
   "androidx.recyclerview" % "recyclerview" % "[1.0.0,)",
   "com.j256.ormlite" % "ormlite-android" % "[5.1,)",
-
-  "io.getquill" %% "quill-jdbc" % "[2.5.4,)",
-  // 我们不用这个驱动（不过还是得导入，如果不导入的话，会自动导入一个低版本的）。
-  "org.xerial" % "sqlite-jdbc" % "[3.23.1,)",
-  // 这是基于 android SQLiteDatabase 开发的一个 jdbc 驱动。
-  // "com.fortysevendeg" %% "mvessel-android" % "[0.1,)"
-  // 更新上面`mvessel`库的 Scala 编译版本到`2.11.11`。
-  // 由于是用`jitpack`打包的，首先需要用这样一行触发打包，然后再注掉仅启用下面一行。
-  // "com.github.dedge-space" % "mvessel" % "d91e517998",
-  "com.github.dedge-space.mvessel" %% "mvessel-android" % "d91e517998",
 
   // 由于一个奇葩的编译异常：
   // ... Class javax.annotation.Nullable not found - continuing with a stub.
