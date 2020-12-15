@@ -202,7 +202,7 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
   def getProcessName(pid: Int): Option[String] = {
     var name: Option[String] = None
     breakable {
-      for (info <- getSystemService(Context.ACTIVITY_SERVICE).as[ActivityManager].getRunningAppProcesses.iterator().toSeq if info.pid == pid) {
+      for (info <- getSystemService(classOf[ActivityManager]).getRunningAppProcesses.iterator().toSeq if info.pid == pid) {
         w("[process]id: %s, name: %s.", info.pid, info.processName.s)
         name = Option(info.processName)
         break
@@ -215,7 +215,7 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
 
   def isMyProcessOf(name: String): Boolean = myProcessName.exists(_.endsWith(name))
 
-  def isMainProcess: Boolean = myProcessName.contains(getPackageName)
+  def isMainProcess: Boolean = isMyProcessOf(getPackageName) // myProcessName.contains(getPackageName)
 
   /**
     * 关闭activity. 只可在onActivityDestroy()的内部调用，否则返回值会不准确。
