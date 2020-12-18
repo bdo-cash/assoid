@@ -19,7 +19,7 @@ crossScalaVersions := Seq(
 // 等同于两句：targetSdkVersion, compileSdkVersion
 platformTarget in Android := "android-30"
 
-buildToolsVersion in Android := Some("30.0.2")
+buildToolsVersion in Android := Some("30.0.3")
 
 minSdkVersion in Android := "26"
 
@@ -41,9 +41,9 @@ libraryDependencies ++= Seq(
   // 如果要用 jitpack 打包的话就加上，打完了再注掉。
   // TODO: 独立使用本库的话，应该启用本依赖。
   "com.github.dedge-space" % "annoguard" % "v1.0.5-beta",
-  "com.github.dedge-space" % "annoid" % "69552b366f",
-  "com.github.dedge-space" % "scala-lang" % "917e49748b",
-  "com.github.dedge-space" % "reflow" % "ae142d4bd7",
+  "com.github.dedge-space" % "annoid" % "9dc018cf45",
+  "com.github.dedge-space" % "scala-lang" % "04917192ee",
+  "com.github.dedge-space" % "reflow" % "5f1712df42",
 
   "com.squareup.okhttp3" % "okhttp" % "[4.8.0,)",
 
