@@ -25,7 +25,7 @@ import android.os.{Bundle, Handler, Looper, Process}
 import hobby.chenai.nakam.basis.TAG
 import hobby.chenai.nakam.lang.J2S.{NonNull, WrapIterator}
 import hobby.chenai.nakam.lang.TypeBring.AsIs
-import hobby.chenai.nakam.tool.cache.{Delegate, LazyGet, Memoize, WeakKey}
+import hobby.chenai.nakam.tool.cache.{Delegate, LazyGet, Memoize, Weakey}
 import hobby.wei.c
 import hobby.wei.c.LOG._
 import hobby.wei.c.core.EventHost.{EventReceiver, PeriodMode}
@@ -57,10 +57,9 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
   private lazy val sEventHost_event4Exit = withPackageNamePrefix("GLOBAL_EVENT_4_EXIT")
   private lazy val sEventHost_event4FinishActivities = withPackageNamePrefix("GLOBAL_EVENT_4_FINISH_ACTIVITIES")
   private lazy val sSingleInstances = new TrieMap[String, AnyRef]
-  private lazy val sHandlerMem = new Memoize[Looper, Handler] with WeakKey /*.Sync*/ with LazyGet {
+  private lazy val sHandlerMem = new Memoize[Looper, Handler] with Weakey with LazyGet {
     override protected val delegate = new Delegate[Looper, Handler] {
       override def load(looper: Looper) = Option(new Handler(looper))
-
       override def update(key: Looper, value: Handler) = Option(value)
     }
   }
@@ -81,7 +80,7 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
   implicit def context: Context = this
 
   override def onCreate(): Unit = {
-    // registerActivityLifecycleCallbacks(mActivityLifecycleCallbacks) // 不太可控
+    //registerActivityLifecycleCallbacks(mActivityLifecycleCallbacks) // 不太可控
     hostingGlobalEventReceiver(sEventHost_event4Exit, PeriodMode.START_STOP, mEventReceiver4Exit)
     hostingGlobalEventReceiver(sEventHost_event4FinishActivities, PeriodMode.START_STOP, mEventReceiver4FinishActivities)
     eventDelegator.onStart()
