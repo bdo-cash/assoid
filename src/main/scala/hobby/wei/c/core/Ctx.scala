@@ -71,7 +71,6 @@ object Ctx {
   }
 
   trait Srvce extends AbsSrvce with Abs {
-    implicit def activity: AbsActy = ???
     implicit def context: Context = this
   }
 
