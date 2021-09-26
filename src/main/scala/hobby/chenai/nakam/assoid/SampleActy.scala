@@ -29,7 +29,7 @@ import hobby.wei.c.core.Ctx.%
   * @version 1.0, 11/09/2017
   */
 abstract class SampleActy extends AbsActy with %[AbsApp] with Ctx.Acty with TypedFindView
-  with Keyboard.Acty with EventHost.Acty with TwiceBack with Inject.Acty with ReqCode
+  with Keyboard.Acty with EventHost.Acty with TwiceBack with ReqCode
   with Secure.Acty with PermissionReq.Acty with TAG.ClassName with OnClickListener {
   // 或者：
   // class SampleActy extends AssoidCompat4ActyV7 with TypedFindView {
