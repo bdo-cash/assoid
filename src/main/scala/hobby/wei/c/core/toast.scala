@@ -28,12 +28,20 @@ import hobby.wei.c.core.Ctx.%
   * @version 1.0, 20/06/2018
   */
 object toast extends %[AbsApp] {
-  def apply(s: CharSequence, long: Boolean = false, gravity: Int = -1, xOffset: Int = 0, yOffset: Int = 0)(implicit ctx: Context): Unit = {
+
+  // 现在已经不支持`Gravity`等其它属性，见`Toast.isSystemRenderedTextToast()`。官方推荐使用`Snackbar`代替。
+  def apply(
+    s: CharSequence,
+    long: Boolean = false,
+    @deprecated gravity: Int = -1,
+    @deprecated xOffset: Int = 0,
+    @deprecated yOffset: Int = 0
+  )(implicit ctx: Context): Unit = {
     val runnable = {
       val toast = Toast.makeText(ctx, s, if (long) Toast.LENGTH_LONG else Toast.LENGTH_SHORT)
       if (gravity != -1) toast.setGravity(gravity, xOffset, yOffset)
       toast.show()
-      }.run$
+    }.run$
 
     if (Looper.getMainLooper.isCurrentThread) runnable.run()
     else if (ctx.isInstanceOf[AbsActy]) ctx.as[AbsActy].runOnUiThread(runnable)
