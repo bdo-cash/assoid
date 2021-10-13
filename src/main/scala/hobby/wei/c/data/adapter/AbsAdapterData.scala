@@ -25,7 +25,6 @@ import hobby.chenai.nakam.lang.J2S.NonNull
   * @version 1.0, 17/06/2018
   */
 trait AbsAdapterData[T <: AnyRef] {
-  private lazy val mInflater = LayoutInflater.from(context)
   private var mData: List[T] = Nil
 
   protected def initData(data: List[T]): Unit = if (data.nonNull) mData = data
@@ -64,7 +63,9 @@ trait AbsAdapterData[T <: AnyRef] {
     }
   }
 
-  protected def getInflater: LayoutInflater = mInflater
+  lazy val inflater = LayoutInflater.from(context)
+
+  protected def getInflater: LayoutInflater = inflater
 
   def getData: List[T] = mData
 

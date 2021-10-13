@@ -48,17 +48,32 @@ object DataButt {
 
   /**
     * 用法示例：{{{
-    * class XxxAdapter(context: android.content.Context) extends AbsRecyclerAdapter[XxxVH, String](context) {
-    *   override def onCreateViewHolder(viewGroup: ViewGroup, i: Int) = ???
-    *
-    *   override def onBindViewHolder(vh: XxxVH, i: Int) = ???
+    * class XxxAdapter(context: Context) extends AbsRecyclerAdapter[XxxVH, String](context) {
+    *   override def onCreateViewHolder(parent: ViewGroup, viewType: Int) = new XxxVh(inflater.inflate(R.layout.l_xxx, parent, false))
+    *   override def onBindViewHolder(vh: XxxVh, position: Int): Unit     = vh.setData(getItem(position))
     * }
     *
-    * class XxxVH(item: View) extends RecyclerView.ViewHolder(item) {
+    * @ViewLayoutId(R.layout.l_xxx)
+    * class XxxVh(item: View) extends RecyclerView.ViewHolder(item) {
+    *   def this(context: Context, inflater: LayoutInflater, parent: ViewGroup) {
+    *     this(inflater.inflate(Injector.layoutID(context, classOf[XxxVh]), parent, false))
+    *     //TypedViewHolder.inflate(inflater, TR.layout.l_xxx, parent, attach = false)
+    *     Injector.inject(this, itemView, classOf[XxxVh])
+    *   }
+    *   def setData(item: Any) = ???
     * }
     *
-    * class A extends AbsActy with DataButt.RecyclerV[RecyclerView, String, XxxAdapter] with Ctx.Acty {
+    * @ViewListId(R.id.recycler_view)
+    * class XxxActy extends AbsActy with DataButt.RecyclerV[RecyclerView, String, XxxAdapter] with Ctx.Acty {
     *   override protected def newAdapter() = new XxxAdapter(this)
+    *   protected def onSetupRecyclerView() = {
+    *     val v = this.findViewById(listViewId).asInstanceOf[V]
+    *     v.setLayoutManager(new LinearLayoutManager(implicitly))
+    *     v
+    *     // 或：
+    *     vh.recycler_view.setLayoutManager(new LinearLayoutManager(implicitly))
+    *     vh.recycler_view
+    *   }
     * }
     * }}}
     */
