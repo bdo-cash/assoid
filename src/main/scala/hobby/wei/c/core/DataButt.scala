@@ -48,19 +48,27 @@ object DataButt {
 
   /**
     * 用法示例：{{{
-    * class XxxAdapter(context: Context) extends AbsRecyclerAdapter[XxxVH, String](context) {
-    *   override def onCreateViewHolder(parent: ViewGroup, viewType: Int) = new XxxVh(inflater.inflate(R.layout.l_xxx, parent, false))
-    *   override def onBindViewHolder(vh: XxxVh, position: Int): Unit     = vh.setData(getItem(position))
+    * class XxxAdapter(implicit context: Context) extends AbsRecyclerAdapter[XxxVh, String](context) {
+    *   //override def getItemViewType(position: Int) = super.getItemViewType(position) // 下一行的`viewType`。
+    *   override def onCreateViewHolder(parent: ViewGroup, viewType: Int) = viewType match {
+    *     case _ => new XxxVh(inflater, parent)
+    *   }
+    *   override def onBindViewHolder(vh: XxxVh, position: Int): Unit = vh.setData(getItem(position))
     * }
     *
     * @ViewLayoutId(R.layout.l_xxx)
     * class XxxVh(item: View) extends RecyclerView.ViewHolder(item) {
-    *   def this(context: Context, inflater: LayoutInflater, parent: ViewGroup) {
+    *   @ViewId(value = R.id.text_title, visibility = View.VISIBLE)
+    *   var title: TextView = _
+    *   def this(inflater: LayoutInflater, parent: ViewGroup)(implicit context: Context) {
     *     this(inflater.inflate(Injector.layoutID(context, classOf[XxxVh]), parent, false))
     *     //TypedViewHolder.inflate(inflater, TR.layout.l_xxx, parent, attach = false)
     *     Injector.inject(this, itemView, classOf[XxxVh])
     *   }
-    *   def setData(item: Any) = ???
+    *   def setData(item: ???) {
+    *     title.setText(item.xxx)
+    *     ???
+    *   }
     * }
     *
     * @ViewListId(R.id.recycler_view)
