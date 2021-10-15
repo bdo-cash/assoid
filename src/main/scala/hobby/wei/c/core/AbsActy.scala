@@ -28,6 +28,8 @@ import hobby.wei.c.Const
   * @version 1.1, 17/11/2017, 重构旧代码。
   */
 abstract class AbsActy extends AppCompatActivity {
+  def intent = getIntent
+
   override protected def onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
     super.onActivityResult(requestCode, resultCode, data)
     //退出应用，无论是否退出，都应该首先执行上面的代码，确保数据不丢失
