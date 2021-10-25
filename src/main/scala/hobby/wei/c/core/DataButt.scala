@@ -28,9 +28,11 @@ import hobby.wei.c.data.adapter.{AbsListAdapter, AbsRecyclerAdapter}
   * @version 1.0, 16/06/2018
   */
 object DataButt {
+
   trait AdapterV[V <: AdapterView[_ >: AbsListAdapter[D] <: Adapter], D <: AnyRef, A <: AbsListAdapter[D]] extends Ctx.Abs {
-    protected lazy val listView: V = onSetupListView()
-    protected final lazy val listAdapter: A = {
+    final lazy val listView: V = onSetupListView()
+
+    final lazy val listAdapter: A = {
       val adapter = newAdapter()
       // 不要重复调用setAdapter(), 否则会滚动到开头，而最好的办法就是在创建的时候set。
       listView.setAdapter(adapter)
@@ -86,8 +88,9 @@ object DataButt {
     * }}}
     */
   trait RecyclerV[V <: RecyclerView, D <: AnyRef, A <: AbsRecyclerAdapter[_ <: RecyclerView.ViewHolder, D]] extends Ctx.Abs {
-    protected lazy val recyclerView: V = onSetupRecyclerView()
-    protected final lazy val vhAdapter: A = {
+    final lazy val recyclerView: V = onSetupRecyclerView()
+
+    final lazy val vhAdapter: A = {
       val adapter = newAdapter()
       recyclerView.setAdapter(adapter)
       adapter
