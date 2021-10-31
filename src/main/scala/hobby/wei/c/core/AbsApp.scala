@@ -16,9 +16,6 @@
 
 package hobby.wei.c.core
 
-import java.lang.ref.WeakReference
-import java.util
-import java.util.concurrent.atomic.AtomicBoolean
 import android.app.{ActivityManager, Application}
 import android.content.Context
 import android.os.{Bundle, Handler, Looper, Process}
@@ -30,7 +27,9 @@ import hobby.wei.c
 import hobby.wei.c.LOG._
 import hobby.wei.c.core.EventHost.{EventReceiver, PeriodMode}
 import hobby.wei.c.used.UsedStorer
-
+import java.lang.ref.WeakReference
+import java.util
+import java.util.concurrent.atomic.AtomicBoolean
 import scala.collection.JavaConversions.asScalaBuffer
 import scala.collection.concurrent.TrieMap
 import scala.language.implicitConversions
@@ -41,7 +40,7 @@ import scala.util.control.Breaks._
   * @version 1.1, 17/11/2017, 重构旧代码。
   */
 object AbsApp {
-  private var sInstance: AbsApp = _
+  @volatile private var sInstance: AbsApp = _
 
   def get[A <: AbsApp]: A = sInstance.ensuring(_.nonNull).as[A]
 }
@@ -51,15 +50,17 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
   CrashHandler.startCaughtAllException(false, true)
   AbsApp.sInstance = this
 
-  private lazy val mForceExit = new AtomicBoolean(false)
-  private lazy val sEventHost_bundle_pid = "pid"
-  private lazy val sEventHost_bundle_activities = "activities"
-  private lazy val sEventHost_event4Exit = withPackageNamePrefix("GLOBAL_EVENT_4_EXIT")
+  private lazy val mForceExit                        = new AtomicBoolean(false)
+  private lazy val sEventHost_bundle_pid             = "pid"
+  private lazy val sEventHost_bundle_activities      = "activities"
+  private lazy val sEventHost_event4Exit             = withPackageNamePrefix("GLOBAL_EVENT_4_EXIT")
   private lazy val sEventHost_event4FinishActivities = withPackageNamePrefix("GLOBAL_EVENT_4_FINISH_ACTIVITIES")
-  private lazy val sSingleInstances = new TrieMap[String, AnyRef]
+  private lazy val sSingleInstances                  = new TrieMap[String, AnyRef]
+
   private lazy val sHandlerMem = new Memoize[Looper, Handler] with Weakey with LazyGet {
+
     override protected val delegate = new Delegate[Looper, Handler] {
-      override def load(looper: Looper) = Option(new Handler(looper))
+      override def load(looper: Looper)                = Option(new Handler(looper))
       override def update(key: Looper, value: Handler) = Option(value)
     }
   }
@@ -105,15 +106,18 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
 
   //////////////////////////////////////////////////////////////////////////////////////////
   private val mEventReceiver4Exit = new EventReceiver {
+
     override def onEvent(data: Bundle): Unit = {
-      e("跨进程 exit(), process: %s.", myProcessName)
+      e("Cross-process exit(), process: %s.", myProcessName)
       exit()
     }
   }
+
   private val mEventReceiver4FinishActivities = new EventReceiver {
+
     override def onEvent(data: Bundle): Unit = if (data.getInt(sEventHost_bundle_pid) != Process.myPid()) {
       val activities = data.getStringArray(sEventHost_bundle_activities)
-      e("跨进程 finish activities. process: %s, activities: %s.", myProcessName, activities.mkString("\n").s)
+      e("Cross-process finish activities. process: %s, activities: %s.", myProcessName, activities.mkString("\n").s)
       finishActivitiesInner(activities.map(Class.forName(_).as[Class[AbsActy]]): _*)
     }
   }
@@ -129,9 +133,9 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
   private def finishActivitiesInner(actyClasses: Class[_ <: AbsActy]*): Unit = {
     for (clazz <- actyClasses; ref <- mActivitieStack.toSeq) {
       Option(ref.get).foreach { acty =>
-        w("[finishActies]acty: %s.", acty.getClass.getSimpleName.s)
+        w("[finishActivitiesInner]acty: %s.", acty.getClass.getSimpleName.s)
         if (clazz.isAssignableFrom(acty.getClass) && acty.getClass.isAssignableFrom(clazz)) {
-          w("[finishActies]----finish: %s.", acty.getClass.getSimpleName.s)
+          w("[finishActivitiesInner]finish: %s.", acty.getClass.getSimpleName.s)
           acty.finish()
         }
       }
@@ -156,8 +160,8 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
 
   def isExiting = mForceExit.get()
 
-  //没有意义，已经退出了的话，没人会调用本方法
-  // def isExited = hasNoMoreActivities()
+  // 没有意义，已经退出了的话，没人会调用本方法。
+  //def isExited = hasNoMoreActivities()
 
   private[core] def onActivityCreated(acty: AbsActy): Unit = mActivitieStack.push(new WeakReference[AbsActy](acty))
 
@@ -184,16 +188,17 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
       checkCallingOrSelfPermission(android.Manifest.permission.KILL_BACKGROUND_PROCESSES) == PackageManager.PERMISSION_GRANTED) {
     // 只会对后台进程起作用，当本App最后一个Activity.onDestroy()的时候也会起作用，并且是立即起作用，即本语句后面的语句将不会执行。
     getSystemService(Context.ACTIVITY_SERVICE).as[ActivityManager].killBackgroundProcesses(getPackageName)
-    */
+     */
+    // TODO: 在 android 12 上有问题。初步判断是 activity 返回时没有 finish，或生命周期的执行逻辑改变了。待测试修复…
     if (hasNoMoreActivities && hasNoMoreServices) {
       if (shouldKill(myProcessName)) {
         onKill(myProcessName)
-        e("@@@@@@@@@@----[应用退出]----[将]自动结束进程（设置项）: %s。", myProcessName.orNull.s)
+        e("[doExit]--- @@@@ ---| App 退出 |---- [将]自动结束进程（设置项）----| process: %s.", myProcessName.orNull.s)
         Process.killProcess(Process.myPid())
-        e("@@@@@@@@@@----[应用退出]---走不到这里来。")
+        e("[doExit]--- @@@@ ---| App 退出 |---- 走不到这里来。")
       } else {
         mForceExit.set(false)
-        w("@@@@@@@@@@----[应用退出]---[未]自动结束进程: %s。", myProcessName.orNull.s)
+        d("[doExit]--- @@@@ ---| App 退出 |---- [未]自动结束进程 ----| process: %s.", myProcessName.orNull.s)
       }
     }
   }
@@ -223,8 +228,8 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
     */
   private def finishActivities: Boolean = {
     var actyRef: WeakReference[_ <: AbsActy] = null
-    var refActy: AbsActy = null
-    var result = false
+    var refActy: AbsActy                     = null
+    var result                               = false
     breakable {
       while (mActivitieStack.size() > 0) {
         actyRef = mActivitieStack.peek()
@@ -261,8 +266,8 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
 
   private def cleanCollOrDeleteActy(acty: AbsActy): Unit = {
     var ref: WeakReference[_ <: AbsActy] = null
-    var ins: AbsActy = null
-    var i = 0
+    var ins: AbsActy                     = null
+    var i: Int                           = 0
     while (i < mActivitieStack.size()) {
       ref = mActivitieStack.get(i)
       ins = ref.get()
@@ -294,5 +299,5 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
     */
   //private final WeakHashMap<AbsActy, Object> mActivities = new WeakHashMap<AbsActy, Object>();
   private val mActivitieStack = new util.Stack[WeakReference[_ <: AbsActy]]
-  private val mServiceSet = new util.WeakHashMap[AbsSrvce, AbsApp]
+  private val mServiceSet     = new util.WeakHashMap[AbsSrvce, AbsApp]
 }
