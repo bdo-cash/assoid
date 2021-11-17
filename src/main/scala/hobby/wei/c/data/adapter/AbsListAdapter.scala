@@ -22,13 +22,11 @@ import android.widget.BaseAdapter
 /**
   * @author Wei Chou(weichou2010@gmail.com)
   */
-abstract class AbsListAdapter[T <: AnyRef](override val context: Context, data: List[T] = Nil)
-  extends BaseAdapter with AbsAdapterData[T] {
+abstract class AbsListAdapter[T <: AnyRef](override val context: Context, data: List[T] = Nil) extends BaseAdapter with AbsAdapterData[T] {
   initData(data)
 
   override protected def onDataSourceChanged(): Unit = notifyDataSetChanged()
 
   override protected def onDataItemRangeInserted(positionStart: Int, itemCount: Int): Unit = notifyDataSetChanged()
-
-  override protected def onDataItemRangeRemoved(positionStart: Int, itemCount: Int): Unit = notifyDataSetChanged()
+  override protected def onDataItemRangeRemoved(positionStart: Int, itemCount: Int): Unit  = notifyDataSetChanged()
 }

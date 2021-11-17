@@ -23,15 +23,14 @@ import androidx.recyclerview.widget.RecyclerView
   * @author Chenai Nakam(chenai.nakam@gmail.com)
   * @version 1.0, 17/06/2018
   */
-abstract class AbsRecyclerAdapter[VH <: RecyclerView.ViewHolder, T <: AnyRef](override val context: Context, data: List[T] = Nil)
-  extends RecyclerView.Adapter[VH] with AbsAdapterData[T] {
+abstract class AbsRecyclerAdapter[VH <: RecyclerView.ViewHolder, T <: AnyRef](override val context: Context, data: List[T] = Nil) extends RecyclerView.Adapter[VH] with AbsAdapterData[T] {
   initData(data)
 
   override protected def onDataSourceChanged(): Unit = notifyDataSetChanged()
 
   override protected def onDataItemRangeInserted(positionStart: Int, itemCount: Int): Unit = notifyItemRangeInserted(positionStart, itemCount)
-
-  override protected def onDataItemRangeRemoved(positionStart: Int, itemCount: Int): Unit = notifyItemRangeRemoved(positionStart, itemCount)
+  override protected def onDataItemRangeRemoved(positionStart: Int, itemCount: Int): Unit  = notifyItemRangeRemoved(positionStart, itemCount)
 
   override def getItemId(position: Int) = super.getItemId(position)
+  override def getItemCount             = getCount
 }

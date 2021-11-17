@@ -69,9 +69,10 @@ trait AbsAdapterData[T <: AnyRef] {
 
   def getData: List[T] = mData
 
-  def getCount: Int = getItemCount
+  def getCount: Int = mData.size
 
-  def getItemCount = mData.size
+  // 与`ExpandableAdapter`里的实现相冲突：`final`。
+  //def getItemCount = mData.size
 
   def getItem(position: Int): T = mData(position)
 
