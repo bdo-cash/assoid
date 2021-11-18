@@ -27,6 +27,9 @@ object UiUtils {
       val lp = view.getLayoutParams.as[LP]; block(lp); view.setLayoutParams(lp)
     }
   }
+  implicit class ViewGroupImplicit(view: ViewGroup) {
+    def children = for (i <- 0 until view.getChildCount) yield view.getChildAt(i)
+  }
 
   def dp2px(context: Context, value: Float): Float =
     TypedValue.applyDimension(
