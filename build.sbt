@@ -41,9 +41,9 @@ libraryDependencies ++= Seq(
   // 如果要用 jitpack 打包的话就加上，打完了再注掉。
   // TODO: 独立使用本库的话，应该启用本依赖。
   "com.github.dedge-space" % "annoguard" % "v1.0.5-beta",
-  "com.github.dedge-space" % "annoid" % "94d14c7692",
-  "com.github.dedge-space" % "scala-lang" % "15e0ab6a79",
-  "com.github.dedge-space" % "reflow" % "685aef9e7c",
+  "com.github.dedge-space" % "annoid" % "cd396169a7",
+  "com.github.dedge-space" % "scala-lang" % "0ec8e55a92",
+  "com.github.dedge-space" % "reflow" % "4aec4fb913",
 
   "com.squareup.okhttp3" % "okhttp" % "[4.8.0,)",
 
