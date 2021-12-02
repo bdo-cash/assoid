@@ -32,10 +32,9 @@ trait AbsAdapterData[T <: AnyRef] {
   protected def context: Context
 
   protected def onDataSourceChanged(): Unit
-
   protected def onDataItemRangeInserted(positionStart: Int, itemCount: Int): Unit
-
   protected def onDataItemRangeRemoved(positionStart: Int, itemCount: Int): Unit
+  protected def onDataItemRangeReplaced(positionStart: Int, itemCount: Int): Unit
 
   def setDataSource(data: List[T]): Unit = {
     initData(data)
@@ -60,6 +59,14 @@ trait AbsAdapterData[T <: AnyRef] {
     if (count > 0) {
       mData = mData.take(positionStart) ::: mData.drop(positionStart + count)
       onDataItemRangeRemoved(positionStart, count)
+    }
+  }
+
+  def replaceData(positionStart: Int, items: T*): Unit = {
+    if (positionStart >= mData.size) appendData(items: _*)
+    else {
+      mData = mData.take(positionStart) ::: items.toList ::: mData.drop(positionStart + items.size)
+      onDataItemRangeReplaced(positionStart, items.size)
     }
   }
 

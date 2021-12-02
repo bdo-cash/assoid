@@ -29,4 +29,5 @@ abstract class AbsListAdapter[T <: AnyRef](override val context: Context, data: 
 
   override protected def onDataItemRangeInserted(positionStart: Int, itemCount: Int): Unit = notifyDataSetChanged()
   override protected def onDataItemRangeRemoved(positionStart: Int, itemCount: Int): Unit  = notifyDataSetChanged()
+  override protected def onDataItemRangeReplaced(positionStart: Int, itemCount: Int): Unit = notifyDataSetChanged()
 }

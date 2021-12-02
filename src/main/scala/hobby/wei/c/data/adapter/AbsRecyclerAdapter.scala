@@ -30,6 +30,7 @@ abstract class AbsRecyclerAdapter[VH <: RecyclerView.ViewHolder, T <: AnyRef](ov
 
   override protected def onDataItemRangeInserted(positionStart: Int, itemCount: Int): Unit = notifyItemRangeInserted(positionStart, itemCount)
   override protected def onDataItemRangeRemoved(positionStart: Int, itemCount: Int): Unit  = notifyItemRangeRemoved(positionStart, itemCount)
+  override protected def onDataItemRangeReplaced(positionStart: Int, itemCount: Int): Unit = notifyItemRangeChanged(positionStart, itemCount)
 
   override def getItemId(position: Int) = super.getItemId(position)
   override def getItemCount             = getCount
