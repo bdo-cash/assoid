@@ -147,7 +147,7 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
     */
   def exit(): Unit = if (!mForceExit.getAndSet(true)) post {
     sendGlobalEvent(sEventHost_event4Exit, null)
-    finishActivities
+    finishActivities()
   }
 
   /** 是否是第一次启动某模块。 */
@@ -167,8 +167,8 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
 
   private[core] def onActivityDestroyed(acty: AbsActy): Boolean = {
     cleanCollOrDeleteActy(acty)
-    if (mForceExit.get) finishActivities
-    val exit = isCurrentTheLastActivityToExit(acty)
+    if (mForceExit.get) finishActivities()
+    val exit = isCurrTheLastActyToExit(acty)
     if (exit) post(doExit())
     exit
   }
@@ -221,15 +221,9 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
 
   def isMainProcess: Boolean = isMyProcessOf(getPackageName) // myProcessName.contains(getPackageName)
 
-  /**
-    * 关闭activity. 只可在onActivityDestroy()的内部调用，否则返回值会不准确。
-    *
-    * @return true 表示已经全部关闭完，false 表示还没有关闭完。
-    */
-  private def finishActivities: Boolean = {
+  private def finishActivities(): Unit = {
     var actyRef: WeakReference[_ <: AbsActy] = null
     var refActy: AbsActy                     = null
-    var result                               = false
     breakable {
       while (mActivitieStack.size() > 0) {
         actyRef = mActivitieStack.peek()
@@ -237,9 +231,9 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
         if (refActy.isNull) {
           mActivitieStack.remove(actyRef)
         } else {
-          if (refActy.isFinishing) { //isFinishing表示是否调用过finish()
-            //调用过finish()，则等待在onActivityDestroy()移除（都在UI线程，理论上不会有问题），
-            //这里移除会导致同时进行多个finish()，并且size()不准确。
+          if (refActy.isFinishing) { // 是否调用过`finish()`。
+            // 这里表示调用过，那么等待回调上面的`onActivityDestroy()`，进而调用`cleanCollOrDeleteActy(acty)`移除（都在 UI 线程，逻辑上不会有问题），
+            // 如果此时在这里移除，会导致同时进行多个`finish()`，并且`size()`不准确。
             //mActivitieStack.remove(actyRef);
           } else {
             refActy.finish() //（现在情况不一样了-->）不能直接finish(), 否则被系统销毁的Activity重建之后可能不会被finish。
@@ -247,9 +241,7 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
           break
         }
       }
-      result = true
     }
-    result
   }
 
   /**
@@ -257,11 +249,13 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
     *
     * @return 当前是不是最后一个正在关闭的Activity。
     */
-  private def isCurrentTheLastActivityToExit(acty: AbsActy): Boolean = hasNoMoreActivities
+  private def isCurrTheLastActyToExit(acty: AbsActy): Boolean = hasNoMoreActivities
 
   private def hasNoMoreActivities: Boolean = {
     cleanCollOrDeleteActy(null)
-    mActivitieStack.isEmpty
+    val b = mActivitieStack.isEmpty
+    i("[hasNoMoreActivities]noMore:%s.", b)
+    b
   }
 
   private def cleanCollOrDeleteActy(acty: AbsActy): Unit = {
