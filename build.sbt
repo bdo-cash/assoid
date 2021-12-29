@@ -43,7 +43,7 @@ libraryDependencies ++= Seq(
   "com.github.dedge-space" % "annoguard" % "v1.0.5-beta",
   "com.github.dedge-space" % "annoid" % "af2b53cfce",
   "com.github.dedge-space" % "scala-lang" % "253dc64cf9",
-  "com.github.dedge-space" % "reflow" % "a84c946358",
+  "com.github.dedge-space" % "reflow" % "v3.0.2",
 
   "com.squareup.okhttp3" % "okhttp" % "[4.8.0,)",
 
