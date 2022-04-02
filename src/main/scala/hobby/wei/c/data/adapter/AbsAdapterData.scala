@@ -27,7 +27,7 @@ import hobby.chenai.nakam.lang.J2S.NonNull
 trait AbsAdapterData[T <: AnyRef] {
   private var mData: List[T] = Nil
 
-  protected def initData(data: List[T]): Unit = if (data.nonNull) mData = data
+  protected def initData(data: List[T]): Unit = mData = if (data.isNull) Nil else data
 
   protected def context: Context
 
@@ -44,6 +44,7 @@ trait AbsAdapterData[T <: AnyRef] {
   def appendData(items: T*): Unit = insertData(mData.size, items: _*)
 
   def insertData(positionStart: Int, items: T*): Unit = {
+    if (items.isEmpty) return
     val start = positionStart min mData.size
     if (start >= mData.size) {
       mData = mData ::: items.toList
@@ -63,6 +64,7 @@ trait AbsAdapterData[T <: AnyRef] {
   }
 
   def replaceData(positionStart: Int, items: T*): Unit = {
+    if (items.isEmpty) return
     if (positionStart >= mData.size) appendData(items: _*)
     else {
       mData = mData.take(positionStart) ::: items.toList ::: mData.drop(positionStart + items.size)
