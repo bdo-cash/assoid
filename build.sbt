@@ -49,13 +49,13 @@ libraryDependencies ++= Seq(
 
   // 使用 sbt Nb 的库。
   "org.scala-sbt" % "io" % "0.13.18",
-  // "org.scala-sbt" % "api" % "0.13.18",
+  //"org.scala-sbt" % "api" % "0.13.18",
 
   // 在主工程中加入 `transitiveAndroidLibs in Android := true` 可以解决`Error: more than one xxx "xxx"`的问题。
   "androidx.localbroadcastmanager" % "localbroadcastmanager" % "[1.0.0,)",
   "androidx.appcompat" % "appcompat" % "[1.1.0,)",
   "androidx.recyclerview" % "recyclerview" % "[1.0.0,)",
-  "com.j256.ormlite" % "ormlite-android" % "[5.1,)",
+  //"com.j256.ormlite" % "ormlite-android" % "[5.1,)",
 
   // 由于一个奇葩的编译异常：
   // ... Class javax.annotation.Nullable not found - continuing with a stub.
@@ -67,7 +67,8 @@ libraryDependencies ++= Seq(
 // TODO: 打算用 Slick for Sqlite 替换掉 Quill.
 libraryDependencies ++= Seq(
   "com.typesafe.slick" %% "slick" % "3.3.2",
-  "org.slf4j" % "slf4j-nop" % "1.6.4",
+  // slf4j-android（bitcoinj 需要）里含有 slf4j-nop 的所有 3 个 class（混淆时，由于重复报错）。
+  //"org.slf4j" % "slf4j-nop" % "1.6.4",
   //"com.typesafe.slick" %% "slick-hikaricp" % "3.3.2",
   "org.sqldroid" % "sqldroid" % "[1.0.3,)"
 )
