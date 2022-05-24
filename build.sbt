@@ -41,9 +41,9 @@ libraryDependencies ++= Seq(
   // 如果要用 jitpack 打包的话就加上，打完了再注掉。
   // TODO: 独立使用本库的话，应该启用本依赖。
   "com.github.bdo-cash" % "annoguard" % "v1.0.5-beta",
-  "com.github.bdo-cash" % "annoid" % "5ae69f8621",
-  "com.github.bdo-cash" % "scala-lang" % "85bb56cc3d",
-  "com.github.bdo-cash" % "reflow" % "495818941e",
+  "com.github.bdo-cash" % "annoid" % "af2b53cfce",
+  "com.github.bdo-cash" % "scala-lang" % "138bff0c11",
+  "com.github.bdo-cash" % "reflow" % "39898f86e5",
 
   "com.squareup.okhttp3" % "okhttp" % "[4.8.0,)",
 
