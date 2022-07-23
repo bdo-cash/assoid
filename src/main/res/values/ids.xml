@@ -5,4 +5,5 @@
     <item name="view_tree_lifecycle_owner" type="id" />
     <item name="view_tree_saved_state_registry_owner" type="id" />
     <item name="view_tree_view_model_store_owner" type="id" />
+    <item name="view_tree_on_back_pressed_dispatcher_owner" type="id" />
 </resources>
