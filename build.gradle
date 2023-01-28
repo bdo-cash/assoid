@@ -1,0 +1,51 @@
+plugins {
+    id 'com.android.library'
+    id 'kotlin-android' //'org.jetbrains.kotlin.android'
+    id 'cash.bdo.scalroid'
+}
+
+group = 'hobby.chenai.nakam'
+version = '1.2.0'
+
+ext.isReleaseVersion = !version.endsWith('SNAPSHOT')
+
+android {
+    scalroid {
+//        scala.zincVersion.set('1.6.1')
+//        scalaCodeReferToKt = true
+//        ktCodeReferToScala = true
+//        javaDirsExcludes = ['/main/kotlin/', 'src/aaa/xxx']
+    }
+
+    namespace 'hobby.chenai.nakam.assoid'
+    compileSdk rootProject.ext.android.compileSdk // 33
+
+    defaultConfig {
+        minSdk rootProject.ext.android.minSdk // 26
+        targetSdk rootProject.ext.android.targetSdk // 33
+    }
+}
+
+dependencies {
+    api rootProject.ext.depends.annoguard
+    api rootProject.ext.depends.annoid
+    api rootProject.ext.depends.reflow
+    api rootProject.ext.depends.scalang
+
+    api rootProject.ext.depends.okhttp
+
+    api rootProject.ext.depends.localbroadcastmgr
+    api rootProject.ext.depends.appcompat
+    api rootProject.ext.depends.recyclerview
+    //api "com.google.code.findbugs:jsr305:3.0.+"
+
+    // Scala 2
+    implementation "org.scala-lang:scala-library:$scala2.Version"
+
+    // TODO: 打算用 Slick for Sqlite 替换掉 Quill.
+    api "com.typesafe.slick:slick_$scala2.Binary:[3.3.2,)"
+    // slf4j-android（bitcoinj 需要）里含有 slf4j-nop 的所有 3 个 class（混淆时，由于重复报错）。
+    //"org.slf4j" % "slf4j-nop" % "1.6.4",
+    //"com.typesafe.slick" %% "slick-hikaricp" % "3.3.2",
+    api "org.sqldroid:sqldroid:[1.0.3,)"
+}
