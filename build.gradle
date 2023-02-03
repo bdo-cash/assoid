@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'hobby.chenai.nakam'
-version = '1.2.0'
+version = '1.2.1'
 
 ext.isReleaseVersion = !version.endsWith('SNAPSHOT')
 
@@ -27,17 +27,18 @@ android {
 }
 
 dependencies {
-    api rootProject.ext.depends.annoguard
-    api rootProject.ext.depends.annoid
-    api rootProject.ext.depends.reflow
-    api rootProject.ext.depends.scalang
+    api project(':annoid')
+//    api project(path: ':annoid', configuration: 'releaseRuntimeElements')
+    api 'com.github.bdo-cash:annoguard:v1.0.6'
+    api 'com.github.bdo-cash:reflow:cb8de74e42'
+    api 'com.github.bdo-cash:scala-lang:ccf5b69c86'
 
-    api rootProject.ext.depends.okhttp
+    api 'androidx.appcompat:appcompat:1.5.0'
+    api 'androidx.recyclerview:recyclerview:1.2.1'
+    api 'androidx.localbroadcastmanager:localbroadcastmanager:[1.0.0,)'
 
-    api rootProject.ext.depends.localbroadcastmgr
-    api rootProject.ext.depends.appcompat
-    api rootProject.ext.depends.recyclerview
-    //api "com.google.code.findbugs:jsr305:3.0.+"
+    api 'com.squareup.okhttp3:okhttp:4.10.0'
+    //api 'com.google.code.findbugs:jsr305:3.0.+'
 
     // Scala 2
     implementation "org.scala-lang:scala-library:$scala2.Version"

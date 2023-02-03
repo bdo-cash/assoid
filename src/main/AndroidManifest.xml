@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="hobby.chenai.nakam.assoid">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application>
         <!-- android:exported 当前`provider`是否可以被其它`App`使用。-->

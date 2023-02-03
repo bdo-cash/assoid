@@ -16,14 +16,13 @@
 
 package hobby.wei.c.remote
 
-import java.io.IOException
+import java.io.{File, IOException}
 import hobby.chenai.nakam.basis.TAG
 import hobby.chenai.nakam.lang.J2S.NonNull
 import hobby.wei.c.core.AbsApp
 import hobby.wei.c.file.FStoreLoc
 import hobby.wei.c.LOG
 import okhttp3._
-import sbt.Path._
 
 /**
   * @author Chenai Nakam(chenai.nakam@gmail.com)
@@ -57,8 +56,8 @@ object NetAces {
 
       def withCached(maxCacheSize: Int = 10 * 1024 * 1024 /*10 MB*/): Client.type = {
         builder.cache(
-          new Cache(FStoreLoc.SURVIVE.getCacheDir(AbsApp.get,
-            FStoreLoc.DirLevel.PRIVATE) / classOf[Cache].getName.toLowerCase,
+          new Cache(new File(FStoreLoc.SURVIVE.getCacheDir(AbsApp.get,
+            FStoreLoc.DirLevel.PRIVATE), classOf[Cache].getName.toLowerCase),
             maxCacheSize)
         )
         this
