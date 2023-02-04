@@ -30,8 +30,8 @@ import hobby.wei.c.used.UsedStorer
 import java.lang.ref.WeakReference
 import java.util
 import java.util.concurrent.atomic.AtomicBoolean
-import scala.collection.JavaConversions.asScalaBuffer
 import scala.collection.concurrent.TrieMap
+import scala.collection.convert.ImplicitConversions.`iterable AsScalaIterable`
 import scala.language.implicitConversions
 import scala.util.control.Breaks._
 

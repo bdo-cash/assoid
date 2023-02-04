@@ -28,16 +28,18 @@ android {
 
 dependencies {
     api rootProject.ext.depends.annoguard
-    api rootProject.ext.depends.annoid
+//    api rootProject.ext.depends.annoid
+    api project(':annoid')
     api rootProject.ext.depends.reflow
     api rootProject.ext.depends.scalang
-
-    api rootProject.ext.depends.okhttp
 
     api rootProject.ext.depends.localbroadcastmgr
     api rootProject.ext.depends.appcompat
     api rootProject.ext.depends.recyclerview
-    //api "com.google.code.findbugs:jsr305:3.0.+"
+    api rootProject.ext.depends.localbroadcastmgr
+
+    api rootProject.ext.depends.okhttp
+    //api 'com.google.code.findbugs:jsr305:3.0.+'
 
     // Scala 2
     implementation "org.scala-lang:scala-library:$scala2.Version"

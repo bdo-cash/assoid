@@ -28,7 +28,7 @@ import hobby.wei.c.core.Ctx.%
   * @author Chenai Nakam(chenai.nakam@gmail.com)
   * @version 1.0, 11/09/2017
   */
-abstract class SampleActy extends AbsActy with %[AbsApp] with Ctx.Acty with TypedFindView
+abstract class SampleActy extends AbsActy with %[AbsApp] with Ctx.Acty// with TypedFindView
   with Keyboard.Acty with EventHost.Acty with TwiceBack with ReqCode
   with Secure.Acty with PermissionReq.Acty with TAG.ClassName with OnClickListener {
   // 或者：
@@ -37,8 +37,7 @@ abstract class SampleActy extends AbsActy with %[AbsApp] with Ctx.Acty with Type
   override def onCreate(savedInstanceState: Bundle): Unit = {
     super.onCreate(savedInstanceState)
 
-    TypedViewHolder.setContentView(this, TR.layout.sample)
-
-    findView(TR.l).getLayoutParams
+//    TypedViewHolder.setContentView(this, TR.layout.sample)
+//    findView(TR.l).getLayoutParams
   }
 }
