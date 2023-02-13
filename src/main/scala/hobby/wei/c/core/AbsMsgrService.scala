@@ -20,7 +20,7 @@ import android.content.Intent
 import android.database.Observable
 import android.content.Context
 import android.os
-import android.os.{HandlerThread, Messenger,_}
+import android.os.{HandlerThread, Messenger, _}
 import androidx.core.app.ServiceCompat
 import androidx.core.app.ServiceCompat.StopForegroundFlags
 import hobby.chenai.nakam.basis.TAG
@@ -29,8 +29,7 @@ import hobby.wei.c.LOG._
 import hobby.wei.c.core.AbsMsgrService._
 import hobby.wei.c.core.StartMe.MsgrSrvce.Const
 import hobby.wei.c.tool.RetryByHandler
-
-import scala.collection.convert.WrapAsScala.asScalaBuffer
+import scala.collection.convert.ImplicitConversions.`collection AsScalaIterable`
 import scala.ref.WeakReference
 
 /**

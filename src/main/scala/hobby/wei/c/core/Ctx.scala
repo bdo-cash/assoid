@@ -42,8 +42,8 @@ object Ctx {
 
   trait AbsUi extends Abs {
     implicit def activity: AbsActy
-    implicit def context: Context
-    implicit def window: Window = activity.getWindow
+    implicit def context: Context = activity
+    implicit def window: Window   = activity.getWindow
 
     def runOnUiThread(f: => Any): Unit = activity.runOnUiThread(f.run$)
 
@@ -76,7 +76,6 @@ object Ctx {
 
   trait Acty extends AbsActy with AbsUi {
     override implicit def activity: AbsActy = this
-    override implicit def context: Context = this
   }
 
   trait Fragmt extends Fragment with AbsUi {
@@ -84,7 +83,7 @@ object Ctx {
 
     // 由于 Activity 在 Fragment 的生命周期中，可能会重建。所以不能定义为 val。
     override implicit def activity: AbsActy = getActivity.as[AbsActy].ensuring(_.nonNull, msg)
-    override implicit def context: Context = (if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) activity else getContext).ensuring(_.nonNull, msg)
+    override implicit def context: Context  = (if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) activity else getContext).ensuring(_.nonNull, msg)
   }
 
   trait Dialog extends AbsDialogFragment with Fragmt {
