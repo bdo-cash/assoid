@@ -27,6 +27,8 @@ android {
 }
 
 dependencies {
+    scalaCompilerPlugins rootProject.ext.depends.paradise
+
     api rootProject.ext.depends.annoguard
 //    api rootProject.ext.depends.annoid
     api project(':annoid')
@@ -39,15 +41,15 @@ dependencies {
     api rootProject.ext.depends.localbroadcastmgr
 
     api rootProject.ext.depends.okhttp
-    //api 'com.google.code.findbugs:jsr305:3.0.+'
+//    api 'com.google.code.findbugs:jsr305:3.0.+'
 
     // Scala 2
-    implementation "org.scala-lang:scala-library:$scala2.Version"
+    implementation rootProject.ext.depends.scala
 
     // TODO: 打算用 Slick for Sqlite 替换掉 Quill.
     api "com.typesafe.slick:slick_$scala2.Binary:[3.3.2,)"
     // slf4j-android（bitcoinj 需要）里含有 slf4j-nop 的所有 3 个 class（混淆时，由于重复报错）。
     //"org.slf4j" % "slf4j-nop" % "1.6.4",
     //"com.typesafe.slick" %% "slick-hikaricp" % "3.3.2",
-    api "org.sqldroid:sqldroid:[1.0.3,)"
+    api 'org.sqldroid:sqldroid:[1.0.3,)'
 }
