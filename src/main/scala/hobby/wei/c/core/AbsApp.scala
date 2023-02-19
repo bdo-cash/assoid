@@ -20,10 +20,9 @@ import android.app.{ActivityManager, Application}
 import android.content.Context
 import android.os.{Bundle, Handler, Looper, Process}
 import hobby.chenai.nakam.basis.TAG
-import hobby.chenai.nakam.lang.J2S.{NonNull, WrapIterator}
+import hobby.chenai.nakam.lang.J2S.NonNull
 import hobby.chenai.nakam.lang.TypeBring.AsIs
 import hobby.chenai.nakam.tool.cache.{Delegate, LazyGet, Memoize, Weakey}
-import hobby.wei.c
 import hobby.wei.c.LOG._
 import hobby.wei.c.core.EventHost.{EventReceiver, PeriodMode}
 import hobby.wei.c.used.UsedStorer
@@ -32,6 +31,7 @@ import java.util
 import java.util.concurrent.atomic.AtomicBoolean
 import scala.collection.concurrent.TrieMap
 import scala.collection.convert.ImplicitConversions.`iterable AsScalaIterable`
+import scala.compat.classTagDisableCache
 import scala.language.implicitConversions
 import scala.util.control.Breaks._
 
@@ -48,6 +48,10 @@ object AbsApp {
 abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.ClassName {
   outer =>
   CrashHandler.startCaughtAllException(false, true)
+  classTagDisableCache(disable = shouldDisableScalaClassTagCache)
+
+  protected def shouldDisableScalaClassTagCache = true
+
   AbsApp.sInstance = this
 
   private lazy val mForceExit                        = new AtomicBoolean(false)
@@ -156,7 +160,7 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
   /** 在完成第一次启动某模块的某些动作后，清除该标识。 */
   def doneFirstTimeLaunch(module: String, withVersion: Boolean = true) = UsedStorer.absApp.clearFirstLaunchFlag(withVer(module, withVersion))
 
-  private def withVer(module: String, ver: Boolean = true) = module + (if (ver) "_" + c.util.Manifest.getVersionName(this) else "")
+  private def withVer(module: String, ver: Boolean = true) = module + (if (ver) "_" + hobby.wei.c.util.Manifest.getVersionName(this) else "")
 
   def isExiting = mForceExit.get()
 
@@ -206,7 +210,7 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
   def getProcessName(pid: Int): Option[String] = {
     var name: Option[String] = None
     breakable {
-      for (info <- getSystemService(classOf[ActivityManager]).getRunningAppProcesses.iterator().toSeq if info.pid == pid) {
+      for (info <- getSystemService(classOf[ActivityManager]).getRunningAppProcesses if info.pid == pid) {
         w("[process]id: %s, name: %s.", info.pid, info.processName.s)
         name = Option(info.processName)
         break
