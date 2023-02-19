@@ -37,7 +37,7 @@ abstract class SampleActy extends AbsActy with %[AbsApp] with Ctx.Acty// with Ty
   override def onCreate(savedInstanceState: Bundle): Unit = {
     super.onCreate(savedInstanceState)
 
-    //TypedViewHolder.setContentView(this, TR.layout.sample)
-    //findView(TR.l).getLayoutParams
+//    TypedViewHolder.setContentView(this, TR.layout.sample)
+//    findView(TR.l).getLayoutParams
   }
 }

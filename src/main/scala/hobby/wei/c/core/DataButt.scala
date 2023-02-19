@@ -18,6 +18,7 @@ package hobby.wei.c.core
 
 import android.widget.{Adapter, AdapterView}
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.LayoutManager
 import hobby.wei.c.anno.inject.Injector
 import hobby.wei.c.data.adapter.{AbsListAdapter, AbsRecyclerAdapter}
 
@@ -29,7 +30,7 @@ import hobby.wei.c.data.adapter.{AbsListAdapter, AbsRecyclerAdapter}
   */
 object DataButt {
 
-  trait AdapterV[V <: AdapterView[_ >: AbsListAdapter[D] <: Adapter], D <: AnyRef, A <: AbsListAdapter[D]] extends Ctx.Abs {
+  trait AdapterV[V <: AdapterView[_ >: AbsListAdapter[D] <: Adapter], D <: AnyRef, A <: AbsListAdapter[D]] extends Ctx.AbsUi {
     final lazy val listView: V = onSetupListView()
 
     final lazy val listAdapter: A = {
@@ -45,7 +46,7 @@ object DataButt {
     protected def listViewId: Int = Injector.listViewID(context, getClass)
 
     protected def newAdapter(): A
-    protected def onSetupListView(): V // = activity.findViewById(listViewId).asInstanceOf[V]
+    protected def onSetupListView(): V = activity.findViewById(listViewId).asInstanceOf[V]
   }
 
   /**
@@ -87,7 +88,7 @@ object DataButt {
     * }
     * }}}
     */
-  trait RecyclerV[V <: RecyclerView, D <: AnyRef, A <: AbsRecyclerAdapter[_ <: RecyclerView.ViewHolder, D]] extends Ctx.Abs {
+  trait RecyclerV[V <: RecyclerView, D <: AnyRef, A <: AbsRecyclerAdapter[_ <: RecyclerView.ViewHolder, D]] extends Ctx.AbsUi {
     final lazy val recyclerView: V = onSetupRecyclerView()
 
     final lazy val vhAdapter: A = {
@@ -102,11 +103,12 @@ object DataButt {
     protected def listViewId: Int = Injector.listViewID(context, getClass)
 
     protected def newAdapter(): A
-    protected def onSetupRecyclerView(): V
-    /* = {
-          val v = activity.findViewById(listViewId).asInstanceOf[V]
-          v.setLayoutManager(new LinearLayoutManager(implicitly))
-          v
-        }*/
+
+    protected def onSetupRecyclerView(): V = {
+      val v = activity.findViewById(listViewId).asInstanceOf[V]
+      v.setLayoutManager(onSetupLayoutManager())
+      v
+    }
+    protected def onSetupLayoutManager[LM <: LayoutManager](): LM = ???
   }
 }

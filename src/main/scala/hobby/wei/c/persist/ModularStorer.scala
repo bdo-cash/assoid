@@ -112,7 +112,7 @@ object ModularStorer {
     val meta: Storer = getMeta(userId)
     val set: util.Set[String] = meta.getSharedPreferences.getStringSet(KEY_META, Collections.emptySet[String])
     var b: Boolean = false
-    import scala.collection.JavaConversions._
+    import scala.collection.convert.ImplicitConversions.`collection AsScalaIterable`
     set.toSeq.foreach { module =>
       if (meta.contains(module)) { // 是否有 clearable 标识，见上面的 meta.storeBoolean(module)。
         if (!b) b = true

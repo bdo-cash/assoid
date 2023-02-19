@@ -31,7 +31,9 @@ import hobby.chenai.nakam.lang.TypeBring.AsIs
   * @version 1.0, 17/11/2017
   */
 object Keyboard {
+
   trait Acty extends Ctx.Acty with Keyboard {
+
     override def setContentView(layoutResID: Int): Unit = {
       super.setContentView(layoutResID)
       initClickBlankAreaHandler(getWindow.getDecorView.as[ViewGroup].getChildAt(0))
@@ -49,6 +51,7 @@ object Keyboard {
   }
 
   trait Fragmt extends Ctx.Fragmt with Keyboard {
+
     override def onViewCreated(view: View, savedInstanceState: Bundle): Unit = {
       super.onViewCreated(view, savedInstanceState)
       initClickBlankAreaHandler(view)
@@ -59,17 +62,17 @@ object Keyboard {
 }
 
 trait Keyboard extends Ctx.AbsUi {
-  protected def getClickHideInputMethodViewIds: Array[Int] = null
+  protected def getClickHideInputMethodViewIds: Array[Int] = Array()
+  protected def getClickHideInputMethodViews: Array[View]  = Array()
 
   private[Keyboard] def initClickBlankAreaHandler(rootView: View): Unit = {
     rootView.setOnClickListener(mOnClickBlankAreaListener)
-    val ids = getClickHideInputMethodViewIds
-    if (ids != null) {
-      var view: View = null
-      for (id <- ids) {
-        view = rootView.findViewById(id)
-        if (view.nonNull) view.setOnClickListener(mOnClickBlankAreaListener)
-      }
+    for (id <- getClickHideInputMethodViewIds) {
+      val view: View = rootView.findViewById(id)
+      if (view.nonNull) view.setOnClickListener(mOnClickBlankAreaListener)
+    }
+    getClickHideInputMethodViews.foreach { view =>
+      if (view.nonNull) view.setOnClickListener(mOnClickBlankAreaListener)
     }
   }
 
