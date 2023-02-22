@@ -27,6 +27,8 @@ android {
 }
 
 dependencies {
+    scalaCompilerPlugins "org.scalamacros:paradise_$scala2.Version:[2.1.0,)"
+
     api project(':annoid')
 //    api project(path: ':annoid', configuration: 'releaseRuntimeElements')
     api 'com.github.bdo-cash:annoguard:v1.0.6'
