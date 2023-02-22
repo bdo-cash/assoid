@@ -112,7 +112,7 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
   private val mEventReceiver4Exit = new EventReceiver {
 
     override def onEvent(data: Bundle): Unit = {
-      e("Cross-process exit(), process: %s.", myProcessName)
+      e("[onEvent]Cross-process call `exit()` | process:%s", myProcessName)
       exit()
     }
   }
@@ -137,9 +137,9 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
   private def finishActivitiesInner(actyClasses: Class[_ <: AbsActy]*): Unit = {
     for (clazz <- actyClasses; ref <- mActivitieStack.toSeq) {
       Option(ref.get).foreach { acty =>
-        w("[finishActivitiesInner]acty: %s.", acty.getClass.getSimpleName.s)
+        w("[finishActivitiesInner]acty:%s", acty.getClass.getSimpleName.s)
         if (clazz.isAssignableFrom(acty.getClass) && acty.getClass.isAssignableFrom(clazz)) {
-          w("[finishActivitiesInner]finish: %s.", acty.getClass.getSimpleName.s)
+          w("[finishActivitiesInner]finish:%s", acty.getClass.getSimpleName.s)
           acty.finish()
         }
       }
@@ -197,12 +197,12 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
     if (hasNoMoreActivities && hasNoMoreServices) {
       if (shouldKill(myProcessName)) {
         onKill(myProcessName)
-        e("[doExit]--- @@@@ ---| App 退出 |---- [将]自动结束进程（设置项）----| process: %s.", myProcessName.orNull.s)
+        e("[doExit]--- @@@@ ---| App 退出 |---- [将]自动结束进程（设置项）----| process:%s", myProcessName.orNull.s)
         Process.killProcess(Process.myPid())
-        e("[doExit]--- @@@@ ---| App 退出 |---- 走不到这里来。")
+        e("[doExit]--- @@@@ ---| App 退出 |---- 走不到这里来")
       } else {
         mForceExit.set(false)
-        d("[doExit]--- @@@@ ---| App 退出 |---- [未]自动结束进程 ----| process: %s.", myProcessName.orNull.s)
+        d("[doExit]--- @@@@ ---| App 退出 |---- [未]自动结束进程 ----| process:%s", myProcessName.orNull.s)
       }
     }
   }
@@ -211,7 +211,7 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
     var name: Option[String] = None
     breakable {
       for (info <- getSystemService(classOf[ActivityManager]).getRunningAppProcesses if info.pid == pid) {
-        w("[process]id: %s, name: %s.", info.pid, info.processName.s)
+        w("[getProcessName]process > id:%s, name:%s", info.pid, info.processName.s)
         name = Option(info.processName)
         break
       }
@@ -258,7 +258,7 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
   private def hasNoMoreActivities: Boolean = {
     cleanCollOrDeleteActy(null)
     val b = mActivitieStack.isEmpty
-    i("[hasNoMoreActivities]noMore:%s.", b)
+    i("[hasNoMoreActivities]noMore:%s", b)
     b
   }
 
