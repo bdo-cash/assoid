@@ -108,10 +108,10 @@ trait IgnoreBatteryOptReq extends Ctx.Abs with TAG.ClassName {
   /**
     * 需要写个介绍页，然后再启动这个`Intent`以引导用户自行设置。
     * <p>
-    * 理论上启动一个[[ensureIgnoringBatteryOptimizations()]]就可以，但
+    * 理论上启动一个[[ensureIgnoringBatteryOptimizations]]就可以，但
     * 现实上我们发现定制的系统仍然不保险，所以最好再启动这个，引导用户自行设置。
     * <p>
-    * 注：这个`startActivityForResult()`没什么用。
+    * 注：这个用`startActivityForResult()`并没什么用，用`startActivity()`即可。
     */
   final def intentToSettings = new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
 
