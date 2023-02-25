@@ -11,7 +11,7 @@ ext.isReleaseVersion = !version.endsWith('SNAPSHOT')
 
 android {
     scalroid {
-//        scala.zincVersion.set('1.6.1')
+        scala.zincVersion.set('1.8.0')
 //        scalaCodeReferToKt = true
 //        ktCodeReferToScala = true
 //        javaDirsExcludes = ['/main/kotlin/', 'src/aaa/xxx']
