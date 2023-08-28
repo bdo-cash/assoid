@@ -48,7 +48,8 @@ object AbsApp {
 abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.ClassName {
   outer =>
   CrashHandler.startCaughtAllException(false, true)
-  classTagDisableCache(disable = shouldDisableScalaClassTagCache)
+  val (b, opt) = classTagDisableCache(disable = shouldDisableScalaClassTagCache)
+  ClassValue.isClassTagCacheDisable = opt.getOrElse(false) // 拿不到就值为 false 比较保险。
 
   protected def shouldDisableScalaClassTagCache = true
 

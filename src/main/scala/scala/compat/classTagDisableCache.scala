@@ -35,6 +35,7 @@ object classTagDisableCache extends ClassName {
 
   // The implementation of this method cannot have any implicit conversions, because
   // it is likely that the 'Class Tag' will be involved again, and it will die recursively.
+  /** @return `_1`表示是否设置成功；`_2`表示该设置变量被设置后的实际值。 */
   def apply(disable: Boolean = true): (Boolean, Option[Boolean]) = {
     val classTagClass = ClassTag.getClass // classOf[ClassTag[_]]
     /*val cacheDisabledMethods = classTagClass.getDeclaredMethods.filter { m =>
@@ -55,7 +56,11 @@ object classTagDisableCache extends ClassName {
       _.getType == classOf[Boolean]
     }
     `'cacheDisabled'fields`.foreach { f =>
-      LOG.e(s"%s | <'cacheDisabled' field> %s: %s = ?", classTagClass.getName.s, f.getName.s, f.getType.getName.s)
+      val cacheDisabled = f
+      val aces          = cacheDisabled.isAccessible
+      cacheDisabled.setAccessible(true)
+      LOG.w(s"%s | <'cacheDisabled' field> %s: %s = %s", classTagClass.getName.s, f.getName.s, f.getType.getName.s, Option(f.get(ClassTag)).map(_.toString.s).orNull)
+      cacheDisabled.setAccessible(aces)
     }
     if (`'cacheDisabled'fields`.length == 1) {
       val cacheDisabled = `'cacheDisabled'fields`.head
@@ -64,6 +69,10 @@ object classTagDisableCache extends ClassName {
       if (Modifier.isStatic(cacheDisabled.getModifiers))
         cacheDisabled.set(null, if (disable) java.lang.Boolean.TRUE else java.lang.Boolean.FALSE) // static
       else cacheDisabled.set(ClassTag, if (disable) java.lang.Boolean.TRUE else java.lang.Boolean.FALSE)
+
+      val f = cacheDisabled
+      LOG.i(s"%s | <'cacheDisabled' field> %s: %s = %s", classTagClass.getName.s, f.getName.s, f.getType.getName.s, Option(f.get(ClassTag)).map(_.toString.s).orNull)
+
       cacheDisabled.setAccessible(aces)
 
       //ClassValue.isClassTagCacheDisable = disable

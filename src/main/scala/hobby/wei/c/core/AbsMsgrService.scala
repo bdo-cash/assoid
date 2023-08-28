@@ -16,11 +16,10 @@
 
 package hobby.wei.c.core
 
-import android.content.Intent
+import android.content.{Context, Intent}
 import android.database.Observable
-import android.content.Context
 import android.os
-import android.os.{HandlerThread, Messenger, _}
+import android.os._
 import androidx.core.app.ServiceCompat
 import androidx.core.app.ServiceCompat.StopForegroundFlags
 import hobby.chenai.nakam.basis.TAG
@@ -29,6 +28,7 @@ import hobby.wei.c.LOG._
 import hobby.wei.c.core.AbsMsgrService._
 import hobby.wei.c.core.StartMe.MsgrSrvce.Const
 import hobby.wei.c.tool.RetryByHandler
+import hobby.wei.c.LOG
 import scala.collection.convert.ImplicitConversions.`collection AsScalaIterable`
 import scala.ref.WeakReference
 
@@ -38,8 +38,8 @@ import scala.ref.WeakReference
   */
 trait AbsMsgrService extends AbsSrvce with Const with Ctx.Srvce with RetryByHandler {
   @volatile private var mAllClientDisconnected = true
-  @volatile private var mStopRequested = false
-  private var mCallStartCount, mCallStopCount = 0
+  @volatile private var mStopRequested         = false
+  private var mCallStartCount, mCallStopCount  = 0
 
   /**
     * 子类重写本方法以处理`Client`端发过来的消息。
@@ -102,14 +102,15 @@ trait AbsMsgrService extends AbsSrvce with Const with Ctx.Srvce with RetryByHand
         if (hasClient) {
           mMsgObservable.sendMessage(msg)
           true
-        } else if (shouldFinish) true /*中断*/ else false
+        } else if (shouldFinish) true /*中断*/
+        else false
       }
     }.run$)
   }
 
   override implicit protected def delayerHandler: Handler = clientHandler
 
-  /** 在没有client bind的情况下，会停止Service，否则等待最后一个client取消bind的时候会自动断开。 **/
+  /** 在没有 client bind 的情况下，会停止 Service，否则等待最后一个 client 取消 bind 的时候会自动断开。 */
   def requestStopService(): Unit = {
     mStopRequested = true
     confirmIfSignify2Stop()
@@ -129,6 +130,7 @@ trait AbsMsgrService extends AbsSrvce with Const with Ctx.Srvce with RetryByHand
 
   /** 主要用于客户端消息的`接收`和`回复`。 */
   protected lazy val clientHandler: Handler = new Handler(mHandlerThread.getLooper) {
+
     override def handleMessage(msg: Message): Unit = {
       if (msg.what == MSG_REPLY_TO) {
         if (msg.replyTo.nonNull) {
@@ -168,9 +170,11 @@ trait AbsMsgrService extends AbsSrvce with Const with Ctx.Srvce with RetryByHand
   }
 
   override def onStartCommand(intent: Intent, flags: Int, startId: Int) = {
-    if (!confirmIfSignify2Stop(intent) // 注意这几个顺序所表达的优先级
+    if (
+      !confirmIfSignify2Stop(intent) // 注意这几个顺序所表达的优先级
       && !confirmIfSignify2ToggleForeground(intent)
-      && !confirmIfCommandConsumed(intent)) {
+      && !confirmIfCommandConsumed(intent)
+    ) {
       post {
         // 本服务就是要时刻保持连接畅通的
         onStartWork(mCallStartCount)
@@ -180,30 +184,32 @@ trait AbsMsgrService extends AbsSrvce with Const with Ctx.Srvce with RetryByHand
     super.onStartCommand(intent, flags, startId)
   }
 
-  private def confirmIfSignify2ToggleForeground(intent: Intent): Boolean = if (intent.nonNull) {
-    if (intent.getBooleanExtra(CMD_EXTRA_START_FOREGROUND, false)) {
-      onStartForeground()
-      true
-    } else if (intent.getBooleanExtra(CMD_EXTRA_STOP_FOREGROUND, false)) {
-      onStopForeground()
-      true
+  private def confirmIfSignify2ToggleForeground(intent: Intent): Boolean =
+    if (intent.nonNull) {
+      if (intent.getBooleanExtra(CMD_EXTRA_START_FOREGROUND, false)) {
+        onStartForeground()
+        true
+      } else if (intent.getBooleanExtra(CMD_EXTRA_STOP_FOREGROUND, false)) {
+        onStopForeground()
+        true
+      } else false
     } else false
-  } else false
 
   private def confirmIfSignify2Stop(): Boolean = confirmIfSignify2Stop(null)
 
   private def confirmIfSignify2Stop(intent: Intent): Boolean = {
     if (intent.nonNull) mStopRequested = intent.getBooleanExtra(CMD_EXTRA_STOP_SERVICE, false)
-    // 让请求跟client的msg等排队执行
+    // 让请求跟 client 的 msg 等排队执行
     if (!isDestroyed && mStopRequested) clientHandler.post(postStopSelf(0).run$)
     mStopRequested
   }
 
   private def postStopSelf(delay: Int): Unit = postDelayed(delay) {
     if (!isDestroyed && mStopRequested && mAllClientDisconnected) onStopWork(mCallStopCount) match {
-      case -1 => // 可能又重新bind()了
-        require(!mStopRequested || !mAllClientDisconnected, "根据当前状态应该关闭。您可以为`onCallStopWork()`返回`>0`的值以延迟该时间后再询问关闭。")
-      case 0 => stopSelf() //完全准备好了，该保存的都保存了，那就关闭吧。
+      case -1 => // 可能又重新`bind()`了
+        if (mStopRequested && mAllClientDisconnected)
+          LOG.w("根据当前状态应该关闭（您应该返回`0`）。或为`onStopWork(callCount)`返回`> 0`的值以延迟该时间后再次询问是否关闭。")
+      case 0    => stopSelf() //完全准备好了，该保存的都保存了，那就关闭吧。
       case time => postStopSelf(time)
     }
     mCallStopCount += 1
@@ -218,11 +224,13 @@ trait AbsMsgrService extends AbsSrvce with Const with Ctx.Srvce with RetryByHand
 }
 
 object AbsMsgrService {
+
   class MsgObservable extends Observable[MsgObserver] {
+
     def sendMessage(msg: Message): Unit = mObservers.synchronized {
       var i = mObservers.size() - 1
       while (i >= 0) {
-        //Message不可重复发送，见`msg.markInUse()`
+        // Message 不可重复发送，见`msg.markInUse()`
         mObservers.get(i).onMessage(Message.obtain(msg))
         i -= 1
       }
@@ -244,7 +252,8 @@ object AbsMsgrService {
       try {
         msgr.send(msg)
       } catch {
-        case ex: RemoteException => e(ex)
+        case ex: RemoteException =>
+          e(ex)
           if (!msgr.getBinder.pingBinder()) {
             e("server ping to-client binder failed.")
             getRef(obsRef).foreach(_.unregisterObserver(this))
