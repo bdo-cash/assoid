@@ -26,7 +26,7 @@ import scala.compat.classTagDisableCache;
 @Keep
 public abstract class ClassValue<T> {
     // TODO: 2023/2/19
-    public static boolean isClassTagCacheDisable = false;
+    public static boolean isClassTagCacheDisabled = false;
 
     protected ClassValue() {
     }
@@ -36,7 +36,7 @@ public abstract class ClassValue<T> {
     @Keep
     public T get(Class<?> type) {
         // TODO: 2023/2/19
-        if (isClassTagCacheDisable) return null;
+        if (isClassTagCacheDisabled) return null;
 
         // non-racing this.hashCodeForCache : final int
         Entry<?>[] cache;
@@ -59,7 +59,7 @@ public abstract class ClassValue<T> {
     @Keep
     public void remove(Class<?> type) {
         // TODO: 2023/2/19
-        if (isClassTagCacheDisable) return;
+        if (isClassTagCacheDisabled) return;
 
         ClassValueMap map = getMap(type);
         map.removeEntry(this);
@@ -68,7 +68,7 @@ public abstract class ClassValue<T> {
     // Possible functionality for JSR 292 MR 1
     /*public*/ void put(Class<?> type, T value) {
         // TODO: 2023/2/19
-        if (isClassTagCacheDisable) return;
+        if (isClassTagCacheDisabled) return;
 
         ClassValueMap map = getMap(type);
         map.changeEntry(this, value);
