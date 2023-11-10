@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'hobby.chenai.nakam'
-version = '1.2.0'
+version = '1.2.2'
 
 ext.isReleaseVersion = !version.endsWith('SNAPSHOT')
 
@@ -24,6 +24,11 @@ android {
         minSdk rootProject.ext.android.minSdk // 26
         targetSdk rootProject.ext.android.targetSdk // 33
     }
+    // TODO: Since this module has a compatible 'java.lang.ClassValue', it is not possible for higher versions.
+    /*compileOptions {
+        sourceCompatibility rootProject.ext.android.jdkVer
+        targetCompatibility rootProject.ext.android.jdkVer
+    }*/
 }
 
 dependencies {
