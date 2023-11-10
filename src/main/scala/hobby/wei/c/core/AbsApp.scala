@@ -18,7 +18,7 @@ package hobby.wei.c.core
 
 import android.app.{ActivityManager, Application}
 import android.content.Context
-import android.os.{Bundle, Handler, Looper, Process}
+import android.os.{Build, Bundle, Handler, Looper, Process}
 import hobby.chenai.nakam.basis.TAG
 import hobby.chenai.nakam.lang.J2S.NonNull
 import hobby.chenai.nakam.lang.TypeBring.AsIs
@@ -48,11 +48,13 @@ object AbsApp {
 abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.ClassName {
   outer =>
   CrashHandler.startCaughtAllException(false, true)
-  classTagDisableCache(disable = shouldDisableScalaClassTagCache)
 
-  protected def shouldDisableScalaClassTagCache = true
+  private val isAndroid14OrAbove = Build.VERSION.SDK_INT > Build.VERSION_CODES.TIRAMISU
+  private val (b, opt)           = classTagDisableCache(disable = shouldDisableScalaClassTagCache(isAndroid14OrAbove))
+  // API 34 中，android 系统中内置了`java.lang.ClassValue`，使用的也是内置的~，因此找不到`isClassTagCacheDisabled`。
+  if (!isAndroid14OrAbove) ClassValue.isClassTagCacheDisabled = opt.getOrElse(false) // 拿不到就值为 false 比较保险。
 
-  AbsApp.sInstance = this
+  protected def shouldDisableScalaClassTagCache(isAndroid14OrAbove: Boolean) = !isAndroid14OrAbove
 
   private lazy val mForceExit                        = new AtomicBoolean(false)
   private lazy val sEventHost_bundle_pid             = "pid"
@@ -83,6 +85,11 @@ abstract class AbsApp extends Application with EventHost with Ctx.Abs with TAG.C
   def getHandler(looper: Looper): Handler = sHandlerMem.get(looper).get
 
   implicit def context: Context = this
+
+  override def attachBaseContext(base: Context) = {
+    AbsApp.sInstance = this
+    super.attachBaseContext(base)
+  }
 
   override def onCreate(): Unit = {
     //registerActivityLifecycleCallbacks(mActivityLifecycleCallbacks) // 不太可控
